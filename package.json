@@ -1,0 +1,19 @@
+{
+  "name": "kisapankki-backend",
+  "version": "1.0.0",
+  "description": "Repository for scout competition task application's backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/partio-scout/kisapankki-backend.git"
+  },
+  "author": "Partioprojekti",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/partio-scout/kisapankki-backend/issues"
+  },
+  "homepage": "https://github.com/partio-scout/kisapankki-backend#readme"
+}
