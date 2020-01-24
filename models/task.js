@@ -30,13 +30,22 @@ const taskSchema = new mongoose.Schema({
         minlength: 5,
         required: true
     },
-    // ageGroup: ???,       // foreignKey AgeGroup
-    // category: ???,       // foreignKey Category
-    language: {
-        type: String,
-        required: true
+    ageGroup: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'AgeGroup'
     },
-    // rules: ???,          // foreignKey Rules
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category'
+    },
+    language: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Language'
+    },
+    rules: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Rules'
+    }
     // media: ???           // pointer/url/entity ??
 })
 
