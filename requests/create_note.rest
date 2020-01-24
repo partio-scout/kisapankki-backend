@@ -1,0 +1,6 @@
+post http://localhost:3001/api/competitions
+Content-Type: application/json
+
+{
+    "content": "Köyden veto"
+}
