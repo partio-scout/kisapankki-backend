@@ -1,11 +1,9 @@
-const express = require('express')
-const app = express()
+const app = require('./app')
+const http = require('http')
+const config = require('./utils/config')
 
-app.get('/', (req, res) => {
-    res.send('<h1>Hello PartioPeople!</h1>')
-  })
+const server = http.createServer(app)
 
-  const PORT = 3001
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
-  })
+server.listen(config.PORT, () =>{
+  console.log(`App running in port ${config.PORT}`)
+})
