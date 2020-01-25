@@ -5,6 +5,7 @@ const cors = require('cors')
 const userRouter = require('./controllers/userRouter')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
+const middleware = require('./utils/middleware')
 
 mongoose.set('useFindAndModify', false)
 
@@ -16,20 +17,24 @@ mongoose
     useNewUrlParser: true,
     useCreateIndex: true
   })
-  .then(()=>{
+  .then(() => {
     logger.info('Connection successful')
   })
-  .catch((error)=>{
+  .catch((error) => {
     logger.error('Error in connection to MongoDB:', error.message)
   })
 
 app.use(cors())
 app.use(bodyParser.json())
+app.use(middleware.requestLogger)
 
-app.use('api/user', userRouter)
+app.use('/api/signup', userRouter)
 
-app.get('/', (req,res) =>{
+app.get('/', (req, res) => {
   res.send('<h1>Hello world!</h1>')
 })
+
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
 module.exports = app
