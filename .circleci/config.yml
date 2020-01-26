@@ -8,7 +8,7 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/node:12.13
-        environment:
+        environment: 
           TEST_MONGODB_URI: $TEST_MONGODB_URI
 
       # Specify service dependencies here if necessary
