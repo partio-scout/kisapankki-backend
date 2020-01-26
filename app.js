@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const userRouter = require('./controllers/userRouter')
+const ruleRouter = require('./controllers/ruleRouter')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
@@ -29,6 +30,7 @@ app.use(bodyParser.json())
 app.use(middleware.requestLogger)
 
 app.use('/api/signup', userRouter)
+app.use('/api/rule', ruleRouter)
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello world!</h1>')
