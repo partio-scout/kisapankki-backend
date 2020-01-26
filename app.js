@@ -4,6 +4,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const userRouter = require('./controllers/userRouter')
 const ruleRouter = require('./controllers/ruleRouter')
+const languageRouter = require('./controllers/languageRouter')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
@@ -31,6 +32,7 @@ app.use(middleware.requestLogger)
 
 app.use('/api/signup', userRouter)
 app.use('/api/rule', ruleRouter)
+app.use('/api/language', languageRouter)
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello world!</h1>')
