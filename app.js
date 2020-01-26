@@ -26,7 +26,7 @@ mongoose
 app.use(cors())
 app.use(bodyParser.json())
 
-app.use('api/ageGroup', ageGroupRouter)
+app.use('/api/ageGroup', ageGroupRouter)
 
 app.get('/', (req,res) =>{
   res.send('<h1>Hello world!</h1>')
