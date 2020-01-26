@@ -2,7 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const userRouter = require('./controllers/userRouter')
+const ageGroupRouter = require('./controllers/ageGroupRouter')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
 
@@ -26,7 +26,7 @@ mongoose
 app.use(cors())
 app.use(bodyParser.json())
 
-app.use('api/user', userRouter)
+app.use('api/ageGroup', ageGroupRouter)
 
 app.get('/', (req,res) =>{
   res.send('<h1>Hello world!</h1>')

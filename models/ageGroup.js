@@ -17,6 +17,10 @@ const ageGroupSchema = new mongoose.Schema({
         type: String,
         minlength: 3,
         required: true
+    },
+    task: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Task'
     }
 })
 
