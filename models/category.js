@@ -10,7 +10,6 @@ const categorySchema = new mongoose.Schema({
         ref: 'Task'
       }
     
-
 })
 
 categorySchema.set('toJSON', {
