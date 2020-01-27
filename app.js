@@ -36,6 +36,8 @@ app.use('/api/rule', ruleRouter)
 app.use('/api/language', languageRouter)
 app.use('/api/ageGroup', ageGroupRouter)
 
+app.use(express.static('build'))
+
 app.get('/', (req, res) => {
   res.send('<h1>Hello world!</h1>')
 })
