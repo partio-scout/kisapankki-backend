@@ -5,10 +5,10 @@ const ruleSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  task: {
+  task: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Task'
-  }
+  }]
 })
 
 ruleSchema.set('toJSON', {
