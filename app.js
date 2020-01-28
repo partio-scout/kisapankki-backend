@@ -9,6 +9,7 @@ const ruleRouter = require('./controllers/ruleRouter')
 const languageRouter = require('./controllers/languageRouter')
 const loginRouter = require('./controllers/loginRouter')
 const categoryRouter = require('./controllers/categoryRouter')
+const taskRouter = require('./controllers/taskRouter')
 
 const config = require('./utils/config')
 const logger = require('./utils/logger')
@@ -41,6 +42,7 @@ app.use('/api/language', languageRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/ageGroup', ageGroupRouter)
 app.use('/api/category', categoryRouter)
+app.use('/api/task', taskRouter)
 
 app.use(express.static('build'))
 

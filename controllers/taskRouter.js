@@ -32,3 +32,5 @@ taskRouter.post('/', async (req, res, next) => {
         next(exception)
     }
 })
+
+module.exports = taskRouter
