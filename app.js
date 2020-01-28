@@ -2,11 +2,14 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+
 const ageGroupRouter = require('./controllers/ageGroupRouter')
 const userRouter = require('./controllers/userRouter')
 const ruleRouter = require('./controllers/ruleRouter')
 const languageRouter = require('./controllers/languageRouter')
 const loginRouter = require('./controllers/loginRouter')
+const categoryRouter = require('./controllers/categoryRouter')
+
 const config = require('./utils/config')
 const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
@@ -37,6 +40,7 @@ app.use('/api/rule', ruleRouter)
 app.use('/api/language', languageRouter)
 app.use('/api/login', loginRouter)
 app.use('/api/ageGroup', ageGroupRouter)
+app.use('/api/category', categoryRouter)
 
 app.use(express.static('build'))
 
