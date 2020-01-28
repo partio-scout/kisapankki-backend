@@ -13,12 +13,12 @@ const taskSchema = new mongoose.Schema({
     supervisorInstructions: {
         type: String,
         minlength: 5,
-        required: true
+        required: false
     },
     gradingScale: {
         type: String,
         minlength: 5,
-        required: true
+        required: false
     },
     creatorName: {
         type: String,
@@ -28,6 +28,10 @@ const taskSchema = new mongoose.Schema({
     creatorEmail: {
         type: String,
         minlength: 5,
+        required: true
+    },
+    pending: {
+        type: Boolean,
         required: true
     },
     ageGroup: {
@@ -44,7 +48,7 @@ const taskSchema = new mongoose.Schema({
     },
     rules: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Rules'
+        ref: 'Rule'
     }
     // media: ???           // pointer/url/entity ??
 })
