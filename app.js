@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const ageGroupRouter = require('./controllers/ageGroupRouter')
 const userRouter = require('./controllers/userRouter')
 const ruleRouter = require('./controllers/ruleRouter')
 const languageRouter = require('./controllers/languageRouter')
@@ -35,6 +36,9 @@ app.use('/api/signup', userRouter)
 app.use('/api/rule', ruleRouter)
 app.use('/api/language', languageRouter)
 app.use('/api/login', loginRouter)
+app.use('/api/ageGroup', ageGroupRouter)
+
+app.use(express.static('build'))
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello world!</h1>')
