@@ -5,10 +5,10 @@ const categorySchema = new mongoose.Schema({
         minlength: 3,
         required: true
     },
-    task: {
+    task: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Task'
-      }
+      }]
     
 })
 
