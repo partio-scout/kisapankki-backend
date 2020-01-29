@@ -26,11 +26,11 @@ taskRouter.get('/', async (req, res, next) => {
 
 taskRouter.post('/', async (req, res, next) => {
     const body = req.body
-    const pen = false
+    const pen = true
     const token = getTokenFrom(req)
     const decodedToken = jwt.verify(token, process.env.SECRET)
     if (token && decodedToken.id) {
-        pen = true
+        pen = false
     }
     const task = new Task({
         name: body.name,
