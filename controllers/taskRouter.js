@@ -14,7 +14,7 @@ const getTokenFrom = (req) => {
     return null
 }
 
-const updateAndSave = (taskId, target) => {
+const updateAndSave = async (taskId, target) => {
     if (target) {
         target.task = target.task.concat(taskId)
         await target.save()
