@@ -1,5 +1,9 @@
 const taskRouter = require('express').Router()
 const Task = require('../models/task')
+const Category = require('../models/category')
+const Language = require('../models/language')
+const AgeGroup = require('../models/ageGroup')
+const Rule = require('../models/rule')
 const jwt = require('jsonwebtoken')
 
 const getTokenFrom = (req) => {
@@ -8,6 +12,13 @@ const getTokenFrom = (req) => {
         return auth.substring(7)
     }
     return null
+}
+
+const updateAndSave = (taskId, target) => {
+    if (target) {
+        target.task = target.task.concat(taskId)
+        await target.save()
+    }
 }
 
 taskRouter.get('/', async (req, res, next) => {
@@ -32,21 +43,31 @@ taskRouter.post('/', async (req, res, next) => {
     if (token && decodedToken.id) {
         pen = false
     }
-    const task = new Task({
-        name: body.name,
-        assignmentText: body.assignmentText,
-        supervisorInstructions: body.supervisorInstructions,
-        gradingScale: body.gradingScale,
-        creatorName: body.creatorName,
-        creatorEmail: body.creatorEmail,
-        pending: pen,
-        ageGroup: body.ageGroup,
-        category: body.category,
-        language: body.language,
-        rules: body.rules
-    })
     try {
+        const cat = await Category.findById(body.ageGroup)
+        const lang = await Language.findById(body.language)
+        const rule = await Rule.findById(body.rules)
+        const ageG = await AgeGroup.findById(body.ageGroup)
+        const task = new Task({
+            name: body.name,
+            assignmentText: body.assignmentText,
+            supervisorInstructions: body.supervisorInstructions,
+            gradingScale: body.gradingScale,
+            creatorName: body.creatorName,
+            creatorEmail: body.creatorEmail,
+            pending: pen,
+            ageGroup: ageG.id,
+            category: cat.id,
+            language: lang.id,
+            rules: rule.id
+        })
+    
         const savedTask = await task.save()
+        updateAndSave(savedTask.id, cat)
+        updateAndSave(savedTask.id, lang)
+        updateAndSave(savedTask.id, rule)
+        updateAndSave(savedTask.id, ageG)
+
         res.json(savedTask.toJSON())
     } catch (exception) {
         next(exception)
