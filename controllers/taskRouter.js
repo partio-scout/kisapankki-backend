@@ -44,7 +44,7 @@ taskRouter.post('/', async (req, res, next) => {
         pen = false
     }
     try {
-        const cat = await Category.findById(body.ageGroup)
+        const cat = await Category.findById(body.category)
         const lang = await Language.findById(body.language)
         const rule = await Rule.findById(body.rules)
         const ageG = await AgeGroup.findById(body.ageGroup)
