@@ -4,6 +4,8 @@ const Category = require('../models/category')
 categoryRouter.get('/', async (req, res, next) => {
     try {
         const categories = await Category.find({})
+        .populate('task')
+        .exec()
         res.json(categories.map((category) => category.toJSON()))
     } catch (exception) {
         next(exception)

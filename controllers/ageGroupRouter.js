@@ -4,6 +4,8 @@ const AgeGroup = require('../models/ageGroup')
 ageGroupRouter.get('/', async (req, res, next) => {
     try {
         const ageGroups = await AgeGroup.find({})
+        .populate('task')
+        .exec()
         res.json(ageGroups.map((group) => group.toJSON()))
     } catch (exception) {
         next(exception)
