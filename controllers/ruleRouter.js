@@ -4,6 +4,8 @@ const Rule = require('../models/rule')
 ruleRouter.get('/', async (req, res, next) => {
   try {
     const rules = await Rule.find({})
+    .populate('task')
+    .exec()
     res.json(rules.map((rule) => rule.toJSON()))
   } catch (exception) {
     next(exception)
