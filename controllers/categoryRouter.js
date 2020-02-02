@@ -16,7 +16,7 @@ categoryRouter.post('/', async (req, res, next) => {
     const body = req.body
     const category = new Category({
         name: body.name,
-        task: null
+        task: []
     })
     try {
         const savedCategory = await category.save()

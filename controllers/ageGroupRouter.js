@@ -19,7 +19,7 @@ ageGroupRouter.post('/', async (req, res, next) => {
         maxAge: body.maxAge,
         minAge: body.minAge,
         color: body.color,
-        task: null
+        task: []
     })
     try {
         const savedAgeGroup = await group.save()
