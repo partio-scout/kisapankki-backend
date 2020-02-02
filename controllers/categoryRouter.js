@@ -15,7 +15,7 @@ categoryRouter.get('/', async (req, res, next) => {
 categoryRouter.post('/', async (req, res, next) => {
     const body = req.body
     const category = new Category({
-        name: body.name,
+        category: body.category,
         task: []
     })
     try {
