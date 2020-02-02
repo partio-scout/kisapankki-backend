@@ -24,11 +24,11 @@ const updateAndSave = async (taskId, target) => {
 taskRouter.get('/', async (req, res, next) => {
     try {
         const tasks = await Task.find({})
-        .populate('ageGroup')
-        .populate('category')
-        .populate('language')
-        .populate('rules')
-        .exec()
+            .populate('ageGroup')
+            .populate('category')
+            .populate('language')
+            .populate('rules')
+            .exec()
         res.json(tasks.map((task) => task.toJSON()))
     } catch (exception) {
         next(exception)
@@ -37,7 +37,7 @@ taskRouter.get('/', async (req, res, next) => {
 
 taskRouter.post('/', async (req, res, next) => {
     const body = req.body
-    const pen = true
+    let pen = true
     const token = getTokenFrom(req)
     const decodedToken = jwt.verify(token, process.env.SECRET)
     if (token && decodedToken.id) {
@@ -46,7 +46,7 @@ taskRouter.post('/', async (req, res, next) => {
     try {
         const cat = await Category.findById(body.category)
         const lang = await Language.findById(body.language)
-        const rule = await Rule.findById(body.rules)
+        const rule = await Rule.findById(body.rule)
         const ageG = await AgeGroup.findById(body.ageGroup)
         const task = new Task({
             name: body.name,
@@ -61,7 +61,7 @@ taskRouter.post('/', async (req, res, next) => {
             language: lang.id,
             rules: rule.id
         })
-    
+
         const savedTask = await task.save()
         updateAndSave(savedTask.id, cat)
         updateAndSave(savedTask.id, lang)
