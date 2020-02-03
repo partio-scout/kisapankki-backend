@@ -17,7 +17,7 @@ languageRouter.post('/', async (req, res, next) => {
 
   const language = new Language({
     language: body.language,
-    task: [],
+    task: []
   })
 
   try {

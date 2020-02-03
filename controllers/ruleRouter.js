@@ -17,7 +17,7 @@ ruleRouter.post('/', async (req, res, next) => {
 
   const rule = new Rule({
     rules: body.rules,
-    task: [],
+    task: []
   })
 
   try {
