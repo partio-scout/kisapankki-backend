@@ -21,4 +21,4 @@ languageSchema.set('toJSON', {
 
 const Language = mongoose.model('Language', languageSchema)
 
-module.exports = Language
+module.exports = mongoose.model('Language', languageSchema)
