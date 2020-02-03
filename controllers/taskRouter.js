@@ -44,10 +44,28 @@ taskRouter.post('/', async (req, res, next) => {
         pen = false
     }
     try {
-        const cat = await Category.findById(body.category)
-        const lang = await Language.findById(body.language)
-        const rule = await Rule.findById(body.rule)
-        const ageG = await AgeGroup.findById(body.ageGroup)
+        let cat = null
+        let lang = null
+        let rule = null
+        let ageG = null
+
+        if (body.category !== '') {
+            const foundCategory = await Category.findById(body.category)
+            cat = foundCategory.id
+        }
+        if (body.language !== '') {
+            const foundLanguage = await Language.findById(body.language)
+            lang = foundLanguage.id
+        }
+        if (body.rule !== '') {
+            const foundRule = await Rule.findById(body.rule)
+            rule = foundRule.id
+        }
+        if (body.ageGroup !== '') {
+            const foundAgeGroup = await AgeGroup.findById(body.ageGroup)
+            ageG = foundAgeGroup.id
+        }
+
         const task = new Task({
             name: body.name,
             assignmentText: body.assignmentText,
@@ -56,10 +74,10 @@ taskRouter.post('/', async (req, res, next) => {
             creatorName: body.creatorName,
             creatorEmail: body.creatorEmail,
             pending: pen,
-            ageGroup: ageG.id,
-            category: cat.id,
-            language: lang.id,
-            rules: rule.id
+            ageGroup: ageG,
+            category: cat,
+            language: lang,
+            rules: rule
         })
 
         const savedTask = await task.save()
