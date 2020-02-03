@@ -38,10 +38,12 @@ taskRouter.get('/', async (req, res, next) => {
 taskRouter.post('/', async (req, res, next) => {
     const body = req.body
     let pen = true
-    const token = getTokenFrom(req)
-    const decodedToken = jwt.verify(token, process.env.SECRET)
-    if (token && decodedToken.id) {
-        pen = false
+    if (req.get('authorization')) {
+        const token = getTokenFrom(req)
+        const decodedToken = jwt.verify(token, process.env.SECRET)
+        if (token && decodedToken.id) {
+            pen = false
+        }
     }
     try {
         let cat = null
