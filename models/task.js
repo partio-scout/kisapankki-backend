@@ -2,32 +2,30 @@ const mongoose = require('mongoose')
 const taskSchema = new mongoose.Schema({
     name: {
         type: String,
-        minlength: 3,
+        minlength: 1,
         required: true
     },
     assignmentText: {
         type: String,
-        minlength: 5,
+        minlength: 1,
         required: true
     },
     supervisorInstructions: {
         type: String,
-        minlength: 5,
         required: false
     },
     gradingScale: {
         type: String,
-        minlength: 5,
         required: false
     },
     creatorName: {
         type: String,
-        minlength: 3,
+        minlength: 1,
         required: true
     },
     creatorEmail: {
         type: String,
-        minlength: 5,
+        minlength: 1,
         required: true
     },
     pending: {
