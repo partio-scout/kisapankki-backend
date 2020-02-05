@@ -42,62 +42,6 @@ taskRouter.get('/', async (req, res, next) => {
   }
 })
 
-taskRouter.get('/:id', async (req, res, next) => {
-  const id = req.params.id
-  try {
-    const task = await Task.findById(id)
-    .populate('ageGroup')
-    .populate('category')
-    .populate('language')
-    .populate('rules')
-    .exec()
-    res.json(task.toJSON())
-  } catch (exception) {
-    next(exception)
-  }
-})
-
-taskRouter.post('/:id', async (req, res, next) => {
-  const id = req.params.id
-  const body = req.body
-  try {
-    const task = await Task.findById(id)
-    task.name = body.name
-    task.assignmentText = body.assignmentText
-    task.supervisorInstructions = body.supervisorInstructions
-    task.gradingScale = body.gradingScale
-    if (task.ageGroup != body.ageGroup) {
-      currentAG = await AgeGroup.findById(task.ageGroup)
-      newAG = await AgeGroup.findById(body.ageGroup)
-      updatePointerList(task.id, newAG)
-      removoFromPointerList(task.id, currentAG)
-    }
-    if (task.category != body.category) {
-      currentCat = await Category.findById(task.category)
-      newCat = await Category.findById(body.category)
-      updatePointerList(task.id, newCat)
-      removoFromPointerList(task.id, currentCat)
-    }
-    if (task.rules != body.rules) {
-      currentRule = await Rule.findById(task.rules)
-      newRule = await Rule.findById(body.rules)
-      updatePointerList(task.id, newRule)
-      removoFromPointerList(task.id, currentRule)
-    }
-    if (task.language != body.language) {
-      currentLang = await Language.findById(task.language)
-      newLang = await Language.findById(body.language)
-      updatePointerList(task.id, newLang)
-      removoFromPointerList(task.id, currentLang)
-    }
-
-    const updTask = await task.save()
-    res.json(updTask.toJSON())
-  } catch (exception) {
-    next(exception)
-  }
-})
-
 taskRouter.post('/', async (req, res, next) => {
   const body = req.body
   let pen = true
@@ -154,6 +98,81 @@ taskRouter.post('/', async (req, res, next) => {
     res.json(savedTask.toJSON())
   } catch (exception) {
     next(exception)
+  }
+})
+
+taskRouter.get('/:id', async (req, res, next) => {
+  const id = req.params.id
+  try {
+    const task = await Task.findById(id)
+      .populate('ageGroup')
+      .populate('category')
+      .populate('language')
+      .populate('rules')
+      .exec()
+    res.json(task.toJSON())
+  } catch (exception) {
+    next(exception)
+  }
+})
+
+taskRouter.post('/:id', async (req, res, next) => {
+  const id = req.params.id
+  const body = req.body
+  try {
+    const task = await Task.findById(id)
+    task.name = body.name
+    task.assignmentText = body.assignmentText
+    task.supervisorInstructions = body.supervisorInstructions
+    task.gradingScale = body.gradingScale
+    if (task.ageGroup != body.ageGroup) {
+      currentAG = await AgeGroup.findById(task.ageGroup)
+      newAG = await AgeGroup.findById(body.ageGroup)
+      updatePointerList(task.id, newAG)
+      removoFromPointerList(task.id, currentAG)
+    }
+    if (task.category != body.category) {
+      currentCat = await Category.findById(task.category)
+      newCat = await Category.findById(body.category)
+      updatePointerList(task.id, newCat)
+      removoFromPointerList(task.id, currentCat)
+    }
+    if (task.rules != body.rules) {
+      currentRule = await Rule.findById(task.rules)
+      newRule = await Rule.findById(body.rules)
+      updatePointerList(task.id, newRule)
+      removoFromPointerList(task.id, currentRule)
+    }
+    if (task.language != body.language) {
+      currentLang = await Language.findById(task.language)
+      newLang = await Language.findById(body.language)
+      updatePointerList(task.id, newLang)
+      removoFromPointerList(task.id, currentLang)
+    }
+
+    const updTask = await task.save()
+    res.json(updTask.toJSON())
+  } catch (exception) {
+    next(exception)
+  }
+})
+
+taskRouter.delete('/:id', async (req, res, next) => {
+  if (req.get('authorization')) {
+    const token = getTokenFrom(req)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    if (token && decodedToken.id) {
+      try {
+        const deleted = await Task.findByIdAndRemove(req.params.id)
+        res.status(204).end()
+      } catch (exception) {
+        next(exception)
+      }
+    } else {
+      res.status(401).end()
+    }
+  } else {
+    res.status(401).end()
   }
 })
 
