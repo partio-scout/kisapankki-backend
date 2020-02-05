@@ -60,19 +60,19 @@ taskRouter.post('/', async (req, res, next) => {
 
     if (body.category !== '') {
       const foundCategory = await Category.findById(body.category)
-      cat = foundCategory.id
+      cat = foundCategory
     }
     if (body.language !== '') {
       const foundLanguage = await Language.findById(body.language)
-      lang = foundLanguage.id
+      lang = foundLanguage
     }
     if (body.rule !== '') {
       const foundRule = await Rule.findById(body.rule)
-      rule = foundRule.id
+      rule = foundRule
     }
     if (body.ageGroup !== '') {
       const foundAgeGroup = await AgeGroup.findById(body.ageGroup)
-      ageG = foundAgeGroup.id
+      ageG = foundAgeGroup
     }
 
     const task = new Task({
@@ -83,10 +83,10 @@ taskRouter.post('/', async (req, res, next) => {
       creatorName: body.creatorName,
       creatorEmail: body.creatorEmail,
       pending: pen,
-      ageGroup: ageG,
-      category: cat,
-      language: lang,
-      rules: rule
+      ageGroup: ageG.id,
+      category: cat.id,
+      language: lang.id,
+      rules: rule.id
     })
 
     const savedTask = await task.save()
@@ -163,7 +163,16 @@ taskRouter.delete('/:id', async (req, res, next) => {
     const decodedToken = jwt.verify(token, process.env.SECRET)
     if (token && decodedToken.id) {
       try {
-        const deleted = await Task.findByIdAndRemove(req.params.id)
+        const task = await Task.findById(req.params.id)
+        const ageG = await AgeGroup.findById(task.ageGroup)
+        const cat = await Category.findById(task.category)
+        const rules = await Rule.findById(task.rules)
+        const lang = await Language.findById(task.language)
+        removoFromPointerList(task.id, ageG)
+        removoFromPointerList(task.id, cat)
+        removoFromPointerList(task.id, rules)
+        removoFromPointerList(task.id, lang)
+        await Task.findByIdAndRemove(req.params.id)
         res.status(204).end()
       } catch (exception) {
         next(exception)
