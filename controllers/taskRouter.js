@@ -185,4 +185,18 @@ taskRouter.delete('/:id', async (req, res, next) => {
   }
 })
 
+taskRouter.get('/search/pending', async (req, res, next) => {
+  try {
+    const pendingTasks = await Task.find({ pending: true })
+      .populate('ageGroup')
+      .populate('category')
+      .populate('language')
+      .populate('rules')
+      .exec()
+    res.json(pendingTasks.map((task) => task.toJSON()))
+  } catch (exception) {
+    next(exception)
+  }
+})
+
 module.exports = taskRouter
