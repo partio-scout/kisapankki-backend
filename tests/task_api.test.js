@@ -113,7 +113,7 @@ describe('Tasks', () => {
       ageGroup: savedAG.id,
       category: savedC.id,
       language: savedL.id,
-      rules: savedR.id
+      rule: savedR.id
     }
 
     await api
