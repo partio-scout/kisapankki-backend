@@ -102,15 +102,18 @@ taskRouter.post('/', async (req, res, next) => {
 })
 
 taskRouter.get('/:id', async (req, res, next) => {
-  const id = req.params.id
   try {
-    const task = await Task.findById(id)
+    const task = await Task.findById(req.params.id)
       .populate('ageGroup')
       .populate('category')
       .populate('language')
       .populate('rules')
       .exec()
-    res.json(task.toJSON())
+    if (task) {
+      res.json(task.toJSON())
+    } else {
+      res.status(404).end()
+    }
   } catch (exception) {
     next(exception)
   }
@@ -158,30 +161,24 @@ taskRouter.post('/:id', async (req, res, next) => {
 })
 
 taskRouter.delete('/:id', async (req, res, next) => {
-  if (req.get('authorization')) {
-    const token = getTokenFrom(req)
-    const decodedToken = jwt.verify(token, process.env.SECRET)
-    if (token && decodedToken.id) {
-      try {
-        const task = await Task.findById(req.params.id)
-        const ageG = await AgeGroup.findById(task.ageGroup)
-        const cat = await Category.findById(task.category)
-        const rules = await Rule.findById(task.rules)
-        const lang = await Language.findById(task.language)
-        removoFromPointerList(task.id, ageG)
-        removoFromPointerList(task.id, cat)
-        removoFromPointerList(task.id, rules)
-        removoFromPointerList(task.id, lang)
-        await Task.findByIdAndRemove(req.params.id)
-        res.status(204).end()
-      } catch (exception) {
-        next(exception)
-      }
+  try {
+    const task = await Task.findById(req.params.id)
+    if (task) {
+      const ageG = await AgeGroup.findById(task.ageGroup)
+      const cat = await Category.findById(task.category)
+      const rules = await Rule.findById(task.rules)
+      const lang = await Language.findById(task.language)
+      removoFromPointerList(task.id, ageG)
+      removoFromPointerList(task.id, cat)
+      removoFromPointerList(task.id, rules)
+      removoFromPointerList(task.id, lang)
+      await Task.findByIdAndRemove(req.params.id)
+      res.status(204).end()
     } else {
-      res.status(401).end()
+      res.status(404).end()
     }
-  } else {
-    res.status(401).end()
+  } catch (exception) {
+    next(exception)
   }
 })
 

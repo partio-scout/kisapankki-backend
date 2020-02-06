@@ -129,6 +129,83 @@ describe('Tasks', () => {
     expect(result.body[0].name).toBe('router test')
     expect(result.body[0].ageGroup.color).toBe('testC')
   })
+
+  test('can be deleted', async () => {
+    const newTask = new Task({
+      name: 'deleted test',
+      assignmentText: 'test the deletion of tasks',
+      supervisorInstructions: 'check that the tests pass',
+      gradingScale: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true,
+      ageGroup: null,
+      rules: null,
+      category: null,
+      language: null
+    })
+    const savedTask = await newTask.save()
+
+    const res1 = await api
+      .get('/api/task')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(res1.body[0].name).toBe('deleted test')
+    expect(res1.body.length).toBe(1)
+
+    await api
+      .delete(`/api/task/${savedTask.id}`)
+      .expect(204)
+
+    const res2 = await api
+      .get('/api/task')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(res2.body.length).toBe(0)
+  })
+
+  test('can be fetched with id', async () => {
+    const firstTask = new Task({
+      name: 'first task',
+      assignmentText: 'test the single search of tasks',
+      supervisorInstructions: 'check that the tests pass',
+      gradingScale: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true,
+      ageGroup: null,
+      rules: null,
+      category: null,
+      language: null
+    })
+    const secondTask = new Task({
+      name: 'second task',
+      assignmentText: 'test the single search of tasks',
+      supervisorInstructions: 'check that the tests pass',
+      gradingScale: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true,
+      ageGroup: null,
+      rules: null,
+      category: null,
+      language: null
+    })
+    const first = await firstTask.save()
+    const second = await secondTask.save()
+
+    const allTasks = await api
+      .get('/api/task')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(allTasks.body.length).toBe(2)
+
+    const singleTask = await api
+      .get(`/api/task/${second.id}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(singleTask.body.name).toBe('second task')
+  })
 })
 
 afterAll(() => {
