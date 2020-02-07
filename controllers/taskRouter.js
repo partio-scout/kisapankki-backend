@@ -30,13 +30,27 @@ const removoFromPointerList = async (taskId, target) => {
 
 taskRouter.get('/', async (req, res, next) => {
   try {
-    const tasks = await Task.find({})
+    const tasks = await Task.find({ pending: false })
       .populate('ageGroup')
       .populate('category')
       .populate('language')
       .populate('rules')
       .exec()
     res.json(tasks.map((task) => task.toJSON()))
+  } catch (exception) {
+    next(exception)
+  }
+})
+
+taskRouter.get('/pending', async (req, res, next) => {
+  try {
+    const pendingTasks = await Task.find({ pending: true })
+      .populate('ageGroup')
+      .populate('category')
+      .populate('language')
+      .populate('rules')
+      .exec()
+    res.json(pendingTasks.map((task) => task.toJSON()))
   } catch (exception) {
     next(exception)
   }
@@ -182,15 +196,12 @@ taskRouter.delete('/:id', async (req, res, next) => {
   }
 })
 
-taskRouter.get('/search/pending', async (req, res, next) => {
+taskRouter.post('/:id/accept', async (req, res, next) => {
   try {
-    const pendingTasks = await Task.find({ pending: true })
-      .populate('ageGroup')
-      .populate('category')
-      .populate('language')
-      .populate('rules')
-      .exec()
-    res.json(pendingTasks.map((task) => task.toJSON()))
+    const task = await Task.findById(req.params.id)
+    task.pending = false
+    const updTask = await task.save()
+    res.json(updTask.toJSON())
   } catch (exception) {
     next(exception)
   }

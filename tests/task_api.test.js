@@ -25,7 +25,7 @@ describe('Tasks', () => {
       gradingScale: '5 or 0',
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
-      pending: true
+      pending: false
     })
     await newTask.save()
     const result = await api
@@ -33,7 +33,7 @@ describe('Tasks', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(result.body[0].name).toBe('test-task')
-    expect(result.body[0].pending).toBe(true)
+    expect(result.body[0].pending).toBe(false)
   })
 
   test('can be linked to language, age grp, category and rules', async () => {
@@ -65,7 +65,7 @@ describe('Tasks', () => {
       gradingScale: '5 or 0',
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
-      pending: true,
+      pending: false,
       ageGroup: savedAG.id,
       category: savedC.id,
       language: savedL.id,
@@ -123,7 +123,7 @@ describe('Tasks', () => {
       .expect('Content-Type', /application\/json/)
 
     const result = await api
-      .get('/api/task')
+      .get('/api/task/pending')
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(result.body[0].name).toBe('router test')
@@ -147,7 +147,7 @@ describe('Tasks', () => {
     const savedTask = await newTask.save()
 
     const res1 = await api
-      .get('/api/task')
+      .get('/api/task/pending')
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(res1.body[0].name).toBe('deleted test')
@@ -158,7 +158,7 @@ describe('Tasks', () => {
       .expect(204)
 
     const res2 = await api
-      .get('/api/task')
+      .get('/api/task/pending')
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(res2.body.length).toBe(0)
@@ -172,7 +172,7 @@ describe('Tasks', () => {
       gradingScale: '5 or 0',
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
-      pending: true,
+      pending: false,
       ageGroup: null,
       rules: null,
       category: null,
@@ -185,7 +185,7 @@ describe('Tasks', () => {
       gradingScale: '5 or 0',
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
-      pending: true,
+      pending: false,
       ageGroup: null,
       rules: null,
       category: null,
@@ -199,12 +199,55 @@ describe('Tasks', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(allTasks.body.length).toBe(2)
-
     const singleTask = await api
       .get(`/api/task/${second.id}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(singleTask.body.name).toBe('second task')
+  })
+
+  test('can be searched by pending status', async () => {
+    const firstTask = new Task({
+      name: 'first task',
+      assignmentText: 'test the task fetching with pending',
+      supervisorInstructions: 'check that the tests pass',
+      gradingScale: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: false
+    })
+    const secondTask = new Task({
+      name: 'second task',
+      assignmentText: 'test the task fetching with pending',
+      supervisorInstructions: 'check that the tests pass',
+      gradingScale: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true
+    })
+    const thirdTask = new Task({
+      name: 'third task',
+      assignmentText: 'test the task fetching with pending',
+      supervisorInstructions: 'check that the tests pass',
+      gradingScale: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: false
+    })
+    await firstTask.save()
+    await secondTask.save()
+    await thirdTask.save()
+    const acceptedTasks = await api
+      .get('/api/task')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(acceptedTasks.body.length).toBe(2)
+    const pendingTasks = await api
+      .get('/api/task/pending')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(pendingTasks.body.length).toBe(1)
+    expect(pendingTasks.body[0].name).toBe('second task')
   })
 })
 
