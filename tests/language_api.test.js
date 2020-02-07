@@ -10,15 +10,15 @@ beforeEach(async () => {
 })
 
 describe('Languages', () => {
-  test('are found', async () => {
+  test('can be fetched', async () => {
     const finnish = new Language({
       language: 'Suomi',
-      task: null,
+      task: [],
     })
 
     const swedish = new Language({
       language: 'Svenska',
-      task: null,
+      task: [],
     })
 
     await finnish.save()
@@ -31,6 +31,25 @@ describe('Languages', () => {
 
     expect(result.body[0].language).toBe('Suomi')
     expect(result.body[1].language).toBe('Svenska')
+  })
+
+  test('can be added', async () => {
+    await Language.deleteMany({})
+
+    const language = {
+      language: 'Siansaksa',
+      task: []
+    }
+
+    await api
+      .post('/api/language')
+      .send(language)
+      .expect(200)
+      .expect('Content-type', /application\/json/)
+
+    const languages = await Language.find({})
+
+    expect(languages[0].language).toBe('Siansaksa')
   })
 })
 

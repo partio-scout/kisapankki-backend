@@ -10,15 +10,15 @@ beforeEach(async () => {
 })
 
 describe('Rules', () => {
-  test('are found', async () => {
+  test('can be fetched', async () => {
     const ruleOne = new Rule({
       rules: 'jokamies',
-      task:null,
+      task: [],
     })
 
     const ruleTwo = new Rule({
       rules: 'SM-kisat',
-      task:null,
+      task: [],
     })
 
     await ruleOne.save()
@@ -31,6 +31,25 @@ describe('Rules', () => {
 
     expect(result.body[0].rules).toBe('jokamies')
     expect(result.body[1].rules).toBe('SM-kisat')
+  })
+
+  test('can be added', async () => {
+    await Rule.deleteMany({})
+
+    const rule = {
+      rules: 'Viralliset',
+      task: []
+    }
+
+    await api
+      .post('/api/rule')
+      .send(rule)
+      .expect(200)
+      .expect('Content-type', /application\/json/)
+
+    const rules = await Rule.find({})
+
+    expect(rules[0].rules).toBe('Viralliset')
   })
 })
 
