@@ -58,7 +58,7 @@ taskRouter.get('/pending', async (req, res, next) => {
       } catch (exception) {
         next(exception)
       }
-    } esle {
+    } else {
       res.status(401).end()
     }
   } else {
@@ -157,29 +157,35 @@ taskRouter.post('/:id', async (req, res, next) => {
         task.assignmentText = body.assignmentText
         task.supervisorInstructions = body.supervisorInstructions
         task.gradingScale = body.gradingScale
+        task.creatorName = body.creatorName
+        task.creatorEmail = body.creatorEmail
         if (task.ageGroup != body.ageGroup) {
           currentAG = await AgeGroup.findById(task.ageGroup)
           newAG = await AgeGroup.findById(body.ageGroup)
           updatePointerList(task.id, newAG)
           removoFromPointerList(task.id, currentAG)
+          task.ageGroup = body.ageGroup
         }
         if (task.category != body.category) {
           currentCat = await Category.findById(task.category)
           newCat = await Category.findById(body.category)
           updatePointerList(task.id, newCat)
           removoFromPointerList(task.id, currentCat)
+          task.category = body.category
         }
         if (task.rules != body.rules) {
           currentRule = await Rule.findById(task.rules)
           newRule = await Rule.findById(body.rules)
           updatePointerList(task.id, newRule)
           removoFromPointerList(task.id, currentRule)
+          task.rules = body.rules
         }
         if (task.language != body.language) {
           currentLang = await Language.findById(task.language)
           newLang = await Language.findById(body.language)
           updatePointerList(task.id, newLang)
           removoFromPointerList(task.id, currentLang)
+          task.language = body.language
         }
 
         const updTask = await task.save()

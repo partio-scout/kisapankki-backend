@@ -6,18 +6,42 @@ const Category = require('../models/category')
 const AgeGroup = require('../models/ageGroup')
 const Language = require('../models/language')
 const Rule = require('../models/rule')
+const User = require('../models/user')
 const api = supertest(app)
 
-beforeEach(async () => {
-  await Task.deleteMany({})
-  await Category.deleteMany({})
-  await AgeGroup.deleteMany({})
-  await Language.deleteMany({})
-  await Rule.deleteMany({})
-  
-})
-
 describe('Tasks', () => {
+
+  var token = null
+
+  beforeAll(async () => {
+    const newAdmin = {
+      name: 'testAdminN',
+      username: 'testAdminUN',
+      password: 'testAdminPW',
+      adminKey: process.env.ADMIN_KEY
+    }
+    await api
+      .post('/api/signup/adminkey')
+      .send(newAdmin)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const loggedInAdmin = await api
+      .post('/api/login')
+      .send(newAdmin)
+      .expect(200)
+    token = loggedInAdmin.body.token
+  })
+
+  beforeEach(async () => {
+    await Task.deleteMany({})
+    await Category.deleteMany({})
+    await AgeGroup.deleteMany({})
+    await Language.deleteMany({})
+    await Rule.deleteMany({})
+
+  })
+
   test('can be added without pointers to language, age grp, category or rules', async () => {
     const newTask = new Task({
       name: 'test-task',
@@ -120,11 +144,13 @@ describe('Tasks', () => {
     await api
       .post('/api/task')
       .send(newTask)
+      .set('authorization', 'bearer ' + token)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
     const result = await api
-      .get('/api/task/pending')
+      .get('/api/task')
+      .set('authorization', 'bearer ' + token)
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(result.body[0].name).toBe('router test')
@@ -149,6 +175,7 @@ describe('Tasks', () => {
 
     const res1 = await api
       .get('/api/task/pending')
+      .set('authorization', 'bearer ' + token)
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(res1.body[0].name).toBe('deleted test')
@@ -156,10 +183,12 @@ describe('Tasks', () => {
 
     await api
       .delete(`/api/task/${savedTask.id}`)
+      .set('authorization', 'bearer ' + token)
       .expect(204)
 
     const res2 = await api
       .get('/api/task/pending')
+      .set('authorization', 'bearer ' + token)
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(res2.body.length).toBe(0)
@@ -245,14 +274,75 @@ describe('Tasks', () => {
     expect(acceptedTasks.body.length).toBe(2)
     const pendingTasks = await api
       .get('/api/task/pending')
+      .set('authorization', 'bearer ' + token)
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(pendingTasks.body.length).toBe(1)
     expect(pendingTasks.body[0].name).toBe('second task')
   })
+
+  test('can be modified', async () => {
+    const cat = new Category({
+      category: 'cat1'
+    })
+    const cat2 = new Category({
+      category: 'cat2'
+    })
+    const rules = new Rule({
+      rules: 'rule1'
+    })
+    const lang = new Language({
+      language: 'lang1'
+    })
+    const ageG = new AgeGroup({
+      name: 'AG1',
+      maxAge: 2,
+      minAge: 1,
+      color: 'color1'
+    })
+    const savedC = await cat.save()
+    const savedC2 = await cat2.save()
+    const savedR = await rules.save()
+    const savedL = await lang.save()
+    const savedAG = await ageG.save()
+
+    const newTask = new Task({
+      name: 'modifying test',
+      assignmentText: 'test the modification of task',
+      supervisorInstructions: 'check that the tests pass',
+      gradingScale: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      ageGroup: savedAG.id,
+      category: savedC.id,
+      language: savedL.id,
+      rules: savedR.id,
+      pending: false
+    })
+
+    let modiTask = await newTask.save()
+    modiTask.name = 'modified task name'
+    modiTask.category = savedC2.id
+
+    await api
+      .post(`/api/task/${modiTask.id}`)
+      .send(modiTask)
+      .set('authorization', 'bearer ' + token)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    const updTask = await api
+      .get(`/api/task/${modiTask.id}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(updTask.body.name).toBe('modified task name')
+    expect(updTask.body.category.category).toBe('cat2')
+  })
+  
 })
 
-afterAll(() => {
+afterAll(async () => {
+  await User.deleteMany({})
   mongoose.connection.close()
 })
 
