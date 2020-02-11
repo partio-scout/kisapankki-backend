@@ -173,12 +173,12 @@ taskRouter.post('/:id', async (req, res, next) => {
           removoFromPointerList(task.id, currentCat)
           task.category = body.category
         }
-        if (task.rules != body.rules) {
+        if (task.rules != body.rule) {
           currentRule = await Rule.findById(task.rules)
-          newRule = await Rule.findById(body.rules)
+          newRule = await Rule.findById(body.rule)
           updatePointerList(task.id, newRule)
           removoFromPointerList(task.id, currentRule)
-          task.rules = body.rules
+          task.rules = body.rule
         }
         if (task.language != body.language) {
           currentLang = await Language.findById(task.language)
