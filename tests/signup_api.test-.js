@@ -27,7 +27,7 @@ describe('Users', () => {
     await userTwo.save()
 
     const result = await api
-      .get('/api/signup')
+      .get('/api/user')
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
@@ -45,7 +45,7 @@ describe('Users', () => {
     }
 
     await api
-      .post('/api/signup')
+      .post('/api/user')
       .send(user)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -73,7 +73,7 @@ describe('Users', () => {
     await user.save()
 
     await api
-      .post('/api/signup')
+      .post('/api/user')
       .send(newUser)
       .expect(400)
 

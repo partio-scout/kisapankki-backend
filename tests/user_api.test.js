@@ -12,7 +12,6 @@ beforeAll(async () => {
   await User.deleteMany({})
 
   const saltRounds = 10
-
   password = await bcrypt.hash('testWord', saltRounds)
 
   const userOne = new User({
@@ -73,13 +72,13 @@ describe('User', () => {
   test('is edited', async () => {
     const result = await api
       .put('/api/user')
-      .send({ name: 'test3Edited', username: 'userThreeEdited', password: 'newPassword' })
+      .send({ name: 'editedName', username: 'editedUsername', password: 'newPassword' })
       .set('authorization', 'bearer ' + token)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.name).toBe('test3Edited')
-    expect(result.body.username).toBe('userThreeEdited')
+    expect(result.body.name).toBe('editedName')
+    expect(result.body.username).toBe('editedUsername')
   })
 
   test('is not edited if username already exists', async () => {
