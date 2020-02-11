@@ -36,7 +36,7 @@ app.use(cors())
 app.use(bodyParser.json())
 app.use(middleware.requestLogger)
 
-app.use('/api/signup', userRouter)
+app.use('/api/user', userRouter)
 app.use('/api/rule', ruleRouter)
 app.use('/api/language', languageRouter)
 app.use('/api/login', loginRouter)
