@@ -338,7 +338,37 @@ describe('Tasks', () => {
     expect(updTask.body.name).toBe('modified task name')
     expect(updTask.body.category.category).toBe('cat2')
   })
-  
+
+  test('pending status can be changed from pending to accepted', async () => {
+    const task = new Task({
+      name: 'pending to accepted test',
+      assignmentText: 'test the accepting of task',
+      supervisorInstructions: 'check that the tests pass',
+      gradingScale: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true
+    })
+    const pendingTask = await task.save()
+    const emptyAcceptedList = await api
+      .get('/api/task')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(emptyAcceptedList.body.length).toBe(0)
+
+    await api
+      .post(`/api/task/${pendingTask.id}/accept`)
+      .set('authorization', 'bearer ' + token)
+      .expect(200)
+
+    const acceptedList = await api
+      .get('/api/task')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(acceptedList.body.length).toBe(1)
+    expect(acceptedList.body[0].name).toBe('pending to accepted test')
+  })
+
 })
 
 afterAll(async () => {
