@@ -143,7 +143,7 @@ taskRouter.get('/:id', async (req, res, next) => {
   }
 })
 
-taskRouter.post('/:id', async (req, res, next) => {
+taskRouter.put('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
     const decodedToken = jwt.verify(token, process.env.SECRET)
@@ -233,7 +233,7 @@ taskRouter.delete('/:id', async (req, res, next) => {
   }
 })
 
-taskRouter.post('/:id/accept', async (req, res, next) => {
+taskRouter.put('/:id/accept', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
     const decodedToken = jwt.verify(token, process.env.SECRET)
