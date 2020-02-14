@@ -9,25 +9,44 @@ beforeEach(async () => {
 })
 
 describe('Categories', () => {
-    test('can be added and fetched', async () => {
+    test('can be fetched', async () => {
         const first = new Category({
             category: 'Ensiapu',
-            task: null
+            task: []
         })
         const second = new Category({
             category: 'Partiotaidot',
-            task: null
+            task: []
         })
 
         await first.save()
         await second.save()
 
         const result = await api
-        .get('/api/category')
-        .expect(200)
-        .expect('Content-Type', /application\/json/)
+            .get('/api/category')
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
         expect(result.body[0].category).toBe('Ensiapu')
         expect(result.body[1].category).toBe('Partiotaidot')
+    })
+
+    test('can be added', async () => {
+        await Category.deleteMany({})
+
+        const category = {
+            category: 'Kädentaidot',
+            task: []
+        }
+
+        await api
+            .post('/api/category')
+            .send(category)
+            .expect(200)
+            .expect('Content-type', /application\/json/)
+
+        const categories = await Category.find({})
+
+        expect(categories[0].category).toBe('Kädentaidot')
     })
 })
 
