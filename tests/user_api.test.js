@@ -90,6 +90,6 @@ describe('User', () => {
   })
 })
 
-afterAll(() => {
+afterAll( async () => {
   mongoose.connection.close()
 })

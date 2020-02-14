@@ -21,7 +21,7 @@ describe('Tasks', () => {
       adminKey: process.env.ADMIN_KEY
     }
     await api
-      .post('/api/signup/adminkey')
+      .post('/api/user/adminkey')
       .send(newAdmin)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -105,6 +105,7 @@ describe('Tasks', () => {
     expect(result.body[0].name).toBe('test')
     expect(result.body[0].ageGroup.name).toBe('testAG')
     expect(result.body[0].category.category).toBe('testC')
+    console.log(result.body[0].ageGroup)
   })
 
   test('can be added through taskRouter', async () => {

@@ -31,10 +31,10 @@ const removoFromPointerList = async (taskId, target) => {
 taskRouter.get('/', async (req, res, next) => {
   try {
     const tasks = await Task.find({ pending: false })
-      .populate('ageGroup')
-      .populate('category')
-      .populate('language')
-      .populate('rules')
+      .populate('ageGroup', 'name maxAge minAge color')
+      .populate('category', 'category')
+      .populate('language', 'language')
+      .populate('rules', 'rules')
       .exec()
     res.json(tasks.map((task) => task.toJSON()))
   } catch (exception) {
@@ -49,10 +49,10 @@ taskRouter.get('/pending', async (req, res, next) => {
     if (token && decodedToken.id) {
       try {
         const pendingTasks = await Task.find({ pending: true })
-          .populate('ageGroup')
-          .populate('category')
-          .populate('language')
-          .populate('rules')
+          .populate('ageGroup', 'name maxAge minAge color')
+          .populate('category', 'category')
+          .populate('language', 'language')
+          .populate('rules', 'rules')
           .exec()
         res.json(pendingTasks.map((task) => task.toJSON()))
       } catch (exception) {
@@ -128,10 +128,10 @@ taskRouter.post('/', async (req, res, next) => {
 taskRouter.get('/:id', async (req, res, next) => {
   try {
     const task = await Task.findById(req.params.id)
-      .populate('ageGroup')
-      .populate('category')
-      .populate('language')
-      .populate('rules')
+      .populate('ageGroup', 'name maxAge minAge color')
+      .populate('category', 'category')
+      .populate('language', 'language')
+      .populate('rules', 'rules')
       .exec()
     if (task) {
       res.json(task.toJSON())
