@@ -6,16 +6,16 @@ const User = require('../models/user')
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
   if (auth && auth.toLowerCase().startsWith('bearer ')) {
-      return auth.substring(7)
+    return auth.substring(7)
   }
   return null
 }
 
-userRouter.get('/', async (req, res, next)=>{
+userRouter.get('/', async (req, res, next) => {
   try {
     const users = await User.find({})
-    res.json(users.map((user)=> user.toJSON()))
-  } catch(exception){
+    res.json(users.map((user) => user.toJSON()))
+  } catch (exception) {
     next(exception)
   }
 })
@@ -46,7 +46,26 @@ userRouter.post('/', async (req, res, next) => {
     const savedUser = await user.save()
     res.json(savedUser.toJSON())
   } catch (exception) {
-     next(exception)
+    next(exception)
+  }
+})
+
+userRouter.post('/adminkey', async (req, res, next) => {
+  const body = req.body
+  if (body.adminKey == process.env.ADMIN_KEY) {
+    const saltRounds = 10
+    const password = await bcrypt.hash(body.password, saltRounds)
+    const user = new User({
+      username: body.username,
+      name: body.name,
+      password
+    })
+    try {
+      const savedUser = await user.save()
+      res.json(savedUser.toJSON())
+    } catch (exception) {
+      next(exception)
+    }
   }
 })
 
