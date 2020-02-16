@@ -46,6 +46,10 @@ app.use('/api/task', taskRouter)
 
 app.use(express.static('build'))
 
+app.get('*', (req, res) => {
+  res.sendfile('./build/index.html');
+})
+
 app.get('/', (req, res) => {
   res.send('<h1>Hello world!</h1>')
 })
