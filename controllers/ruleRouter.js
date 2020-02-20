@@ -16,7 +16,7 @@ ruleRouter.post('/', async (req, res, next) => {
   const body = req.body
 
   const rule = new Rule({
-    rules: body.rules,
+    name: body.rules,
     task: []
   })
 

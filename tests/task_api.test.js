@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const app = require('../app')
 const Task = require('../models/task')
 const Category = require('../models/category')
-const AgeGroup = require('../models/ageGroup')
+const Series = require('../models/series')
 const Language = require('../models/language')
 const Rule = require('../models/rule')
 const User = require('../models/user')
@@ -36,7 +36,7 @@ describe('Tasks', () => {
   beforeEach(async () => {
     await Task.deleteMany({})
     await Category.deleteMany({})
-    await AgeGroup.deleteMany({})
+    await Series.deleteMany({})
     await Language.deleteMany({})
     await Rule.deleteMany({})
 
@@ -63,16 +63,16 @@ describe('Tasks', () => {
 
   test('can be linked to language, age grp, category and rules', async () => {
     const cat = new Category({
-      category: 'testC'
+      name: 'testC'
     })
     const rules = new Rule({
-      rules: 'testR'
+      name: 'testR'
     })
     const lang = new Language({
-      language: 'testL'
+      name: 'testL'
     })
-    const ageG = new AgeGroup({
-      name: 'testAG',
+    const series = new Series({
+      name: 'testS',
       maxAge: 2,
       minAge: 1,
       color: 'testC'
@@ -81,7 +81,7 @@ describe('Tasks', () => {
     const savedC = await cat.save()
     const savedR = await rules.save()
     const savedL = await lang.save()
-    const savedAG = await ageG.save()
+    const savedS = await series.save()
 
     const newTask = new Task({
       name: 'test',
@@ -91,7 +91,7 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
-      ageGroup: savedAG.id,
+      series: [savedS.id],
       category: savedC.id,
       language: savedL.id,
       rules: savedR.id
@@ -103,31 +103,30 @@ describe('Tasks', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(result.body[0].name).toBe('test')
-    expect(result.body[0].ageGroup.name).toBe('testAG')
-    expect(result.body[0].category.category).toBe('testC')
-    console.log(result.body[0].ageGroup)
+    expect(result.body[0].series[0].name).toBe('testS')
+    expect(result.body[0].category.name).toBe('testC')
   })
 
   test('can be added through taskRouter', async () => {
     const cat = new Category({
-      category: 'testC'
+      name: 'testC'
     })
     const rules = new Rule({
-      rules: 'testR'
+      name: 'testR'
     })
     const lang = new Language({
-      language: 'testL'
+      name: 'testL'
     })
-    const ageG = new AgeGroup({
-      name: 'testAG',
+    const series = new Series({
+      name: 'testS',
       maxAge: 2,
       minAge: 1,
-      color: 'testC'
+      color: 'testColor'
     })
     const savedC = await cat.save()
     const savedR = await rules.save()
     const savedL = await lang.save()
-    const savedAG = await ageG.save()
+    const savedS = await series.save()
 
     newTask = {
       name: 'router test',
@@ -136,7 +135,7 @@ describe('Tasks', () => {
       gradingScale: '5 or 0',
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
-      ageGroup: savedAG.id,
+      series: [savedS.id],
       category: savedC.id,
       language: savedL.id,
       rule: savedR.id
@@ -155,7 +154,7 @@ describe('Tasks', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(result.body[0].name).toBe('router test')
-    expect(result.body[0].ageGroup.color).toBe('testC')
+    expect(result.body[0].series[0].color).toBe('testColor')
   })
 
   test('can be deleted', async () => {
@@ -167,7 +166,7 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: true,
-      ageGroup: null,
+      series: null,
       rules: null,
       category: null,
       language: null
@@ -204,7 +203,7 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
-      ageGroup: null,
+      series: null,
       rules: null,
       category: null,
       language: null
@@ -217,7 +216,7 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
-      ageGroup: null,
+      series: null,
       rules: null,
       category: null,
       language: null
@@ -284,19 +283,19 @@ describe('Tasks', () => {
 
   test('can be modified', async () => {
     const cat = new Category({
-      category: 'cat1'
+      name: 'cat1'
     })
     const cat2 = new Category({
-      category: 'cat2'
+      name: 'cat2'
     })
     const rules = new Rule({
-      rules: 'rule1'
+      name: 'rule1'
     })
     const lang = new Language({
-      language: 'lang1'
+      name: 'lang1'
     })
-    const ageG = new AgeGroup({
-      name: 'AG1',
+    const series = new Series({
+      name: 'ser1',
       maxAge: 2,
       minAge: 1,
       color: 'color1'
@@ -305,7 +304,7 @@ describe('Tasks', () => {
     const savedC2 = await cat2.save()
     const savedR = await rules.save()
     const savedL = await lang.save()
-    const savedAG = await ageG.save()
+    const savedS = await series.save()
 
     const newTask = new Task({
       name: 'modifying test',
@@ -314,7 +313,7 @@ describe('Tasks', () => {
       gradingScale: '5 or 0',
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
-      ageGroup: savedAG.id,
+      series: savedS.id,
       category: savedC.id,
       language: savedL.id,
       rules: savedR.id,
@@ -337,7 +336,7 @@ describe('Tasks', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(updTask.body.name).toBe('modified task name')
-    expect(updTask.body.category.category).toBe('cat2')
+    expect(updTask.body.category.name).toBe('cat2')
   })
 
   test('pending status can be changed from pending to accepted', async () => {

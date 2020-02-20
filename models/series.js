@@ -1,16 +1,8 @@
 const mongoose = require('mongoose')
-const ageGroupSchema = new mongoose.Schema({
+const seriesSchema = new mongoose.Schema({
     name: {
         type: String,
         minlength: 3,
-        required: true
-    },
-    maxAge: {
-        type: Number,
-        required: true
-    },
-    minAge: {
-        type: Number,
         required: true
     },
     color: {
@@ -24,7 +16,7 @@ const ageGroupSchema = new mongoose.Schema({
     }]
 })
 
-ageGroupSchema.set('toJSON', {
+seriesSchema.set('toJSON', {
     transform: (document, retObj) => {
         retObj.id =  retObj._id.toString()
         delete retObj._id
@@ -32,4 +24,4 @@ ageGroupSchema.set('toJSON', {
     }
 })
 
-module.exports = mongoose.model('AgeGroup', ageGroupSchema)
+module.exports = mongoose.model('Series', seriesSchema)

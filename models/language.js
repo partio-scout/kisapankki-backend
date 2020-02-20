@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const languageSchema = new mongoose.Schema({
-  language: {
+  name: {
     type: String,
     required: true,
   },
@@ -18,7 +18,5 @@ languageSchema.set('toJSON', {
       delete returnedObject._v
   }
 })
-
-const Language = mongoose.model('Language', languageSchema)
 
 module.exports = mongoose.model('Language', languageSchema)

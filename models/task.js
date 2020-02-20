@@ -32,10 +32,10 @@ const taskSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
-    ageGroup: {
+    series: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'AgeGroup'
-    },
+        ref: 'Series'
+    }],
     category: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Category'
