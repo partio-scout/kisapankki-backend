@@ -254,4 +254,14 @@ taskRouter.put('/:id/accept', async (req, res, next) => {
   }
 })
 
+taskRouter.post('/search', async (req, res, next) => {
+  const search = req.body.search
+  try {
+    const searchResult = await Task.find({ $or: [{ "name": { $regex: search, $options: 'i' } }, { "assignmentText": { $regex: search, $options: 'i' } }] })
+    res.json(searchResult.map(result => result.toJSON()))
+  } catch (exception) {
+    next(exception)
+  }
+})
+
 module.exports = taskRouter
