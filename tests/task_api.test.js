@@ -370,6 +370,54 @@ describe('Tasks', () => {
     expect(acceptedList.body[0].name).toBe('pending to accepted test')
   })
 
+  test('can be found by name', async () => {
+    const task = new Task({
+      name: 'searching for accepted test',
+      assignmentText: 'test the searching of task',
+      supervisorInstructions: 'check that the tests pass',
+      gradingScale: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: false
+    })
+    await task.save()
+
+    const body = {
+      search: 'accepted'
+    }
+
+    const searchResult = await api
+      .post('/api/task/search')
+      .send(body)
+      .expect(200)
+
+    expect(searchResult.body[0].name).toBe('searching for accepted test')
+  })
+
+  test('can be found by assignment text', async () => {
+    const task = new Task({
+      name: 'searching for accepted test',
+      assignmentText: 'test the searching of task',
+      supervisorInstructions: 'check that the tests pass',
+      gradingScale: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: false
+    })
+    await task.save()
+
+    const body = {
+      search: 'searching of task'
+    }
+
+    const searchResult = await api
+      .post('/api/task/search')
+      .send(body)
+      .expect(200)
+
+    expect(searchResult.body[0].name).toBe('searching for accepted test')
+  })
+
 })
 
 afterAll(async () => {
