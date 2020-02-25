@@ -101,7 +101,7 @@ taskRouter.post('/', async (req, res, next) => {
       }
     }
     if (body.series !== []) {
-      const foundSeries = await Series.find({_id: {$in: body.series }})
+      const foundSeries = await Series.find({ _id: { $in: body.series } })
       if (foundSeries) {
         series = foundSeries
       }
@@ -125,7 +125,7 @@ taskRouter.post('/', async (req, res, next) => {
     updatePointerList(savedTask.id, cat)
     updatePointerList(savedTask.id, lang)
     updatePointerList(savedTask.id, rule)
-    series.forEach(function(s) {
+    series.forEach(function (s) {
       updatePointerList(savedTask.id, s)
     })
 
@@ -169,12 +169,12 @@ taskRouter.put('/:id', async (req, res, next) => {
         task.creatorName = body.creatorName
         task.creatorEmail = body.creatorEmail
         if (task.series.toString() !== body.series.toString()) {
-          currentSer = await Series.find({_id: {$in: task.series }})
-          newSer = await Series.find({_id: {$in: task.series }})
-          newSer.forEach(function(s) {
+          currentSer = await Series.find({ _id: { $in: task.series } })
+          newSer = await Series.find({ _id: { $in: task.series } })
+          newSer.forEach(function (s) {
             updatePointerList(task.id, s)
           })
-          currentSer.forEach(function(s) {
+          currentSer.forEach(function (s) {
             removeFromPointerList(task.id, s)
           })
           task.series = body.series
@@ -222,11 +222,11 @@ taskRouter.delete('/:id', async (req, res, next) => {
       try {
         const task = await Task.findById(req.params.id)
         if (task) {
-          const series = await Series.find({_id: {$in: task.series }})
+          const series = await Series.find({ _id: { $in: task.series } })
           const cat = await Category.findById(task.category)
           const rules = await Rule.findById(task.rules)
           const lang = await Language.findById(task.language)
-          series.forEach(function(s) {
+          series.forEach(function (s) {
             updatePointerList(task.id, s)
           })
           removeFromPointerList(task.id, cat)
@@ -273,6 +273,11 @@ taskRouter.post('/search', async (req, res, next) => {
   const search = req.body.search
   try {
     const searchResult = await Task.find({ $or: [{ "name": { $regex: search, $options: 'i' } }, { "assignmentText": { $regex: search, $options: 'i' } }] })
+      .populate('series', 'name color')
+      .populate('category', 'name')
+      .populate('language', 'name')
+      .populate('rules', 'name')
+      .exec()
     res.json(searchResult.map(result => result.toJSON()))
   } catch (exception) {
     next(exception)
