@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const categorySchema = new mongoose.Schema({
-    category: {
+    name: {
         type: String,
         minlength: 3,
         required: true

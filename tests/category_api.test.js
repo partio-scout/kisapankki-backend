@@ -11,11 +11,11 @@ beforeEach(async () => {
 describe('Categories', () => {
     test('can be fetched', async () => {
         const first = new Category({
-            category: 'Ensiapu',
+            name: 'Ensiapu',
             task: []
         })
         const second = new Category({
-            category: 'Partiotaidot',
+            name: 'Partiotaidot',
             task: []
         })
 
@@ -26,27 +26,22 @@ describe('Categories', () => {
             .get('/api/category')
             .expect(200)
             .expect('Content-Type', /application\/json/)
-        expect(result.body[0].category).toBe('Ensiapu')
-        expect(result.body[1].category).toBe('Partiotaidot')
+        expect(result.body[0].name).toBe('Ensiapu')
+        expect(result.body[1].name).toBe('Partiotaidot')
     })
 
     test('can be added', async () => {
         await Category.deleteMany({})
 
-        const category = {
-            category: 'Kädentaidot',
-            task: []
-        }
-
         await api
             .post('/api/category')
-            .send(category)
+            .send({ category: 'Kädentaidot' })
             .expect(200)
             .expect('Content-type', /application\/json/)
 
         const categories = await Category.find({})
 
-        expect(categories[0].category).toBe('Kädentaidot')
+        expect(categories[0].name).toBe('Kädentaidot')
     })
 })
 

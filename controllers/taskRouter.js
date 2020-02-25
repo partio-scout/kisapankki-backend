@@ -2,7 +2,7 @@ const taskRouter = require('express').Router()
 const Task = require('../models/task')
 const Category = require('../models/category')
 const Language = require('../models/language')
-const AgeGroup = require('../models/ageGroup')
+const Series = require('../models/series')
 const Rule = require('../models/rule')
 const jwt = require('jsonwebtoken')
 
@@ -21,7 +21,7 @@ const updatePointerList = async (taskId, target) => {
   }
 }
 
-const removoFromPointerList = async (taskId, target) => {
+const removeFromPointerList = async (taskId, target) => {
   if (target) {
     target.task = target.task.filter((id) => id != taskId)
     await target.save()
@@ -31,10 +31,10 @@ const removoFromPointerList = async (taskId, target) => {
 taskRouter.get('/', async (req, res, next) => {
   try {
     const tasks = await Task.find({ pending: false })
-      .populate('ageGroup', 'name maxAge minAge color')
-      .populate('category', 'category')
-      .populate('language', 'language')
-      .populate('rules', 'rules')
+      .populate('series', 'name color')
+      .populate('category', 'name')
+      .populate('language', 'name')
+      .populate('rules', 'name')
       .exec()
     res.json(tasks.map((task) => task.toJSON()))
   } catch (exception) {
@@ -49,10 +49,10 @@ taskRouter.get('/pending', async (req, res, next) => {
     if (token && decodedToken.id) {
       try {
         const pendingTasks = await Task.find({ pending: true })
-          .populate('ageGroup', 'name maxAge minAge color')
-          .populate('category', 'category')
-          .populate('language', 'language')
-          .populate('rules', 'rules')
+          .populate('series', 'name color')
+          .populate('category', 'name')
+          .populate('language', 'name')
+          .populate('rules', 'name')
           .exec()
         res.json(pendingTasks.map((task) => task.toJSON()))
       } catch (exception) {
@@ -80,23 +80,31 @@ taskRouter.post('/', async (req, res, next) => {
     let cat = null
     let lang = null
     let rule = null
-    let ageG = null
+    let series = null
 
     if (body.category !== '') {
       const foundCategory = await Category.findById(body.category)
-      cat = foundCategory
+      if (foundCategory) {
+        cat = foundCategory
+      }
     }
     if (body.language !== '') {
       const foundLanguage = await Language.findById(body.language)
-      lang = foundLanguage
+      if (foundLanguage) {
+        lang = foundLanguage
+      }
     }
     if (body.rule !== '') {
       const foundRule = await Rule.findById(body.rule)
-      rule = foundRule
+      if (foundRule) {
+        rule = foundRule
+      }
     }
-    if (body.ageGroup !== '') {
-      const foundAgeGroup = await AgeGroup.findById(body.ageGroup)
-      ageG = foundAgeGroup
+    if (body.series !== []) {
+      const foundSeries = await Series.find({_id: {$in: body.series }})
+      if (foundSeries) {
+        series = foundSeries
+      }
     }
 
     const task = new Task({
@@ -107,7 +115,7 @@ taskRouter.post('/', async (req, res, next) => {
       creatorName: body.creatorName,
       creatorEmail: body.creatorEmail,
       pending: pen,
-      ageGroup: ageG.id,
+      series: series.map(s => s.id),
       category: cat.id,
       language: lang.id,
       rules: rule.id
@@ -117,7 +125,9 @@ taskRouter.post('/', async (req, res, next) => {
     updatePointerList(savedTask.id, cat)
     updatePointerList(savedTask.id, lang)
     updatePointerList(savedTask.id, rule)
-    updatePointerList(savedTask.id, ageG)
+    series.forEach(function(s) {
+      updatePointerList(savedTask.id, s)
+    })
 
     res.json(savedTask.toJSON())
   } catch (exception) {
@@ -128,10 +138,10 @@ taskRouter.post('/', async (req, res, next) => {
 taskRouter.get('/:id', async (req, res, next) => {
   try {
     const task = await Task.findById(req.params.id)
-      .populate('ageGroup', 'name maxAge minAge color')
-      .populate('category', 'category')
-      .populate('language', 'language')
-      .populate('rules', 'rules')
+      .populate('series', 'name color')
+      .populate('category', 'name')
+      .populate('language', 'name')
+      .populate('rules', 'name')
       .exec()
     if (task) {
       res.json(task.toJSON())
@@ -148,7 +158,6 @@ taskRouter.put('/:id', async (req, res, next) => {
     const token = getTokenFrom(req)
     const decodedToken = jwt.verify(token, process.env.SECRET)
     if (token && decodedToken.id) {
-
       const id = req.params.id
       const body = req.body
       try {
@@ -159,32 +168,36 @@ taskRouter.put('/:id', async (req, res, next) => {
         task.gradingScale = body.gradingScale
         task.creatorName = body.creatorName
         task.creatorEmail = body.creatorEmail
-        if (task.ageGroup != body.ageGroup) {
-          currentAG = await AgeGroup.findById(task.ageGroup)
-          newAG = await AgeGroup.findById(body.ageGroup)
-          updatePointerList(task.id, newAG)
-          removoFromPointerList(task.id, currentAG)
-          task.ageGroup = body.ageGroup
+        if (task.series.toString() !== body.series.toString()) {
+          currentSer = await Series.find({_id: {$in: task.series }})
+          newSer = await Series.find({_id: {$in: task.series }})
+          newSer.forEach(function(s) {
+            updatePointerList(task.id, s)
+          })
+          currentSer.forEach(function(s) {
+            removeFromPointerList(task.id, s)
+          })
+          task.series = body.series
         }
-        if (task.category != body.category) {
+        if (task.category !== body.category) {
           currentCat = await Category.findById(task.category)
           newCat = await Category.findById(body.category)
           updatePointerList(task.id, newCat)
-          removoFromPointerList(task.id, currentCat)
+          removeFromPointerList(task.id, currentCat)
           task.category = body.category
         }
-        if (task.rules != body.rule) {
+        if (task.rules !== body.rule) {
           currentRule = await Rule.findById(task.rules)
           newRule = await Rule.findById(body.rule)
           updatePointerList(task.id, newRule)
-          removoFromPointerList(task.id, currentRule)
+          removeFromPointerList(task.id, currentRule)
           task.rules = body.rule
         }
-        if (task.language != body.language) {
+        if (task.language !== body.language) {
           currentLang = await Language.findById(task.language)
           newLang = await Language.findById(body.language)
           updatePointerList(task.id, newLang)
-          removoFromPointerList(task.id, currentLang)
+          removeFromPointerList(task.id, currentLang)
           task.language = body.language
         }
 
@@ -209,14 +222,16 @@ taskRouter.delete('/:id', async (req, res, next) => {
       try {
         const task = await Task.findById(req.params.id)
         if (task) {
-          const ageG = await AgeGroup.findById(task.ageGroup)
+          const series = await Series.find({_id: {$in: task.series }})
           const cat = await Category.findById(task.category)
           const rules = await Rule.findById(task.rules)
           const lang = await Language.findById(task.language)
-          removoFromPointerList(task.id, ageG)
-          removoFromPointerList(task.id, cat)
-          removoFromPointerList(task.id, rules)
-          removoFromPointerList(task.id, lang)
+          series.forEach(function(s) {
+            updatePointerList(task.id, s)
+          })
+          removeFromPointerList(task.id, cat)
+          removeFromPointerList(task.id, rules)
+          removeFromPointerList(task.id, lang)
           await Task.findByIdAndRemove(req.params.id)
           res.status(204).end()
         } else {
