@@ -12,15 +12,11 @@ describe('Series', () => {
     test('can be fetched', async () => {
         const first = new Series({
             name: 'sudari',
-            maxAge: 10,
-            minAge: 7,
             color: 'keltainen',
             task: []
         })
         const second = new Series({
             name: 'seikkailija',
-            maxAge: 13,
-            minAge: 10,
             color: 'oranssi',
             task: []
         })
@@ -29,7 +25,7 @@ describe('Series', () => {
         await second.save()
 
         const result = await api
-            .get('/api/Series')
+            .get('/api/series')
             .expect(200)
             .expect('Content-Type', /application\/json/)
         expect(result.body[0].name).toBe('sudari')
@@ -41,8 +37,6 @@ describe('Series', () => {
 
         const group = new Series({
             name: 'Sudenpentu',
-            maxAge: 15,
-            minAge: 10,
             color: 'sininen',
             task: []
         })

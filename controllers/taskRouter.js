@@ -138,7 +138,7 @@ taskRouter.post('/', async (req, res, next) => {
 taskRouter.get('/:id', async (req, res, next) => {
   try {
     const task = await Task.findById(req.params.id)
-      .populate('series', 'name maxAge minAge color')
+      .populate('series', 'name color')
       .populate('category', 'name')
       .populate('language', 'name')
       .populate('rules', 'name')
