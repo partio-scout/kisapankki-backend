@@ -278,7 +278,8 @@ taskRouter.post('/search', async (req, res, next) => {
       .populate('language', 'name')
       .populate('rules', 'name')
       .exec()
-    res.json(searchResult.map(result => result.toJSON()))
+    const matching = searchResult.map(result => result.toJSON())
+    res.json(matching.filter(task => task.pending == false))
   } catch (exception) {
     next(exception)
   }
