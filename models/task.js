@@ -10,13 +10,26 @@ const taskSchema = new mongoose.Schema({
         minlength: 1,
         required: true
     },
+    assignmentTextMD: {
+      type: String,
+      minlength: 1,
+      required: true
+    },
     supervisorInstructions: {
         type: String,
         required: false
     },
+    supervisorInstructionsMD: {
+      type: String,
+      required: false
+    },
     gradingScale: {
         type: String,
         required: false
+    },
+    gradingScaleMD: {
+      type: String,
+      required:false
     },
     creatorName: {
         type: String,

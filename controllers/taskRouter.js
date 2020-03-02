@@ -110,8 +110,11 @@ taskRouter.post('/', async (req, res, next) => {
     const task = new Task({
       name: body.name,
       assignmentText: body.assignmentText,
+      assignmentTextMD: body.assignmentTextMD,
       supervisorInstructions: body.supervisorInstructions,
+      supervisorInstructionsMD: body.supervisorInstructionsMD,
       gradingScale: body.gradingScale,
+      gradingScaleMD: body.gradingScaleMD,
       creatorName: body.creatorName,
       creatorEmail: body.creatorEmail,
       pending: pen,
@@ -164,8 +167,11 @@ taskRouter.put('/:id', async (req, res, next) => {
         const task = await Task.findById(id)
         task.name = body.name
         task.assignmentText = body.assignmentText
+        task.assignmentTextMD = body.assignmentTextMD
         task.supervisorInstructions = body.supervisorInstructions
+        task.supervisorInstructionsMD = body.supervisorInstructionsMD
         task.gradingScale = body.gradingScale
+        task.gradingScaleMD = body.gradingScaleMD
         task.creatorName = body.creatorName
         task.creatorEmail = body.creatorEmail
         if (task.series.toString() !== body.series.toString()) {
