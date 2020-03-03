@@ -17,14 +17,14 @@ const getTokenFrom = (req) => {
 const updatePointerList = async (taskId, target) => {
   if (target) {
     target.task = target.task.concat(taskId)
-    await target.save()
+    await target.update({new:true})
   }
 }
 
 const removeFromPointerList = async (taskId, target) => {
   if (target) {
     target.task = target.task.filter((id) => id != taskId)
-    await target.save()
+    await target.update({new:true})
   }
 }
 
@@ -186,6 +186,9 @@ taskRouter.put('/:id', async (req, res, next) => {
           task.series = body.series
         }
         if (task.category !== body.category) {
+          console.log('HELLO !!!!')
+          console.log(task.category)
+          console.log(body.category)
           currentCat = await Category.findById(task.category)
           newCat = await Category.findById(body.category)
           updatePointerList(task.id, newCat)
