@@ -14,13 +14,13 @@ describe('Users', () => {
     const userOne = new User({
       name: 'test1',
       username: 'userOne',
-      password: 'testWord'
+      password: 'testWord',
     })
 
     const userTwo = new User({
       name: 'test2',
       username: 'userTwo',
-      password: 'testWord'
+      password: 'testWord',
     })
 
     await userOne.save()
@@ -41,7 +41,7 @@ describe('Users', () => {
     const user = {
       name: 'Testuser',
       username: 'New username',
-      password: 'password'
+      password: 'password',
     }
 
     await api
@@ -61,13 +61,13 @@ describe('Users', () => {
     const user = new User({
       name: 'Testuser',
       username: 'New username',
-      password: 'password'
+      password: 'password',
     })
 
     const newUser = {
       name: 'Other user',
       username: 'New username',
-      password: 'password'
+      password: 'password',
     }
 
     await user.save()
@@ -80,9 +80,7 @@ describe('Users', () => {
     const users = await User.find({})
 
     expect(users.length).toBe(1)
-
   })
-
 })
 
 afterAll(() => {

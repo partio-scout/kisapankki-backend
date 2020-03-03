@@ -1,8 +1,8 @@
 const supertest = require('supertest')
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 const app = require('../app')
 const User = require('../models/user')
-const bcrypt = require('bcrypt')
 
 const api = supertest(app)
 
@@ -16,7 +16,7 @@ beforeEach(async () => {
   user = new User({
     name: 'name',
     username: 'username',
-    password: password,
+    password,
   })
 
   await user.save()
@@ -24,10 +24,9 @@ beforeEach(async () => {
 
 describe('Login', () => {
   test('is successful with correct password', async () => {
-
     const testUser = {
       username: 'username',
-      password: 'password'
+      password: 'password',
     }
 
     await api
@@ -39,10 +38,9 @@ describe('Login', () => {
 
 describe('Login', () => {
   test('is not successful with incorrect password', async () => {
-
     const testUser = {
       username: 'username',
-      password: 'passphrase'
+      password: 'passphrase',
     }
 
     await api
@@ -54,10 +52,9 @@ describe('Login', () => {
 
 describe('Login', () => {
   test('is not successful with not existing user', async () => {
-
     const testUser = {
       username: 'userword',
-      password: 'passphrase'
+      password: 'passphrase',
     }
 
     await api
