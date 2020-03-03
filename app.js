@@ -23,7 +23,7 @@ logger.info('Connecting to', config.MONGODB_URI)
 mongoose
   .connect(config.MONGODB_URI, {
     useNewUrlParser: true,
-    useCreateIndex: true
+    useCreateIndex: true,
   })
   .then(() => {
     logger.info('Connection successful')
@@ -47,7 +47,7 @@ app.use('/api/task', taskRouter)
 app.use(express.static('build'))
 
 app.get('*', (req, res) => {
-  res.sendfile('./build/index.html');
+  res.sendfile('./build/index.html')
 })
 
 app.get('/', (req, res) => {

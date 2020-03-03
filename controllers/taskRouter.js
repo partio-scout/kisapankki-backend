@@ -1,10 +1,10 @@
 const taskRouter = require('express').Router()
+const jwt = require('jsonwebtoken')
 const Task = require('../models/task')
 const Category = require('../models/category')
 const Language = require('../models/language')
 const Series = require('../models/series')
 const Rule = require('../models/rule')
-const jwt = require('jsonwebtoken')
 
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
@@ -17,14 +17,14 @@ const getTokenFrom = (req) => {
 const updatePointerList = async (taskId, target) => {
   if (target) {
     target.task = target.task.concat(taskId)
-    await target.update({new:true})
+    await target.update({ new: true })
   }
 }
 
 const removeFromPointerList = async (taskId, target) => {
   if (target) {
     target.task = target.task.filter((id) => id != taskId)
-    await target.update({new:true})
+    await target.update({ new: true })
   }
 }
 
@@ -67,7 +67,7 @@ taskRouter.get('/pending', async (req, res, next) => {
 })
 
 taskRouter.post('/', async (req, res, next) => {
-  const body = req.body
+  const { body } = req
   let pen = true
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -118,17 +118,17 @@ taskRouter.post('/', async (req, res, next) => {
       creatorName: body.creatorName,
       creatorEmail: body.creatorEmail,
       pending: pen,
-      series: series.map(s => s.id),
+      series: series.map((s) => s.id),
       category: cat.id,
       language: lang.id,
-      rules: rule.id
+      rules: rule.id,
     })
 
     const savedTask = await task.save()
     updatePointerList(savedTask.id, cat)
     updatePointerList(savedTask.id, lang)
     updatePointerList(savedTask.id, rule)
-    series.forEach(function (s) {
+    series.forEach((s) => {
       updatePointerList(savedTask.id, s)
     })
 
@@ -161,8 +161,8 @@ taskRouter.put('/:id', async (req, res, next) => {
     const token = getTokenFrom(req)
     const decodedToken = jwt.verify(token, process.env.SECRET)
     if (token && decodedToken.id) {
-      const id = req.params.id
-      const body = req.body
+      const { id } = req.params
+      const { body } = req
       try {
         const task = await Task.findById(id)
         task.name = body.name
@@ -177,10 +177,10 @@ taskRouter.put('/:id', async (req, res, next) => {
         if (task.series.toString() !== body.series.toString()) {
           currentSer = await Series.find({ _id: { $in: task.series } })
           newSer = await Series.find({ _id: { $in: task.series } })
-          newSer.forEach(function (s) {
+          newSer.forEach((s) => {
             updatePointerList(task.id, s)
           })
-          currentSer.forEach(function (s) {
+          currentSer.forEach((s) => {
             removeFromPointerList(task.id, s)
           })
           task.series = body.series
@@ -232,7 +232,7 @@ taskRouter.delete('/:id', async (req, res, next) => {
           const cat = await Category.findById(task.category)
           const rules = await Rule.findById(task.rules)
           const lang = await Language.findById(task.language)
-          series.forEach(function (s) {
+          series.forEach((s) => {
             updatePointerList(task.id, s)
           })
           removeFromPointerList(task.id, cat)
@@ -276,16 +276,16 @@ taskRouter.put('/:id/accept', async (req, res, next) => {
 })
 
 taskRouter.post('/search', async (req, res, next) => {
-  const search = req.body.search
+  const { search } = req.body
   try {
-    const searchResult = await Task.find({ $or: [{ "name": { $regex: search, $options: 'i' } }, { "assignmentText": { $regex: search, $options: 'i' } }] })
+    const searchResult = await Task.find({ $or: [{ name: { $regex: search, $options: 'i' } }, { assignmentText: { $regex: search, $options: 'i' } }] })
       .populate('series', 'name color')
       .populate('category', 'name')
       .populate('language', 'name')
       .populate('rules', 'name')
       .exec()
-    const matching = searchResult.map(result => result.toJSON())
-    res.json(matching.filter(task => task.pending == false))
+    const matching = searchResult.map((result) => result.toJSON())
+    res.json(matching.filter((task) => task.pending == false))
   } catch (exception) {
     next(exception)
   }

@@ -1,19 +1,20 @@
 const mongoose = require('mongoose')
+
 const seriesSchema = new mongoose.Schema({
   name: {
     type: String,
     minlength: 3,
-    required: true
+    required: true,
   },
   color: {
     type: String,
     minlength: 3,
-    required: true
+    required: true,
   },
   task: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Task'
-  }]
+    ref: 'Task',
+  }],
 })
 
 seriesSchema.set('toJSON', {
@@ -21,7 +22,7 @@ seriesSchema.set('toJSON', {
     retObj.id = retObj._id.toString()
     delete retObj._id
     delete retObj.__v
-  }
+  },
 })
 
 module.exports = mongoose.model('Series', seriesSchema)

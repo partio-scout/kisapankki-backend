@@ -13,11 +13,11 @@ languageRouter.get('/', async (req, res, next) => {
 })
 
 languageRouter.post('/', async (req, res, next) => {
-  const body = req.body
+  const { body } = req
 
   const language = new Language({
     name: body.language,
-    task: []
+    task: [],
   })
 
   try {

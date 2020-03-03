@@ -21,7 +21,7 @@ userRouter.get('/', async (req, res, next) => {
 })
 
 userRouter.post('/', async (req, res, next) => {
-  const body = req.body
+  const { body } = req
 
   const token = getTokenFrom(req)
   const decodedToken = jwt.verify(token, process.env.SECRET)
@@ -51,14 +51,14 @@ userRouter.post('/', async (req, res, next) => {
 })
 
 userRouter.post('/adminkey', async (req, res, next) => {
-  const body = req.body
+  const { body } = req
   if (body.adminKey === process.env.ADMIN_KEY) {
     const saltRounds = 10
     const password = await bcrypt.hash(body.password, saltRounds)
     const user = new User({
       username: body.username,
       name: body.name,
-      password
+      password,
     })
     try {
       const savedUser = await user.save()
@@ -70,7 +70,7 @@ userRouter.post('/adminkey', async (req, res, next) => {
 })
 
 userRouter.put('/', async (req, res, next) => {
-  const body = req.body
+  const { body } = req
 
   const token = getTokenFrom(req)
   const decodedToken = jwt.verify(token, process.env.SECRET)
@@ -84,9 +84,9 @@ userRouter.put('/', async (req, res, next) => {
     return response.status(401).json({ error: 'user not found' })
   }
 
-  let name = user.name
-  let username = user.username
-  let password = user.password
+  let { name } = user
+  let { username } = user
+  let { password } = user
 
   if (body.name) {
     if (body.name.length < 3) {
@@ -123,16 +123,16 @@ userRouter.put('/', async (req, res, next) => {
   }
 
   const updateUser = {
-    name: name,
-    username: username,
-    password: password
+    name,
+    username,
+    password,
   }
 
   User.findByIdAndUpdate(user.id, updateUser, { new: true })
-    .then(updatedUser => {
+    .then((updatedUser) => {
       res.json({ token, name: updatedUser.name, username: updatedUser.username })
     })
-    .catch(error => next(error))
+    .catch((error) => next(error))
 })
 
 module.exports = userRouter
