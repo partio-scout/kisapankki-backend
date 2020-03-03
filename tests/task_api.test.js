@@ -349,7 +349,7 @@ describe('Tasks', () => {
     modiTask.category = savedC2.id
 
     await api
-      .post(`/api/task/${modiTask.id}`)
+      .put(`/api/task/${modiTask.id}`)
       .send(modiTask)
       .set('authorization', `bearer ${token}`)
       .expect(200)

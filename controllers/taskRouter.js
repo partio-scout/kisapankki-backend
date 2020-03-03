@@ -156,23 +156,7 @@ taskRouter.get('/:id', async (req, res, next) => {
   }
 })
 
-taskRouter.post('/search', async (req, res, next) => {
-  const search = req.body.search
-  try {
-    const searchResult = await Task.find({ $or: [{ "name": { $regex: search, $options: 'i' } }, { "assignmentText": { $regex: search, $options: 'i' } }] })
-      .populate('series', 'name color')
-      .populate('category', 'name')
-      .populate('language', 'name')
-      .populate('rules', 'name')
-      .exec()
-    const matching = searchResult.map(result => result.toJSON())
-    res.json(matching.filter(task => task.pending == false))
-  } catch (exception) {
-    next(exception)
-  }
-})
-
-taskRouter.post('/:id', async (req, res, next) => {
+taskRouter.put('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
     const decodedToken = jwt.verify(token, process.env.SECRET)
@@ -288,6 +272,22 @@ taskRouter.put('/:id/accept', async (req, res, next) => {
     }
   } else {
     res.status(401).end()
+  }
+})
+
+taskRouter.post('/search', async (req, res, next) => {
+  const search = req.body.search
+  try {
+    const searchResult = await Task.find({ $or: [{ "name": { $regex: search, $options: 'i' } }, { "assignmentText": { $regex: search, $options: 'i' } }] })
+      .populate('series', 'name color')
+      .populate('category', 'name')
+      .populate('language', 'name')
+      .populate('rules', 'name')
+      .exec()
+    const matching = searchResult.map(result => result.toJSON())
+    res.json(matching.filter(task => task.pending == false))
+  } catch (exception) {
+    next(exception)
   }
 })
 
