@@ -186,9 +186,6 @@ taskRouter.put('/:id', async (req, res, next) => {
           task.series = body.series
         }
         if (task.category !== body.category) {
-          console.log('HELLO !!!!')
-          console.log(task.category)
-          console.log(body.category)
           currentCat = await Category.findById(task.category)
           newCat = await Category.findById(body.category)
           updatePointerList(task.id, newCat)

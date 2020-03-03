@@ -52,7 +52,7 @@ userRouter.post('/', async (req, res, next) => {
 
 userRouter.post('/adminkey', async (req, res, next) => {
   const body = req.body
-  if (body.adminKey == process.env.ADMIN_KEY) {
+  if (body.adminKey === process.env.ADMIN_KEY) {
     const saltRounds = 10
     const password = await bcrypt.hash(body.password, saltRounds)
     const user = new User({
