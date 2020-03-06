@@ -278,7 +278,7 @@ taskRouter.put('/:id/accept', async (req, res, next) => {
 taskRouter.post('/search', async (req, res, next) => {
   const { search } = req.body
   try {
-    const searchResult = await Task.find({ $or: [{ name: { $regex: search, $options: 'i' } }, { assignmentText: { $regex: search, $options: 'i' } }] })
+    const searchResult = await Task.find({ $or: [{ name: { $regex: search, $options: 'i' } }, { assignmentTextMD: { $regex: search, $options: 'i' } }] })
       .populate('series', 'name color')
       .populate('category', 'name')
       .populate('language', 'name')
