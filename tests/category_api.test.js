@@ -6,10 +6,6 @@ const User = require('../models/user')
 
 const api = supertest(app)
 
-beforeEach(async () => {
-  await Category.deleteMany({})
-})
-
 describe('Categories', () => {
   let token = null
 
