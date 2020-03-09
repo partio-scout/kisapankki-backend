@@ -15,22 +15,39 @@ const config = require('./utils/config')
 const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
 
+const app = express()
 mongoose.set('useFindAndModify', false)
 
-const app = express()
-logger.info('Connecting to', config.MONGODB_URI)
+if (config.APPLICATION_STAGE === 'DEV') {
 
-mongoose
-  .connect(config.MONGODB_URI, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-  })
-  .then(() => {
-    logger.info('Connection successful')
-  })
-  .catch((error) => {
-    logger.error('Error in connection to MongoDB:', error.message)
-  })
+  logger.info('Connecting to', config.MONGODB_URI)
+
+  mongoose
+    .connect(config.MONGODB_URI, {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+    })
+    .then(() => {
+      logger.info('Connection successful')
+    })
+    .catch((error) => {
+      logger.error('Error in connection to MongoDB:', error.message)
+    })
+}
+
+if (config.APPLICATION_STAGE === 'PROD') {
+  logger.info('Connecting to', config.COSMOS_DB_URI)
+
+  mongoose
+    .connect(config.COSMOS_DB_URI, {
+      useNewUrlParser: true,
+      useCreateIndex: true,
+    })
+    .then(() => logger.info('Connection to CosmosDB successful'))
+    .catch((error) => logger.error('Error in connection to MONGODB: ', error.message));
+}
+
+
 
 app.use(cors())
 app.use(bodyParser.json())
