@@ -10,6 +10,7 @@ const languageRouter = require('./controllers/languageRouter')
 const loginRouter = require('./controllers/loginRouter')
 const categoryRouter = require('./controllers/categoryRouter')
 const taskRouter = require('./controllers/taskRouter')
+const fileRouter = require('./controllers/fileRouter')
 
 const config = require('./utils/config')
 const logger = require('./utils/logger')
@@ -44,7 +45,7 @@ if (config.APPLICATION_STAGE === 'PROD') {
       useCreateIndex: true,
     })
     .then(() => logger.info('Connection to CosmosDB successful'))
-    .catch((error) => logger.error('Error in connection to MONGODB: ', error.message));
+    .catch((error) => logger.error('Error in connection to COSMOSDB: ', error.message));
 }
 
 
@@ -60,6 +61,7 @@ app.use('/api/login', loginRouter)
 app.use('/api/series', seriesRouter)
 app.use('/api/category', categoryRouter)
 app.use('/api/task', taskRouter)
+app.use('/api/file', fileRouter)
 
 app.use(express.static('build'))
 
