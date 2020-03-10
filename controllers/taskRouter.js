@@ -16,15 +16,19 @@ const getTokenFrom = (req) => {
 
 const updatePointerList = async (taskId, target) => {
   if (target) {
-    target.task = target.task.concat(taskId)
-    await target.update({ new: true })
+    if (target.task == null || target.task.length == 0) {
+      target.task = [taskId]
+    } else {
+      target.task = target.task.concat(taskId)
+    }
+    await target.save()
   }
 }
 
 const removeFromPointerList = async (taskId, target) => {
   if (target) {
     target.task = target.task.filter((id) => id != taskId)
-    await target.update({ new: true })
+    await target.save()
   }
 }
 
@@ -185,21 +189,21 @@ taskRouter.put('/:id', async (req, res, next) => {
           })
           task.series = body.series
         }
-        if (task.category !== body.category) {
+        if (task.category != body.category) {
           currentCat = await Category.findById(task.category)
           newCat = await Category.findById(body.category)
           updatePointerList(task.id, newCat)
           removeFromPointerList(task.id, currentCat)
           task.category = body.category
         }
-        if (task.rules !== body.rule) {
+        if (task.rules != body.rule) {
           currentRule = await Rule.findById(task.rules)
           newRule = await Rule.findById(body.rule)
           updatePointerList(task.id, newRule)
           removeFromPointerList(task.id, currentRule)
           task.rules = body.rule
         }
-        if (task.language !== body.language) {
+        if (task.language != body.language) {
           currentLang = await Language.findById(task.language)
           newLang = await Language.findById(body.language)
           updatePointerList(task.id, newLang)
