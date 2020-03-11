@@ -59,7 +59,7 @@ languageRouter.delete('/:id', async (req, res, next) => {
           const tasksWithPointers = await Task.find({ _id: { $in: delLang.task }})
           tasksWithPointers.forEach(async (task) => {
             task.language = null
-            await task.update({ new: true })
+            await task.save()
           })
           await delLang.remove()
           res.status(204).end()
