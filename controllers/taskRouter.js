@@ -126,6 +126,7 @@ taskRouter.post('/', async (req, res, next) => {
       category: cat.id,
       language: lang.id,
       rules: rule.id,
+      files: body.files,
     })
 
     const savedTask = await task.save()
