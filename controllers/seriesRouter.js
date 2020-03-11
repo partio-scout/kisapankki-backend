@@ -1,5 +1,15 @@
 const seriesRouter = require('express').Router()
 const Series = require('../models/series')
+const Task = require('../models/task')
+const jwt = require('jsonwebtoken')
+
+const getTokenFrom = (req) => {
+  const auth = req.get('authorization')
+  if (auth && auth.toLowerCase().startsWith('bearer ')) {
+    return auth.substring(7)
+  }
+  return null
+}
 
 seriesRouter.get('/', async (req, res, next) => {
   try {
@@ -13,17 +23,80 @@ seriesRouter.get('/', async (req, res, next) => {
 })
 
 seriesRouter.post('/', async (req, res, next) => {
-  const { body } = req
-  const group = new Series({
-    name: body.name,
-    color: body.color,
-    task: [],
-  })
-  try {
-    const savedSeries = await group.save()
-    res.json(savedSeries.toJSON())
-  } catch (exception) {
-    next(exception)
+  if (req.get('authorization')) {
+    const token = getTokenFrom(req)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    if (token && decodedToken.id) {
+      const { body } = req
+      const group = new Series({
+        name: body.name,
+        color: body.color,
+        task: [],
+      })
+      try {
+        const savedSeries = await group.save()
+        res.json(savedSeries.toJSON())
+      } catch (exception) {
+        next(exception)
+      }
+    } else {
+      res.status(401).end()
+    }
+  } else {
+    res.status(401).end()
+  }
+})
+
+seriesRouter.delete('/:id', async (req, res, next) => {
+  if (req.get('authorization')) {
+    const token = getTokenFrom(req)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    if (token && decodedToken.id) {
+      try {
+        const id = req.params.id
+        const delSer = await Series.findById(id)
+        if (delSer) {
+          const tasksWithPointer = await Task.find({ _id: { $in: delSer.task } })
+          tasksWithPointer.forEach(async (task) => {
+            task.series = task.series.filter(s => s != id)
+            await task.save()
+          })
+          await delSer.remove()
+          res.status(204).end()
+        }
+      } catch (exception) {
+        next(exception)
+      }
+    } else {
+      res.status(401).end()
+    }
+  } else {
+    res.status(401).end()
+  }
+})
+
+seriesRouter.put('/:id', async (req, res, next) => {
+  if (req.get('authorization')) {
+    const token = getTokenFrom(req)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    if (token && decodedToken.id) {
+      try {
+        const { body } = req
+        const updSer = await Series.findById(req.params.id)
+        if (updSer) {
+          updSer.name = body.name
+          updSer.color = body.color
+          const updatedSeries = await updSer.save()
+          res.json(updatedSeries.toJSON())
+        }
+      } catch (exception) {
+        next(exception)
+      }
+    } else {
+      res.status(401).end()
+    }
+  } else {
+    res.status(401).end()
   }
 })
 

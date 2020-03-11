@@ -57,7 +57,7 @@ categoryRouter.delete('/:id', async (req, res, next) => {
           const tasksWithPointers = await Task.find({ _id: { $in: delCat.task } })
           tasksWithPointers.forEach(async (task) => {
             task.category = null
-            await task.update({ new: true })
+            await task.save()
           })
           await delCat.remove()
           res.status(204).end()
