@@ -4,14 +4,19 @@ require('dotenv').config()
 const account = process.env.AZURE_STORAGE_ACCOUNT_NAME
 const accountKey = process.env.AZURE_STORAGE_ACCOUNT_ACCESS_KEY
 
-const azureStorage = require('azure-storage')
-const blobService = azureStorage.createBlobService(account, accountKey)
-
 const multer = require('multer')
 const inMemoryStorage = multer.memoryStorage()
 const uploadStrategy = multer({ storage: inMemoryStorage }).array('files')
 const getStream = require('into-stream')
 const containerName = 'files'
+
+const azureStorage = require('azure-storage')
+const blobService = azureStorage.createBlobService(account, accountKey)
+blobService.createContainerIfNotExists(containerName, { publicAccessLevel : 'blob' }, err => {
+  if (err) {
+    console.log(error)
+  }
+})
 
 const getBlobName = originalName => {
   const identifier = Math.random().toString().replace(/0\./, '') 
