@@ -29,8 +29,8 @@ userRouter.post('/', async (req, res, next) => {
     return res.status(401).json({ error: 'token missing or invalid' })
   }
 
-  if (!body.name || !body.username || !body.password) {
-    return res.status(400).json({ error: 'name, username or password missing' })
+  if (!body.name || !body.username || !body.password || !body.email ) {
+    return res.status(400).json({ error: 'name, username, email, password missing' })
   }
 
   const saltRounds = 10
@@ -39,6 +39,7 @@ userRouter.post('/', async (req, res, next) => {
   const user = new User({
     username: body.username,
     name: body.name,
+    email: body.email,
     password,
   })
 
@@ -58,6 +59,7 @@ userRouter.post('/adminkey', async (req, res, next) => {
     const user = new User({
       username: body.username,
       name: body.name,
+      email: body.email,
       password,
     })
     try {
@@ -87,7 +89,8 @@ userRouter.put('/', async (req, res, next) => {
   let { name } = user
   let { username } = user
   let { password } = user
-
+  let { email } = email
+ 
   if (body.name) {
     if (body.name.length < 3) {
       return res.status(400).json({ error: 'too short name' })
@@ -104,6 +107,17 @@ userRouter.put('/', async (req, res, next) => {
       return res.status(400).json({ error: 'username already exists' })
     }
     username = body.username
+  }
+
+  if (body.emai) {
+    if (body.email.length < 3) {
+      return res.status(400).json({ error: 'too short email' })
+    }
+    const foundUser = await User.findOne({ email: body.email })
+    if (foundUser && foundUser.email !== user.email) {
+      return res.status(400).json({ error: 'email already been in use' })
+    }
+    email = body.email
   }
 
   if (body.oldPassword) {
@@ -125,6 +139,7 @@ userRouter.put('/', async (req, res, next) => {
   const updateUser = {
     name,
     username,
+    emai,
     password,
   }
 
