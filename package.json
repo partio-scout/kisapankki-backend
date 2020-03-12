@@ -22,6 +22,8 @@
   "homepage": "https://github.com/partio-scout/kisapankki-backend#readme",
   "dependencies": {
     "@azure/storage-blob": "^12.1.0",
+    "@azure/storage-file": "^10.3.0",
+    "azure-storage": "^2.10.3",
     "bcrypt": "^3.0.7",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
