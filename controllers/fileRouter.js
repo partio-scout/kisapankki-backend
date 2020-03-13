@@ -10,13 +10,15 @@ const uploadStrategy = multer({ storage: inMemoryStorage }).array('filesToAdd')
 const getStream = require('into-stream')
 const containerName = 'files'
 
-const azureStorage = require('azure-storage')
-const blobService = azureStorage.createBlobService(account, accountKey)
-blobService.createContainerIfNotExists(containerName, { publicAccessLevel : 'blob' }, err => {
-  if (err) {
-    console.log(error)
-  }
-})
+if (process.env.NODE_ENV !== 'test') {
+  const azureStorage = require('azure-storage')
+  const blobService = azureStorage.createBlobService(account, accountKey)
+  blobService.createContainerIfNotExists(containerName, { publicAccessLevel : 'blob' }, err => {
+    if (err) {
+      console.log(error)
+    }
+  })
+}
 
 const getBlobName = originalName => {
   const identifier = Math.random().toString().replace(/0\./, '') 
