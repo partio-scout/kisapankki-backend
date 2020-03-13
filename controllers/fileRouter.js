@@ -1,6 +1,6 @@
 const fileRouter = require('express').Router()
 require('dotenv').config()
- 
+
 const account = process.env.AZURE_STORAGE_ACCOUNT_NAME
 const accountKey = process.env.AZURE_STORAGE_ACCOUNT_ACCESS_KEY
 
@@ -10,18 +10,17 @@ const uploadStrategy = multer({ storage: inMemoryStorage }).array('filesToAdd')
 const getStream = require('into-stream')
 const containerName = 'files'
 
-if (process.env.NODE_ENV !== 'test') {
-  const azureStorage = require('azure-storage')
-  const blobService = azureStorage.createBlobService(account, accountKey)
-  blobService.createContainerIfNotExists(containerName, { publicAccessLevel : 'blob' }, err => {
-    if (err) {
-      console.log(error)
-    }
-  })
-}
+const azureStorage = require('azure-storage')
+const blobService = azureStorage.createBlobService(account, accountKey)
+blobService.createContainerIfNotExists(containerName, { publicAccessLevel: 'blob' }, error => {
+  if (error) {
+    console.log(error)
+  }
+})
+
 
 const getBlobName = originalName => {
-  const identifier = Math.random().toString().replace(/0\./, '') 
+  const identifier = Math.random().toString().replace(/0\./, '')
   return `${identifier}-${originalName}`
 }
 
@@ -29,9 +28,9 @@ fileRouter.post('/', uploadStrategy, (req, res, next) => {
   if (req.body.filesToDelete && req.body.filesToDelete.length > 0) {
     const filesToDelete = req.body.filesToDelete.split(',')
     for (let i = 0; i < filesToDelete.length; i++) {
-      blobService.deleteBlob(containerName, filesToDelete[i], (err) => {
-        if (err) {
-          console.log(err)
+      blobService.deleteBlob(containerName, filesToDelete[i], (error) => {
+        if (error) {
+          console.log(error)
           res.status(500).end()
         }
       })
@@ -45,15 +44,15 @@ fileRouter.post('/', uploadStrategy, (req, res, next) => {
     const stream = getStream(req.files[i].buffer)
     const streamLength = req.files[i].buffer.length
 
-    blobService.createBlockBlobFromStream(containerName, blobName, stream, streamLength, err => {
-      if (err) {
-        console.log(err)
+    blobService.createBlockBlobFromStream(containerName, blobName, stream, streamLength, error => {
+      if (error) {
+        console.log(error)
         res.status(500).end()
       }
     })
   }
 
-  res.send(blobNames)  
+  res.send(blobNames)
 })
 
 module.exports = fileRouter
