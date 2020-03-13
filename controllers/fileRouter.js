@@ -1,8 +1,8 @@
 const fileRouter = require('express').Router()
-require('dotenv').config()
+const config = require('../utils/config')
 
-const account = process.env.AZURE_STORAGE_ACCOUNT_NAME
-const accountKey = process.env.AZURE_STORAGE_ACCOUNT_ACCESS_KEY
+const account = config.AZURE_STORAGE_ACCOUNT_NAME
+const accountKey = config.AZURE_STORAGE_ACCOUNT_ACCESS_KEY
 
 const multer = require('multer')
 const inMemoryStorage = multer.memoryStorage()

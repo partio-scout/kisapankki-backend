@@ -11,6 +11,8 @@ jobs:
         environment: 
           TEST_MONGODB_URI: $TEST_MONGODB_URI
           APPLICATION_STAGE: DEV
+          AZURE_STORAGE_ACCOUNT_NAME: $AZURE_ACCOUNT_NAME
+          AZURE_STORAGE_ACCOUNT_ACCESS_KEY: $AZURE_ACCOUNT_ACCESS_KEY
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
