@@ -53,6 +53,7 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
+      files: ['file1', 'file2']
     })
     await newTask.save()
     const result = await api
@@ -98,6 +99,7 @@ describe('Tasks', () => {
       category: savedC.id,
       language: savedL.id,
       rules: savedR.id,
+      files: ['file1', 'file2']
     })
 
     await newTask.save()
@@ -143,6 +145,7 @@ describe('Tasks', () => {
       category: savedC.id,
       language: savedL.id,
       rule: savedR.id,
+      files: ['file1', 'file2']
     }
 
     await api
@@ -178,6 +181,7 @@ describe('Tasks', () => {
       rules: null,
       category: null,
       language: null,
+      files: ['file1', 'file2']
     })
     const savedTask = await newTask.save()
 
@@ -218,6 +222,7 @@ describe('Tasks', () => {
       rules: null,
       category: null,
       language: null,
+      files: ['file1', 'file2']
     })
     const secondTask = new Task({
       name: 'second task',
@@ -234,6 +239,7 @@ describe('Tasks', () => {
       rules: null,
       category: null,
       language: null,
+      files: ['file1', 'file2']
     })
     const first = await firstTask.save()
     const second = await secondTask.save()
@@ -342,6 +348,7 @@ describe('Tasks', () => {
       language: savedL.id,
       rules: savedR.id,
       pending: false,
+      files: ['file1', 'file2']
     })
 
     const modiTask = await newTask.save()

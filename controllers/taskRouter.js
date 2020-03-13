@@ -179,6 +179,7 @@ taskRouter.put('/:id', async (req, res, next) => {
         task.gradingScaleMD = body.gradingScaleMD
         task.creatorName = body.creatorName
         task.creatorEmail = body.creatorEmail
+        task.files = body.files
         if (task.series.toString() !== body.series.toString()) {
           currentSer = await Series.find({ _id: { $in: task.series } })
           newSer = await Series.find({ _id: { $in: task.series } })

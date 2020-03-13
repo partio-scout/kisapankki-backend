@@ -6,7 +6,7 @@ const accountKey = process.env.AZURE_STORAGE_ACCOUNT_ACCESS_KEY
 
 const multer = require('multer')
 const inMemoryStorage = multer.memoryStorage()
-const uploadStrategy = multer({ storage: inMemoryStorage }).array('files')
+const uploadStrategy = multer({ storage: inMemoryStorage }).array('filesToAdd')
 const getStream = require('into-stream')
 const containerName = 'files'
 
@@ -24,21 +24,34 @@ const getBlobName = originalName => {
 }
 
 fileRouter.post('/', uploadStrategy, (req, res, next) => {
-    let blobNames = []
-    for (let i = 0; i < req.files.length; i++) {
-      const blobName = getBlobName(req.files[i].originalname)
-      blobNames.push(blobName)
-      const stream = getStream(req.files[i].buffer)
-      const streamLength = req.files[i].buffer.length
-
-      blobService.createBlockBlobFromStream(containerName, blobName, stream, streamLength, err => {
-        if(err) {
+  if (req.body.filesToDelete && req.body.filesToDelete.length > 0) {
+    const filesToDelete = req.body.filesToDelete.split(',')
+    for (let i = 0; i < filesToDelete.length; i++) {
+      blobService.deleteBlob(containerName, filesToDelete[i], (err) => {
+        if (err) {
           console.log(err)
           res.status(500).end()
         }
       })
     }
-    res.send(blobNames)  
+  }
+
+  let blobNames = []
+  for (let i = 0; i < req.files.length; i++) {
+    const blobName = getBlobName(req.files[i].originalname)
+    blobNames.push(blobName)
+    const stream = getStream(req.files[i].buffer)
+    const streamLength = req.files[i].buffer.length
+
+    blobService.createBlockBlobFromStream(containerName, blobName, stream, streamLength, err => {
+      if (err) {
+        console.log(err)
+        res.status(500).end()
+      }
+    })
+  }
+
+  res.send(blobNames)  
 })
 
 module.exports = fileRouter
