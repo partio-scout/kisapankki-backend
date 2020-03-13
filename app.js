@@ -74,4 +74,31 @@ app.get('/', (req, res) => {
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
+const nodemailer = require('nodemailer')
+//const config = require('./config')
+
+let transporter = nodemailer.createTransport({
+  service: 'smtp.gmail.com',
+  auth: {
+    user: config.EMAIl_USER,
+    pass: config.EMAIL_PASSWORD
+  }
+})
+
+let mailOptions = {
+  from: `${config.EMAIl_USER}`,
+  to: 'arttu.janhunen@gmail.com',
+  subject: 'Uusi tehtävä',
+  html: '<p>Hei, uusi tehtävä odottaa hyväksyntää kisapankissa</p>',
+  plain: 'Hei, uusi tehtävä odottaa hyväksyntää kisapankissa'
+}
+
+transporter.sendMail(mailOptions, (error, info) => {
+  if (error) {
+    console.log(error)
+  } else {
+    console.log(info)
+  }
+})
+
 module.exports = app
