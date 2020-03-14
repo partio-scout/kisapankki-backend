@@ -109,7 +109,7 @@ userRouter.put('/', async (req, res, next) => {
     username = body.username
   }
 
-  if (body.emai) {
+  if (body.email) {
     if (body.email.length < 3) {
       return res.status(400).json({ error: 'too short email' })
     }
@@ -133,19 +133,21 @@ userRouter.put('/', async (req, res, next) => {
       return res.status(400).json({ error: 'too short password' })
     }
     const saltRounds = 10
-    password = await bcrypt.hash(body.newPassword, saltRounds)
+    password = await bcrypt.  hash(body.newPassword, saltRounds)
   }
 
   const updateUser = {
     name,
     username,
-    emai,
+    email,
     password,
   }
 
+  console.log(username)
+  console.log(email)
   User.findByIdAndUpdate(user.id, updateUser, { new: true })
     .then((updatedUser) => {
-      res.json({ token, name: updatedUser.name, username: updatedUser.username })
+      res.json({ token, name: updatedUser.name, username: updatedUser.username, email: updatedUser.email })
     })
     .catch((error) => next(error))
 })
