@@ -62,6 +62,9 @@ const taskSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Rule',
   },
+  files: [{
+    type: String,
+  }],
   // media: ???           // pointer/url/entity ??
 })
 
