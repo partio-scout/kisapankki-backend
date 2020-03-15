@@ -139,7 +139,7 @@ taskRouter.post('/', async (req, res, next) => {
       updatePointerList(savedTask.id, s)
     })
 
-    if (task.pending) {
+    if (task.pending && config.NODE_ENV !== 'test') {
 
       let transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -153,7 +153,7 @@ taskRouter.post('/', async (req, res, next) => {
 
       let mailOptions = {
         from: `"Kisapankki" <${config.EMAIl_USER}>`,
-        to: ['arttu.janhunen@gmail.com', 'samu.tatti@helsinki.fi'],
+        to: ['arttu.janhunen@gmail.com'],
         subject: 'Uusi tehtävä',
         html: '<p>Hei, uusi tehtävä odottaa hyväksyntää kisapankissa</p>',
         text: 'Hei, uusi tehtävä odottaa hyväksyntää kisapankissa'
