@@ -89,7 +89,7 @@ userRouter.put('/', async (req, res, next) => {
   let { name } = user
   let { username } = user
   let { password } = user
-  let { email } = email
+  let { email } = user
  
   if (body.name) {
     if (body.name.length < 3) {
