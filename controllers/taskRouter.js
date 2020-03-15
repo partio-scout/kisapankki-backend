@@ -1,4 +1,5 @@
 const taskRouter = require('express').Router()
+const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken')
 const Task = require('../models/task')
 const Category = require('../models/category')
@@ -135,6 +136,34 @@ taskRouter.post('/', async (req, res, next) => {
     series.forEach((s) => {
       updatePointerList(savedTask.id, s)
     })
+
+    if (task.pen) {
+      let transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: config.EMAIL_USER,
+          pass: config.EMAIL_PASSWORD
+        }
+      })
+
+      let mailOptions = {
+        from: `"Kisapankki" <${config.EMAIl_USER}>`,
+        to: 'arttu.janhunen@gmail.com',
+        subject: 'Uusi tehtävä',
+        html: '<p>Hei, uusi tehtävä odottaa hyväksyntää kisapankissa</p>',
+        text: 'Hei, uusi tehtävä odottaa hyväksyntää kisapankissa'
+      }
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log(error)
+        } else {
+          console.log(info)
+        }
+      })
+    }
 
     res.json(savedTask.toJSON())
   } catch (exception) {
