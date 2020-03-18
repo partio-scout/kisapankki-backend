@@ -61,6 +61,17 @@ describe('User', () => {
     expect(result.body.username).toBe('userThree')
   })
 
+  test('email is added', async () => {
+    const result = await api
+      .post('/api/user')
+      .send({ name: 'test4', username: 'userFour', email: 'email@email4.com', password: 'testWord' })
+      .set('authorization', `bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.email).toBe('email@email4.com')
+  })
+
   test('is not added if username already exists', async () => {
     await api
       .post('/api/user')
