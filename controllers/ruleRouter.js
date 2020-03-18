@@ -15,6 +15,7 @@ ruleRouter.get('/', async (req, res, next) => {
   try {
     const rules = await Rule.find({})
       .populate('task')
+      .populate('acceptedCategories')
       .exec()
     res.json(rules.map((rule) => rule.toJSON()))
   } catch (exception) {
@@ -32,6 +33,7 @@ ruleRouter.post('/', async (req, res, next) => {
       const rule = new Rule({
         name: body.rules,
         task: [],
+        acceptedCategories: body.acceptedCategories
       })
 
       try {
@@ -86,6 +88,7 @@ ruleRouter.put('/:id', async (req, res, next) => {
         const updRules = await Rule.findById(req.params.id)
         if (updRules) {
           updRules.name = body.name
+          updRules.acceptedCategories = body.acceptedCategories
           const updatedRules = await updRules.save()
           res.json(updatedRules.toJSON())
         }

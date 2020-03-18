@@ -1,6 +1,7 @@
 const categoryRouter = require('express').Router()
 const Category = require('../models/category')
 const Task = require('../models/task')
+const Rule = require('../models/rule')
 const jwt = require('jsonwebtoken')
 
 const getTokenFrom = (req) => {
@@ -58,6 +59,11 @@ categoryRouter.delete('/:id', async (req, res, next) => {
           tasksWithPointers.forEach(async (task) => {
             task.category = null
             await task.save()
+          })
+          const rules = await Rule.find({})
+          rules.forEach(async (rule) => {
+            rule.acceptedCategories = rule.acceptedCategories.filter((cat) => cat != req.params.id)
+            await rule.save()
           })
           await delCat.remove()
           res.status(204).end()
