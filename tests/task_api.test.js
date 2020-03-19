@@ -487,15 +487,15 @@ describe('Tasks', () => {
     const viewTask = await task.save()
 
     await api
-      .get(`/api/task/${viewTask.id}`)
+      .post(`/api/task/${viewTask.id}/views`)
       .expect(200)
 
     await api
-      .get(`/api/task/${viewTask.id}`)
+      .post(`/api/task/${viewTask.id}/views`)
       .expect(200)
 
     const finalViewsTask = await api
-      .get(`/api/task/${viewTask.id}`)
+      .post(`/api/task/${viewTask.id}/views`)
       .expect(200)
 
     expect(finalViewsTask.body.views).toBe(3)
@@ -518,15 +518,15 @@ describe('Tasks', () => {
     const viewTask = await task.save()
 
     await api
-      .get(`/api/task/${viewTask.id}`)
+      .post(`/api/task/${viewTask.id}/views`)
       .expect(200)
 
     await api
-      .get(`/api/task/${viewTask.id}`)
+      .post(`/api/task/${viewTask.id}/views`)
       .expect(200)
 
     const inMiddleViewsTask = await api
-      .get(`/api/task/${viewTask.id}`)
+      .post(`/api/task/${viewTask.id}/views`)
       .expect(200)
 
     expect(inMiddleViewsTask.body.views).toBe(3)
