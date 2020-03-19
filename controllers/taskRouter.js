@@ -127,6 +127,7 @@ taskRouter.post('/', async (req, res, next) => {
       language: lang.id,
       rules: rule.id,
       files: body.files,
+      views: 0
     })
 
     const savedTask = await task.save()
@@ -152,7 +153,9 @@ taskRouter.get('/:id', async (req, res, next) => {
       .populate('rules', 'name')
       .exec()
     if (task) {
-      res.json(task.toJSON())
+      task.views = task.views + 1
+      const updTask = await task.save()
+      res.json(updTask.toJSON())
     } else {
       res.status(404).end()
     }
@@ -268,6 +271,7 @@ taskRouter.put('/:id/accept', async (req, res, next) => {
       try {
         const task = await Task.findById(req.params.id)
         task.pending = false
+        task.views = 0
         const updTask = await task.save()
         res.json(updTask.toJSON())
       } catch (exception) {

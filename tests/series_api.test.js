@@ -105,6 +105,7 @@ describe('Series', () => {
       language: '5e6929121d689649d5d229cf',
       rule: '5e6929121d689649d5d229cg',
       pending: false,
+      views: 0
     })
 
     await newTask.save()
