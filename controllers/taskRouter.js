@@ -153,9 +153,7 @@ taskRouter.get('/:id', async (req, res, next) => {
       .populate('rules', 'name')
       .exec()
     if (task) {
-      task.views = task.views + 1
-      const updTask = await task.save()
-      res.json(updTask.toJSON())
+      res.json(task.toJSON())
     } else {
       res.status(404).end()
     }
@@ -296,6 +294,17 @@ taskRouter.post('/search', async (req, res, next) => {
       .exec()
     const matching = searchResult.map((result) => result.toJSON())
     res.json(matching.filter((task) => task.pending == false))
+  } catch (exception) {
+    next(exception)
+  }
+})
+
+taskRouter.post('/:id/views', async (req, res, next) => {
+  try {
+    const task = await Task.findById(req.params.id)
+    task.views = task.views + 1
+    const updTask = await task.save()
+    res.json(updTask.toJSON())
   } catch (exception) {
     next(exception)
   }
