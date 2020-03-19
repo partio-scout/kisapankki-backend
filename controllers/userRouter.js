@@ -66,6 +66,8 @@ userRouter.post('/adminkey', async (req, res, next) => {
     } catch (exception) {
       next(exception)
     }
+  } else {
+    return res.status(401).json({ error: 'adminKey missing or invalid' })
   }
 })
 
