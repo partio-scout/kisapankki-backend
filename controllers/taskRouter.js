@@ -127,6 +127,7 @@ taskRouter.post('/', async (req, res, next) => {
       language: lang.id,
       rules: rule.id,
       files: body.files,
+      views: 0
     })
 
     const savedTask = await task.save()
@@ -268,6 +269,7 @@ taskRouter.put('/:id/accept', async (req, res, next) => {
       try {
         const task = await Task.findById(req.params.id)
         task.pending = false
+        task.views = 0
         const updTask = await task.save()
         res.json(updTask.toJSON())
       } catch (exception) {
@@ -292,6 +294,17 @@ taskRouter.post('/search', async (req, res, next) => {
       .exec()
     const matching = searchResult.map((result) => result.toJSON())
     res.json(matching.filter((task) => task.pending == false))
+  } catch (exception) {
+    next(exception)
+  }
+})
+
+taskRouter.post('/:id/views', async (req, res, next) => {
+  try {
+    const task = await Task.findById(req.params.id)
+    task.views = task.views + 1
+    const updTask = await task.save()
+    res.json(updTask.toJSON())
   } catch (exception) {
     next(exception)
   }
