@@ -54,7 +54,9 @@ describe('Tasks', () => {
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
       files: ['file1', 'file2'],
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     await newTask.save()
     const result = await api
@@ -101,7 +103,9 @@ describe('Tasks', () => {
       language: savedL.id,
       rules: savedR.id,
       files: ['file1', 'file2'],
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
 
     await newTask.save()
@@ -166,6 +170,8 @@ describe('Tasks', () => {
     expect(result.body[0].name).toBe('router test')
     expect(result.body[0].series[0].color).toBe('testColor')
     expect(result.body[0].assignmentTextMD).toBe('test the adding through posting in Markdown')
+    expect(result.body[0].ratingsAVG).toBe(0)
+    expect(result.body[0].ratings.length).toBe(5)
   })
 
   test('can be deleted', async () => {
@@ -185,7 +191,9 @@ describe('Tasks', () => {
       category: null,
       language: null,
       files: ['file1', 'file2'],
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const savedTask = await newTask.save()
 
@@ -227,7 +235,9 @@ describe('Tasks', () => {
       category: null,
       language: null,
       files: ['file1', 'file2'],
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const secondTask = new Task({
       name: 'second task',
@@ -245,7 +255,9 @@ describe('Tasks', () => {
       category: null,
       language: null,
       files: ['file1', 'file2'],
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const first = await firstTask.save()
     const second = await secondTask.save()
@@ -274,7 +286,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const secondTask = new Task({
       name: 'second task',
@@ -287,7 +301,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: true,
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const thirdTask = new Task({
       name: 'third task',
@@ -300,7 +316,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     await firstTask.save()
     await secondTask.save()
@@ -358,7 +376,9 @@ describe('Tasks', () => {
       rules: savedR.id,
       pending: false,
       files: ['file1', 'file2'],
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
 
     const modiTask = await newTask.save()
@@ -392,7 +412,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: true,
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const pendingTask = await task.save()
     const emptyAcceptedList = await api
@@ -426,7 +448,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     await task.save()
 
@@ -454,7 +478,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     await task.save()
 
@@ -482,7 +508,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const viewTask = await task.save()
 
@@ -513,7 +541,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: true,
-      views: 0
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const viewTask = await task.save()
 
@@ -537,6 +567,73 @@ describe('Tasks', () => {
       .expect(200)
 
     expect(finalViewsTask.body.views).toBe(0)
+  })
+
+  test('can be given ratings', async () => {
+    const task = new Task({
+      name: 'task for rating',
+      assignmentText: 'test that the amount of ratings is correct after one rating',
+      supervisorInstructions: 'check that the ratings are correct',
+      gradingScale: '5 or 0',
+      assignmentTextMD: 'check that ratings work',
+      supervisorInstructionsMD: 'check that the tests pass',
+      gradingScaleMD: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
+    })
+    const rateTask = await task.save()
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate/${4}`)
+      .expect(200)
+
+    const tasks = await Task.find({})
+    expect(tasks.length).toBe(1)
+    expect(tasks[0].ratings.length).toBe(5)
+    expect(tasks[0].ratings[3]).toBe(1)
+    expect(tasks[0].ratingsAVG).toBe(4)
+  })
+
+  test('can be given multiple ratings and ratings average is calculated correctly', async () => {
+    const task = new Task({
+      name: 'task for rating',
+      assignmentText: 'test that the rating AVG is calculated correctly',
+      supervisorInstructions: 'check that the ratings are correct',
+      gradingScale: '5 or 0',
+      assignmentTextMD: 'check that ratings work',
+      supervisorInstructionsMD: 'check that the tests pass',
+      gradingScaleMD: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
+    })
+    const rateTask = await task.save()
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate/${3}`)
+      .expect(200)
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate/${3}`)
+      .expect(200)
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate/${3}`)
+      .expect(200)
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate/${4}`)
+      .expect(200)
+
+    const tasks = await Task.find({})
+    expect(tasks[0].ratingsAVG).toBe(3.25)
   })
 })
 
