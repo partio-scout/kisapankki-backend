@@ -123,7 +123,7 @@ describe('Rules', () => {
 
     const newCat2 = new Category({
       name: 'second new category',
-      task: []
+      task: [],
     })
 
     const savedCat2 = await newCat2.save()
