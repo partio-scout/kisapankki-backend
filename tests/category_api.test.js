@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const app = require('../app')
 const Category = require('../models/category')
 const User = require('../models/user')
+const Rule = require('../models/rule')
 
 const api = supertest(app)
 
@@ -30,6 +31,7 @@ describe('Categories', () => {
   })
 
   beforeEach(async () => {
+    await Rule.deleteMany({})
     await Category.deleteMany({})
   })
 
@@ -78,13 +80,23 @@ describe('Categories', () => {
     expect(categories[0].name).toBe('Ensiapu')
     expect(categories.length).toBe(1)
 
+    const newRule = new Rule({
+      name: 'new rules',
+      task: [],
+      acceptedCategories: [ categories[0].id ]
+    })
+    const savedRule = await newRule.save()
+    expect(savedRule.acceptedCategories.length).toBe(1)
+
     await api
       .delete(`/api/category/${categories[0].id}`)
       .set('authorization', `bearer ${token}`)
       .expect(204)
 
     const categoriesAD = await Category.find({})
+    const rulesAD = await Rule.find({})
     expect(categoriesAD.length).toBe(0)
+    expect(rulesAD[0].acceptedCategories.length).toBe(0)
   })
 
   test('can be modified', async () => {
