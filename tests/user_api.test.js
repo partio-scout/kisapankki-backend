@@ -55,7 +55,7 @@ describe('User', () => {
   test('is added', async () => {
     const result = await api
       .post('/api/user')
-      .send({ name: 'test3', username: 'userThree', email: 'test@email3.com' password: 'testWord' })
+      .send({ name: 'test3', username: 'userThree', email: 'test@email3.com', password: 'testWord' })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
