@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const app = require('../app')
 const Rule = require('../models/rule')
 const User = require('../models/user')
+const Category = require('../models/category')
 
 const api = supertest(app)
 
@@ -32,6 +33,7 @@ describe('Rules', () => {
   })
 
   beforeEach(async () => {
+    await Category.deleteMany({})
     await Rule.deleteMany({})
   })
 
@@ -39,11 +41,13 @@ describe('Rules', () => {
     const ruleOne = new Rule({
       name: 'jokamies',
       task: [],
+      acceptedCategories: []
     })
 
     const ruleTwo = new Rule({
       name: 'SM-kisat',
       task: [],
+      acceptedCategories: []
     })
 
     await ruleOne.save()
@@ -59,10 +63,16 @@ describe('Rules', () => {
   })
 
   test('can be added', async () => {
+    const newCat = new Category({
+      name: 'initial category',
+      task: []
+    })
+
+    const savedCat = await newCat.save()
 
     await api
       .post('/api/rule')
-      .send({ rules: 'Viralliset' })
+      .send({ rules: 'Viralliset', acceptedCategories: [ savedCat.id ] })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-type', /application\/json/)
@@ -70,12 +80,13 @@ describe('Rules', () => {
     const rules = await Rule.find({})
 
     expect(rules[0].name).toBe('Viralliset')
+    expect(rules[0].acceptedCategories.length).toBe(1)
   })
 
   test('can be deleted', async () => {
     await api
       .post('/api/rule')
-      .send({ rules: 'Modernit' })
+      .send({ rules: 'Modernit', acceptedCategories: [] })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-type', /application\/json/)
@@ -94,9 +105,16 @@ describe('Rules', () => {
   })
 
   test('can be modified', async () => {
+    const newCat1 = new Category({
+      name: 'first new category',
+      task: []
+    })
+
+    const savedCat1 = await newCat1.save()
+
     await api
       .post('/api/rule')
-      .send({ rules: 'Paikalliset' })
+      .send({ rules: 'Paikalliset', acceptedCategories: [ savedCat1.id ] })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-type', /application\/json/)
@@ -104,15 +122,23 @@ describe('Rules', () => {
     expect(rules[0].name).toBe('Paikalliset')
     expect(rules.length).toBe(1)
 
+    const newCat2 = new Category({
+      name: 'second new category',
+      task: [],
+    })
+
+    const savedCat2 = await newCat2.save()
+
     await api
       .put(`/api/rule/${rules[0].id}`)
-      .send({ name: 'Kansainväliset' })
+      .send({ name: 'Kansainväliset', acceptedCategories: [ savedCat1.id, savedCat2.id ] })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-type', /application\/json/)
     const rulesAM = await Rule.find({})
     expect(rulesAM[0].name).toBe('Kansainväliset')
-    expect(rules.length).toBe(1)
+    expect(rulesAM.length).toBe(1)
+    expect(rulesAM[0].acceptedCategories.length).toBe(2)
   })
 })
 
