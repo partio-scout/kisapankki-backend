@@ -109,6 +109,7 @@ describe('Languages', () => {
     const languagesAM = await Language.find({})
     expect(languagesAM[0].name).toBe('Ranska')
     expect(languagesAM.length).toBe(1)
+    
   })
 })
 
