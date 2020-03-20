@@ -588,7 +588,8 @@ describe('Tasks', () => {
     const rateTask = await task.save()
 
     await api
-      .post(`/api/task/${rateTask.id}/rate/${4}`)
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 4 })
       .expect(200)
 
     const tasks = await Task.find({})
@@ -617,19 +618,23 @@ describe('Tasks', () => {
     const rateTask = await task.save()
 
     await api
-      .post(`/api/task/${rateTask.id}/rate/${3}`)
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 3 })
       .expect(200)
 
     await api
-      .post(`/api/task/${rateTask.id}/rate/${3}`)
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 3 })
       .expect(200)
 
     await api
-      .post(`/api/task/${rateTask.id}/rate/${3}`)
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 3 })
       .expect(200)
 
     await api
-      .post(`/api/task/${rateTask.id}/rate/${4}`)
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 4 })
       .expect(200)
 
     const tasks = await Task.find({})

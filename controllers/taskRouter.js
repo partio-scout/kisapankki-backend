@@ -312,9 +312,9 @@ taskRouter.post('/:id/views', async (req, res, next) => {
   }
 })
 
-taskRouter.post('/:id/rate/:stars', async (req, res, next) => {
+taskRouter.post('/:id/rate', async (req, res, next) => {
   try {
-    const rating = req.params.stars
+    const rating = req.body.rating
     const id = req.params.id
     if (rating > 0 && rating < 6) {
       const ratedTask = await Task.findById(id)
