@@ -613,7 +613,7 @@ describe('Tasks', () => {
       pending: true,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     const rateTask = await task.save()
 
