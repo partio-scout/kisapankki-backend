@@ -16,6 +16,7 @@ describe('Series', () => {
     const newAdmin = {
       name: 'testAdminN',
       username: 'testAdminUN',
+      email: 'testEmailN',
       password: 'testAdminPW',
       adminKey: process.env.ADMIN_KEY,
     }
