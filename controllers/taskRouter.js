@@ -319,21 +319,15 @@ taskRouter.post('/:id/rate/:stars', async (req, res, next) => {
     if (rating > 0 && rating < 6) {
       const ratedTask = await Task.findById(id)
       if (ratedTask) {
-        console.log(ratedTask.ratings, ' arvostelut ennen arvostelun lisäystä')
         ratedTask.ratings[rating - 1] = ratedTask.ratings[rating - 1] + 1
-        console.log(ratedTask.ratings, ' arvostelut arvostelun lisäyksen jälkeen')
         let ratingsSUM = 0
         let ratingAMOUNT = ratedTask.ratings.reduce((a,b) => a + b, 0)
-        console.log(ratingAMOUNT, ' arvostelujen määrä reducen jälkeen')
         ratedTask.ratings.forEach((r, i) => {
           ratingsSUM = ratingsSUM + (r * (i + 1))
         })
-        console.log(ratingsSUM, ' arvostelujen summa foreachin jälkeen')
         ratedTask.ratingsAVG = ratingsSUM / ratingAMOUNT
-        console.log(ratedTask.ratingsAVG, ' arvostelujen AVG laskun jälkeen')
         ratedTask.markModified('ratings')
         const updTask = await ratedTask.save()
-        console.log(updTask)
         res.status(200).end()
       }
     }
