@@ -641,6 +641,48 @@ describe('Tasks', () => {
     const tasks = await Task.find({})
     expect(tasks[0].ratingsAVG).toBe(3.25)
   })
+  test('can be given multiple ratings and ratings sum is calculated correctly', async () => {
+    const task = new Task({
+      name: 'task for ratingSUM',
+      assignmentText: 'test that the rating SUM is calculated correctly',
+      supervisorInstructions: 'check that the ratings are correct',
+      gradingScale: '5 or 0',
+      assignmentTextMD: 'check that ratings work',
+      supervisorInstructionsMD: 'check that the tests pass',
+      gradingScaleMD: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0,
+      ratingsSUM: 0
+    })
+    const rateTask = await task.save()
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 3 })
+      .expect(200)
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 3 })
+      .expect(200)
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 3 })
+      .expect(200)
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 4 })
+      .expect(200)
+
+    const tasks = await Task.find({})
+    expect(tasks[0].ratingsSUM).toBe(4)
+  })
 })
 
 afterAll(async () => {
