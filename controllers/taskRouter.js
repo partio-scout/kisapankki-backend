@@ -129,6 +129,9 @@ taskRouter.post('/', async (req, res, next) => {
       language: lang.id,
       rules: rule.id,
       files: body.files,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
 
     const savedTask = await task.save()
@@ -299,6 +302,7 @@ taskRouter.put('/:id/accept', async (req, res, next) => {
       try {
         const task = await Task.findById(req.params.id)
         task.pending = false
+        task.views = 0
         const updTask = await task.save()
         res.json(updTask.toJSON())
       } catch (exception) {
@@ -323,6 +327,41 @@ taskRouter.post('/search', async (req, res, next) => {
       .exec()
     const matching = searchResult.map((result) => result.toJSON())
     res.json(matching.filter((task) => task.pending == false))
+  } catch (exception) {
+    next(exception)
+  }
+})
+
+taskRouter.post('/:id/views', async (req, res, next) => {
+  try {
+    const task = await Task.findById(req.params.id)
+    task.views = task.views + 1
+    const updTask = await task.save()
+    res.json(updTask.toJSON())
+  } catch (exception) {
+    next(exception)
+  }
+})
+
+taskRouter.post('/:id/rate', async (req, res, next) => {
+  try {
+    const rating = req.body.rating
+    const id = req.params.id
+    if (rating > 0 && rating < 6) {
+      const ratedTask = await Task.findById(id)
+      if (ratedTask) {
+        ratedTask.ratings[rating - 1] = ratedTask.ratings[rating - 1] + 1
+        let ratingsSUM = 0
+        let ratingAMOUNT = ratedTask.ratings.reduce((a,b) => a + b, 0)
+        ratedTask.ratings.forEach((r, i) => {
+          ratingsSUM = ratingsSUM + (r * (i + 1))
+        })
+        ratedTask.ratingsAVG = ratingsSUM / ratingAMOUNT
+        ratedTask.markModified('ratings')
+        const updTask = await ratedTask.save()
+        res.status(200).end()
+      }
+    }
   } catch (exception) {
     next(exception)
   }

@@ -17,6 +17,7 @@ describe('Tasks', () => {
     const newAdmin = {
       name: 'testAdminN',
       username: 'testAdminUN',
+      email: 'testEmailN',
       password: 'testAdminPW',
       adminKey: process.env.ADMIN_KEY,
     }
@@ -53,7 +54,10 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
-      files: ['file1', 'file2']
+      files: ['file1', 'file2'],
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     await newTask.save()
     const result = await api
@@ -99,7 +103,10 @@ describe('Tasks', () => {
       category: savedC.id,
       language: savedL.id,
       rules: savedR.id,
-      files: ['file1', 'file2']
+      files: ['file1', 'file2'],
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
 
     await newTask.save()
@@ -145,7 +152,8 @@ describe('Tasks', () => {
       category: savedC.id,
       language: savedL.id,
       rule: savedR.id,
-      files: ['file1', 'file2']
+      files: ['file1', 'file2'],
+      views: 0
     }
 
     await api
@@ -163,6 +171,8 @@ describe('Tasks', () => {
     expect(result.body[0].name).toBe('router test')
     expect(result.body[0].series[0].color).toBe('testColor')
     expect(result.body[0].assignmentTextMD).toBe('test the adding through posting in Markdown')
+    expect(result.body[0].ratingsAVG).toBe(0)
+    expect(result.body[0].ratings.length).toBe(5)
   })
 
   test('can be deleted', async () => {
@@ -181,7 +191,10 @@ describe('Tasks', () => {
       rules: null,
       category: null,
       language: null,
-      files: ['file1', 'file2']
+      files: ['file1', 'file2'],
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const savedTask = await newTask.save()
 
@@ -222,7 +235,10 @@ describe('Tasks', () => {
       rules: null,
       category: null,
       language: null,
-      files: ['file1', 'file2']
+      files: ['file1', 'file2'],
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const secondTask = new Task({
       name: 'second task',
@@ -239,7 +255,10 @@ describe('Tasks', () => {
       rules: null,
       category: null,
       language: null,
-      files: ['file1', 'file2']
+      files: ['file1', 'file2'],
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const first = await firstTask.save()
     const second = await secondTask.save()
@@ -268,6 +287,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const secondTask = new Task({
       name: 'second task',
@@ -280,6 +302,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: true,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const thirdTask = new Task({
       name: 'third task',
@@ -292,6 +317,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     await firstTask.save()
     await secondTask.save()
@@ -348,7 +376,10 @@ describe('Tasks', () => {
       language: savedL.id,
       rules: savedR.id,
       pending: false,
-      files: ['file1', 'file2']
+      files: ['file1', 'file2'],
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
 
     const modiTask = await newTask.save()
@@ -382,6 +413,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: true,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     const pendingTask = await task.save()
     const emptyAcceptedList = await api
@@ -415,6 +449,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     await task.save()
 
@@ -442,6 +479,9 @@ describe('Tasks', () => {
       creatorName: 'Test Steve',
       creatorEmail: 'Test.Steve@testing.test',
       pending: false,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
     })
     await task.save()
 
@@ -455,6 +495,151 @@ describe('Tasks', () => {
       .expect(200)
 
     expect(searchResult.body[0].name).toBe('searching for accepted test')
+  })
+
+  test('views amount updates when task is inspected', async () => {
+    const task = new Task({
+      name: 'Views task',
+      assignmentText: 'test if the views increase',
+      supervisorInstructions: 'check that the views updates',
+      gradingScale: '5 or 0',
+      assignmentTextMD: 'test the views increase',
+      supervisorInstructionsMD: 'check that the tests pass',
+      gradingScaleMD: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: false,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
+    })
+    const viewTask = await task.save()
+
+    await api
+      .post(`/api/task/${viewTask.id}/views`)
+      .expect(200)
+
+    await api
+      .post(`/api/task/${viewTask.id}/views`)
+      .expect(200)
+
+    const finalViewsTask = await api
+      .post(`/api/task/${viewTask.id}/views`)
+      .expect(200)
+
+    expect(finalViewsTask.body.views).toBe(3)
+  })
+
+  test('views amount resets when accepted', async () => {
+    const task = new Task({
+      name: 'Views task',
+      assignmentText: 'test if the views increase',
+      supervisorInstructions: 'check that the views updates',
+      gradingScale: '5 or 0',
+      assignmentTextMD: 'test the views increase',
+      supervisorInstructionsMD: 'check that the tests pass',
+      gradingScaleMD: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
+    })
+    const viewTask = await task.save()
+
+    await api
+      .post(`/api/task/${viewTask.id}/views`)
+      .expect(200)
+
+    await api
+      .post(`/api/task/${viewTask.id}/views`)
+      .expect(200)
+
+    const inMiddleViewsTask = await api
+      .post(`/api/task/${viewTask.id}/views`)
+      .expect(200)
+
+    expect(inMiddleViewsTask.body.views).toBe(3)
+
+    finalViewsTask = await api
+      .put(`/api/task/${viewTask.id}/accept`)
+      .set('authorization', `bearer ${token}`)
+      .expect(200)
+
+    expect(finalViewsTask.body.views).toBe(0)
+  })
+
+  test('can be given ratings', async () => {
+    const task = new Task({
+      name: 'task for rating',
+      assignmentText: 'test that the amount of ratings is correct after one rating',
+      supervisorInstructions: 'check that the ratings are correct',
+      gradingScale: '5 or 0',
+      assignmentTextMD: 'check that ratings work',
+      supervisorInstructionsMD: 'check that the tests pass',
+      gradingScaleMD: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
+    })
+    const rateTask = await task.save()
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 4 })
+      .expect(200)
+
+    const tasks = await Task.find({})
+    expect(tasks.length).toBe(1)
+    expect(tasks[0].ratings.length).toBe(5)
+    expect(tasks[0].ratings[3]).toBe(1)
+    expect(tasks[0].ratingsAVG).toBe(4)
+  })
+
+  test('can be given multiple ratings and ratings average is calculated correctly', async () => {
+    const task = new Task({
+      name: 'task for rating',
+      assignmentText: 'test that the rating AVG is calculated correctly',
+      supervisorInstructions: 'check that the ratings are correct',
+      gradingScale: '5 or 0',
+      assignmentTextMD: 'check that ratings work',
+      supervisorInstructionsMD: 'check that the tests pass',
+      gradingScaleMD: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0
+    })
+    const rateTask = await task.save()
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 3 })
+      .expect(200)
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 3 })
+      .expect(200)
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 3 })
+      .expect(200)
+
+    await api
+      .post(`/api/task/${rateTask.id}/rate`)
+      .send({ rating: 4 })
+      .expect(200)
+
+    const tasks = await Task.find({})
+    expect(tasks[0].ratingsAVG).toBe(3.25)
   })
 })
 

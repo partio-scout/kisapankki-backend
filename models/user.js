@@ -13,6 +13,11 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
+  email: {
+    type: String,
+    minlength: 5,
+    required: true,
+  },
   password: {
     type: String,
     required: true,
@@ -30,5 +35,6 @@ userSchema.set('toJSON', {
 userSchema.plugin(uniqueValidator)
 
 const User = mongoose.model('User', userSchema)
+
 
 module.exports = User

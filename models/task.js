@@ -65,7 +65,16 @@ const taskSchema = new mongoose.Schema({
   files: [{
     type: String,
   }],
-  // media: ???           // pointer/url/entity ??
+  views: {
+    type: Number,
+    required: true
+  },
+  ratings: [{
+    type: Number
+  }],
+  ratingsAVG: {
+    type: Number
+  }
 })
 
 taskSchema.set('toJSON', {

@@ -29,8 +29,8 @@ userRouter.post('/', async (req, res, next) => {
     return res.status(401).json({ error: 'token missing or invalid' })
   }
 
-  if (!body.name || !body.username || !body.password) {
-    return res.status(400).json({ error: 'name, username or password missing' })
+  if (!body.name || !body.username || !body.password || !body.email ) {
+    return res.status(400).json({ error: 'name, username, email, password missing' })
   }
 
   const saltRounds = 10
@@ -39,6 +39,7 @@ userRouter.post('/', async (req, res, next) => {
   const user = new User({
     username: body.username,
     name: body.name,
+    email: body.email,
     password,
   })
 
@@ -58,6 +59,7 @@ userRouter.post('/adminkey', async (req, res, next) => {
     const user = new User({
       username: body.username,
       name: body.name,
+      email: body.email,
       password,
     })
     try {
@@ -66,6 +68,8 @@ userRouter.post('/adminkey', async (req, res, next) => {
     } catch (exception) {
       next(exception)
     }
+  } else {
+    return res.status(401).json({ error: 'adminKey missing or invalid' })
   }
 })
 
@@ -87,7 +91,8 @@ userRouter.put('/', async (req, res, next) => {
   let { name } = user
   let { username } = user
   let { password } = user
-
+  let { email } = user
+ 
   if (body.name) {
     if (body.name.length < 3) {
       return res.status(400).json({ error: 'too short name' })
@@ -106,6 +111,17 @@ userRouter.put('/', async (req, res, next) => {
     username = body.username
   }
 
+  if (body.email) {
+    if (body.email.length < 3) {
+      return res.status(400).json({ error: 'too short email' })
+    }
+    const foundUser = await User.findOne({ email: body.email })
+    if (foundUser && foundUser.email !== user.email) {
+      return res.status(400).json({ error: 'email already been in use' })
+    }
+    email = body.email
+  }
+
   if (body.oldPassword) {
     const passwordCorrect = await bcrypt.compare(body.oldPassword, user.password)
 
@@ -119,18 +135,21 @@ userRouter.put('/', async (req, res, next) => {
       return res.status(400).json({ error: 'too short password' })
     }
     const saltRounds = 10
-    password = await bcrypt.hash(body.newPassword, saltRounds)
+    password = await bcrypt.  hash(body.newPassword, saltRounds)
   }
 
   const updateUser = {
     name,
     username,
+    email,
     password,
   }
 
+  console.log(username)
+  console.log(email)
   User.findByIdAndUpdate(user.id, updateUser, { new: true })
     .then((updatedUser) => {
-      res.json({ token, name: updatedUser.name, username: updatedUser.username })
+      res.json({ token, name: updatedUser.name, username: updatedUser.username, email: updatedUser.email })
     })
     .catch((error) => next(error))
 })

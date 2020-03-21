@@ -17,12 +17,14 @@ beforeAll(async () => {
   const userOne = new User({
     name: 'test1',
     username: 'userOne',
+    email: 'test@email.com',
     password,
   })
 
   const userTwo = new User({
     name: 'test2',
     username: 'userTwo',
+    email: 'test@email2.com',
     password,
   })
 
@@ -53,12 +55,23 @@ describe('User', () => {
   test('is added', async () => {
     const result = await api
       .post('/api/user')
-      .send({ name: 'test3', username: 'userThree', password: 'testWord' })
+      .send({ name: 'test3', username: 'userThree', email: 'test@email3.com', password: 'testWord' })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
     expect(result.body.username).toBe('userThree')
+  })
+
+  test('email is added', async () => {
+    const result = await api
+      .post('/api/user')
+      .send({ name: 'test4', username: 'userFour', email: 'email@email4.com', password: 'testWord' })
+      .set('authorization', `bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    expect(result.body.email).toBe('email@email4.com')
   })
 
   test('is not added if username already exists', async () => {
@@ -72,7 +85,7 @@ describe('User', () => {
   test('is edited', async () => {
     const result = await api
       .put('/api/user')
-      .send({ name: 'editedName', username: 'editedUsername', password: 'newPassword' })
+      .send({ name: 'editedName', username: 'editedUsername', email: 'editedEmail', password: 'newPassword' })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)

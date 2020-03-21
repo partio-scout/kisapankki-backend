@@ -16,6 +16,7 @@ describe('Series', () => {
     const newAdmin = {
       name: 'testAdminN',
       username: 'testAdminUN',
+      email: 'testEmailN',
       password: 'testAdminPW',
       adminKey: process.env.ADMIN_KEY,
     }
@@ -105,6 +106,7 @@ describe('Series', () => {
       language: '5e6929121d689649d5d229cf',
       rule: '5e6929121d689649d5d229cg',
       pending: false,
+      views: 0
     })
 
     await newTask.save()
