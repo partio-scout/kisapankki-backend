@@ -2,6 +2,7 @@ const taskRouter = require('express').Router()
 const nodemailer = require('nodemailer')
 const config = require('../utils/config')
 const jwt = require('jsonwebtoken')
+const CronJob = require('cron').CronJob
 const Task = require('../models/task')
 const Category = require('../models/category')
 const Language = require('../models/language')
@@ -141,35 +142,6 @@ taskRouter.post('/', async (req, res, next) => {
     series.forEach((s) => {
       updatePointerList(savedTask.id, s)
     })
-
-    if (task.pending && config.NODE_ENV !== 'test') {
-
-      let transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: config.EMAIL_USER,
-          pass: config.EMAIL_PASSWORD
-        }
-      })
-
-      let mailOptions = {
-        from: `"Kisapankki" <${config.EMAIl_USER}>`,
-        to: ['arttu.janhunen@gmail.com'],
-        subject: 'Uusi tehtävä',
-        html: '<p>Hei, uusi tehtävä odottaa hyväksyntää kisapankissa</p>',
-        text: 'Hei, uusi tehtävä odottaa hyväksyntää kisapankissa'
-      }
-
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log(error)
-        } else {
-          console.log(info)
-        }
-      })
-    }
 
     res.json(savedTask.toJSON())
   } catch (exception) {
@@ -352,7 +324,7 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
       if (ratedTask) {
         ratedTask.ratings[rating - 1] = ratedTask.ratings[rating - 1] + 1
         let ratingsSUM = 0
-        let ratingAMOUNT = ratedTask.ratings.reduce((a,b) => a + b, 0)
+        let ratingAMOUNT = ratedTask.ratings.reduce((a, b) => a + b, 0)
         ratedTask.ratings.forEach((r, i) => {
           ratingsSUM = ratingsSUM + (r * (i + 1))
         })
@@ -366,5 +338,44 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
     next(exception)
   }
 })
+
+let job = new CronJob('00 00 17 */2 * *', async (req, res, next) => {
+  console.log('Sending email to admins')
+  try {
+    const pendingTasks = await Task.find({ pending: true })
+    console.log('Pending tasks:', pendingTasks.length)
+    if (pendingTasks.length > 0) {
+      let transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        auth: {
+          user: config.EMAIL_USER,
+          pass: config.EMAIL_PASSWORD
+        }
+      })
+
+      let mailOptions = {
+        from: `"Kisatehtäväpankki" <${config.EMAIl_USER}>`,
+        to: ['arttu.janhunen@gmail.com'],
+        subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
+        html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
+        text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`
+      }
+
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log(error)
+        } else {
+          console.log(info)
+        }
+      })
+    }
+  } catch (exception) {
+    next(exception)
+  }
+
+}, null, true, 'Europe/Helsinki');
+job.start()
 
 module.exports = taskRouter
