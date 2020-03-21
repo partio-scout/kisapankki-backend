@@ -339,43 +339,46 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
   }
 })
 
-let job = new CronJob('00 00 17 */2 * *', async (req, res, next) => {
-  console.log('Sending email to admins')
-  try {
-    const pendingTasks = await Task.find({ pending: true })
-    console.log('Pending tasks:', pendingTasks.length)
-    if (pendingTasks.length > 0) {
-      let transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: config.EMAIL_USER,
-          pass: config.EMAIL_PASSWORD
-        }
-      })
+if (config.NODE_ENV !== 'test') {
+  let job = new CronJob('00 00 17 */2 * *', async (req, res, next) => {
+    console.log('Sending email to admins')
+    try {
+      const pendingTasks = await Task.find({ pending: true })
+      console.log('Pending tasks:', pendingTasks.length)
+      if (pendingTasks.length > 0) {
+        let transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: config.EMAIL_USER,
+            pass: config.EMAIL_PASSWORD
+          }
+        })
 
-      let mailOptions = {
-        from: `"Kisatehtäväpankki" <${config.EMAIl_USER}>`,
-        to: ['arttu.janhunen@gmail.com'],
-        subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
-        html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
-        text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`
+        let mailOptions = {
+          from: `"Kisatehtäväpankki" <${config.EMAIl_USER}>`,
+          to: ['arttu.janhunen@gmail.com'],
+          subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
+          html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
+          text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`
+        }
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.log(error)
+          } else {
+            console.log(info)
+          }
+        })
       }
-
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.log(error)
-        } else {
-          console.log(info)
-        }
-      })
+    } catch (exception) {
+      next(exception)
     }
-  } catch (exception) {
-    next(exception)
-  }
 
-}, null, true, 'Europe/Helsinki');
-job.start()
+  }, null, true, 'Europe/Helsinki');
+  job.start()
+}
+
 
 module.exports = taskRouter
