@@ -641,6 +641,7 @@ describe('Tasks', () => {
     const tasks = await Task.find({})
     expect(tasks[0].ratingsAVG).toBe(3.25)
   })
+
   test('can be given multiple ratings and ratings sum is calculated correctly', async () => {
     const task = new Task({
       name: 'task for ratingSUM',
@@ -656,7 +657,7 @@ describe('Tasks', () => {
       views: 0,
       ratings: [0, 0, 0, 0, 0],
       ratingsAVG: 0,
-      ratingsSUM: 0
+      ratingsAmount: 0
     })
     const rateTask = await task.save()
 
@@ -681,7 +682,7 @@ describe('Tasks', () => {
       .expect(200)
 
     const tasks = await Task.find({})
-    expect(tasks[0].ratingsSUM).toBe(4)
+    expect(tasks[0].ratingsAmount).toBe(4)
   })
 })
 
