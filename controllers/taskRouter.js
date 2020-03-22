@@ -321,11 +321,12 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
       if (ratedTask) {
         ratedTask.ratings[rating - 1] = ratedTask.ratings[rating - 1] + 1
         let ratingsSUM = 0
-        let ratingAMOUNT = ratedTask.ratings.reduce((a,b) => a + b, 0)
+        let ratingAMOUNT = ratedTask.ratings.reduce((a, b) => a + b, 0)
         ratedTask.ratings.forEach((r, i) => {
           ratingsSUM = ratingsSUM + (r * (i + 1))
         })
         ratedTask.ratingsAVG = ratingsSUM / ratingAMOUNT
+        ratedTask.ratingsAmount = ratingAMOUNT
         ratedTask.markModified('ratings')
         const updTask = await ratedTask.save()
         res.status(200).end()
