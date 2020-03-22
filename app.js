@@ -2,6 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cors = require('cors')
+const CronJob = require('cron').CronJob
 
 const seriesRouter = require('./controllers/seriesRouter')
 const userRouter = require('./controllers/userRouter')
@@ -75,5 +76,14 @@ app.get('/', (req, res) => {
 
 app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
+
+if (config.NODE_ENV !== 'test') {
+  let job = new CronJob('00 */20 * * * *', async (req, res, next) => {
+    const time = new Date()
+    console.log('Ping! It is', time.toUTCString())
+  }, null, true, 'Europe/Helsinki');
+  job.start()
+}
+
 
 module.exports = app

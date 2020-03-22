@@ -1,10 +1,14 @@
 const taskRouter = require('express').Router()
+const nodemailer = require('nodemailer')
+const config = require('../utils/config')
 const jwt = require('jsonwebtoken')
+const CronJob = require('cron').CronJob
 const Task = require('../models/task')
 const Category = require('../models/category')
 const Language = require('../models/language')
 const Series = require('../models/series')
 const Rule = require('../models/rule')
+const User = require('../models/user')
 
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
@@ -336,5 +340,50 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
     next(exception)
   }
 })
+
+if (config.NODE_ENV !== 'test') {
+  let job = new CronJob('00 00 17 */2 * *', async () => {
+    console.log('Sending email to admins')
+    try {
+      const pendingTasks = await Task.find({ pending: true })
+      const usersToNotify = await User.find({ allowNotifications: true })
+      const emailList = usersToNotify.map(user => user.email)
+      console.log('Pending tasks:', pendingTasks.length)
+      if (pendingTasks.length > 0) {
+        console.log('Sending notification to following addresses:', emailList)
+        let transporter = nodemailer.createTransport({
+          host: 'smtp.gmail.com',
+          port: 465,
+          secure: true,
+          auth: {
+            user: config.EMAIL_USER,
+            pass: config.EMAIL_PASSWORD
+          }
+        })
+
+        let mailOptions = {
+          from: `"Kisatehtäväpankki" <${config.EMAIl_USER}>`,
+          to: emailList,
+          subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
+          html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
+          text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`
+        }
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            console.log(error)
+          } else {
+            console.log(info)
+          }
+        })
+      }
+    } catch (exception) {
+      console.log(exception)
+    }
+
+  }, null, true, 'Europe/Helsinki');
+  job.start()
+}
+
 
 module.exports = taskRouter
