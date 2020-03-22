@@ -81,7 +81,9 @@ if (config.NODE_ENV !== 'test') {
   let job = new CronJob('00 */5 * * * *', async (req, res, next) => {
     const time = new Date()
     console.log('Ping! It is', time.toUTCString())
-    app.get('/')
+    app.get('/', (req,res)=>{
+      res.send('Wakey wakey!')
+    })
   }, null, true, 'Europe/Helsinki');
   job.start()
 }
