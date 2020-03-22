@@ -78,7 +78,7 @@ app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
 if (config.NODE_ENV !== 'test') {
-  let job = new CronJob('00 */20 * * * *', async (req, res, next) => {
+  let job = new CronJob('00 */15 * * * *', async (req, res, next) => {
     const time = new Date()
     console.log('Ping! It is', time.toUTCString())
   }, null, true, 'Europe/Helsinki');
