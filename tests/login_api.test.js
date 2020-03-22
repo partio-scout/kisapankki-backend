@@ -17,6 +17,7 @@ beforeEach(async () => {
     name: 'name',
     username: 'username',
     email: 'email@email.com',
+    allowNotifications: true,
     password,
   })
 
@@ -27,7 +28,6 @@ describe('Login', () => {
   test('is successful with correct password', async () => {
     const testUser = {
       username: 'username',
-      email: 'email@email.com',
       password: 'password',
     }
 
@@ -42,7 +42,6 @@ describe('Login', () => {
   test('is not successful with incorrect password', async () => {
     const testUser = {
       username: 'username',
-      email: 'email@email.com',
       password: 'passphrase',
     }
 
@@ -57,7 +56,6 @@ describe('Login', () => {
   test('is not successful with not existing user', async () => {
     const testUser = {
       username: 'userword',
-      email: 'email@email.com',
       password: 'passphrase',
     }
 

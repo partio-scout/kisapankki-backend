@@ -29,7 +29,7 @@ userRouter.post('/', async (req, res, next) => {
     return res.status(401).json({ error: 'token missing or invalid' })
   }
 
-  if (!body.name || !body.username || !body.password || !body.email ) {
+  if (!body.name || !body.username || !body.password || !body.email) {
     return res.status(400).json({ error: 'name, username, email, password missing' })
   }
 
@@ -40,6 +40,7 @@ userRouter.post('/', async (req, res, next) => {
     username: body.username,
     name: body.name,
     email: body.email,
+    allowNotifications: body.allowNotifications,
     password,
   })
 
@@ -60,6 +61,7 @@ userRouter.post('/adminkey', async (req, res, next) => {
       username: body.username,
       name: body.name,
       email: body.email,
+      allowNotifications: body.allowNotifications,
       password,
     })
     try {
@@ -92,7 +94,8 @@ userRouter.put('/', async (req, res, next) => {
   let { username } = user
   let { password } = user
   let { email } = user
- 
+  let { allowNotifications } = user
+
   if (body.name) {
     if (body.name.length < 3) {
       return res.status(400).json({ error: 'too short name' })
@@ -122,6 +125,8 @@ userRouter.put('/', async (req, res, next) => {
     email = body.email
   }
 
+  allowNotifications = body.allowNotifications
+
   if (body.oldPassword) {
     const passwordCorrect = await bcrypt.compare(body.oldPassword, user.password)
 
@@ -135,21 +140,26 @@ userRouter.put('/', async (req, res, next) => {
       return res.status(400).json({ error: 'too short password' })
     }
     const saltRounds = 10
-    password = await bcrypt.  hash(body.newPassword, saltRounds)
+    password = await bcrypt.hash(body.newPassword, saltRounds)
   }
 
-  const updateUser = {
+  const updatedUser = {
     name,
     username,
     email,
     password,
+    allowNotifications
   }
 
-  console.log(username)
-  console.log(email)
-  User.findByIdAndUpdate(user.id, updateUser, { new: true })
+  User.findByIdAndUpdate(user.id, updatedUser, { new: true })
     .then((updatedUser) => {
-      res.json({ token, name: updatedUser.name, username: updatedUser.username, email: updatedUser.email })
+      res.json({
+        token,
+        name: updatedUser.name,
+        username: updatedUser.username,
+        email: updatedUser.email,
+        allowNotifications: updatedUser.allowNotifications
+      })
     })
     .catch((error) => next(error))
 })

@@ -18,6 +18,7 @@ describe('Tasks', () => {
       name: 'testAdminN',
       username: 'testAdminUN',
       email: 'testEmailN',
+      allowNotifications: true,
       password: 'testAdminPW',
       adminKey: process.env.ADMIN_KEY,
     }
