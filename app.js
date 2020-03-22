@@ -81,9 +81,8 @@ if (config.NODE_ENV !== 'test') {
   let job = new CronJob('00 */5 * * * *', async (req, res, next) => {
     const time = new Date()
     console.log('Ping! It is', time.toUTCString())
-    app.get('/', (req,res)=>{
-      res.send('Wakey wakey!')
-    })
+    let http = require('http')
+    http.get('http://kisapankki-staging.herokuapp.com')
   }, null, true, 'Europe/Helsinki');
   job.start()
 }
