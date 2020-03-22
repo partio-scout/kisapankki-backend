@@ -18,6 +18,7 @@ beforeAll(async () => {
     name: 'test1',
     username: 'userOne',
     email: 'test@email.com',
+    allowNotifications: true,
     password,
   })
 
@@ -26,6 +27,7 @@ beforeAll(async () => {
     username: 'userTwo',
     email: 'test@email2.com',
     password,
+    allowNotifications: true,
   })
 
   await userOne.save()
@@ -55,18 +57,19 @@ describe('User', () => {
   test('is added', async () => {
     const result = await api
       .post('/api/user')
-      .send({ name: 'test3', username: 'userThree', email: 'test@email3.com', password: 'testWord' })
+      .send({ name: 'test3', username: 'userThree', email: 'test@email3.com', password: 'testWord', allowNotifications: true, })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
     expect(result.body.username).toBe('userThree')
+    expect(result.body.allowNotifications).toBe(true)
   })
 
   test('email is added', async () => {
     const result = await api
       .post('/api/user')
-      .send({ name: 'test4', username: 'userFour', email: 'email@email4.com', password: 'testWord' })
+      .send({ name: 'test4', username: 'userFour', email: 'email@email4.com', password: 'testWord', allowNotifications: true, })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -85,13 +88,14 @@ describe('User', () => {
   test('is edited', async () => {
     const result = await api
       .put('/api/user')
-      .send({ name: 'editedName', username: 'editedUsername', email: 'editedEmail', password: 'newPassword' })
+      .send({ name: 'editedName', username: 'editedUsername', email: 'editedEmail', password: 'newPassword', allowNotifications: false, })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
     expect(result.body.name).toBe('editedName')
     expect(result.body.username).toBe('editedUsername')
+    expect(result.body.allowNotifications).toBe(false)
   })
 
   test('is not edited if username already exists', async () => {

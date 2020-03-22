@@ -74,6 +74,9 @@ const taskSchema = new mongoose.Schema({
   }],
   ratingsAVG: {
     type: Number
+  },
+  ratingsAmount: {
+    type: Number
   }
 })
 

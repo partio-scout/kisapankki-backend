@@ -16,6 +16,7 @@ describe('Rules', () => {
       name: 'testAdminN',
       username: 'testAdminUN',
       email: 'testEmailN',
+      allowNotifications: true,
       password: 'testAdminPW',
       adminKey: process.env.ADMIN_KEY,
     }
@@ -72,7 +73,7 @@ describe('Rules', () => {
 
     await api
       .post('/api/rule')
-      .send({ rules: 'Viralliset', acceptedCategories: [ savedCat.id ] })
+      .send({ rules: 'Viralliset', acceptedCategories: [savedCat.id] })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-type', /application\/json/)
@@ -114,7 +115,7 @@ describe('Rules', () => {
 
     await api
       .post('/api/rule')
-      .send({ rules: 'Paikalliset', acceptedCategories: [ savedCat1.id ] })
+      .send({ rules: 'Paikalliset', acceptedCategories: [savedCat1.id] })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-type', /application\/json/)
@@ -131,7 +132,7 @@ describe('Rules', () => {
 
     await api
       .put(`/api/rule/${rules[0].id}`)
-      .send({ name: 'Kansainväliset', acceptedCategories: [ savedCat1.id, savedCat2.id ] })
+      .send({ name: 'Kansainväliset', acceptedCategories: [savedCat1.id, savedCat2.id] })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-type', /application\/json/)
