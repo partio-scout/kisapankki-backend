@@ -8,6 +8,7 @@ const Category = require('../models/category')
 const Language = require('../models/language')
 const Series = require('../models/series')
 const Rule = require('../models/rule')
+const User = require('../models/user')
 
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
@@ -341,12 +342,15 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
 })
 
 if (config.NODE_ENV !== 'test') {
-  let job = new CronJob('00 00 17 */2 * *', async (req, res, next) => {
+  let job = new CronJob('00 00 17 */2 * *', async () => {
     console.log('Sending email to admins')
     try {
       const pendingTasks = await Task.find({ pending: true })
+      const usersToNotify = await User.find({ allowNotifications: true })
+      const emailList = usersToNotify.map(user => user.email)
       console.log('Pending tasks:', pendingTasks.length)
       if (pendingTasks.length > 0) {
+        console.log('Sending notification to following addresses:', emailList)
         let transporter = nodemailer.createTransport({
           host: 'smtp.gmail.com',
           port: 465,
@@ -359,7 +363,7 @@ if (config.NODE_ENV !== 'test') {
 
         let mailOptions = {
           from: `"Kisatehtäväpankki" <${config.EMAIl_USER}>`,
-          to: ['arttu.janhunen@gmail.com'],
+          to: emailList,
           subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
           html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
           text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`
@@ -374,7 +378,7 @@ if (config.NODE_ENV !== 'test') {
         })
       }
     } catch (exception) {
-      next(exception)
+      console.log(exception)
     }
 
   }, null, true, 'Europe/Helsinki');
