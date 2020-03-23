@@ -77,6 +77,10 @@ const taskSchema = new mongoose.Schema({
   },
   ratingsAmount: {
     type: Number
+  },
+  created: {
+    type: Date,
+    default: Date.now
   }
 })
 
