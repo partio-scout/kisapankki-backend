@@ -333,7 +333,7 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
         ratedTask.ratingsAmount = ratingAMOUNT
         ratedTask.markModified('ratings')
         const updTask = await ratedTask.save()
-        res.json(updTask.toJSON())  
+        res.json({ ratingsAVG: updTask.ratingsAVG, ratingsAmount: updTask.ratingsAmount })
       }
     }
   } catch (exception) {
