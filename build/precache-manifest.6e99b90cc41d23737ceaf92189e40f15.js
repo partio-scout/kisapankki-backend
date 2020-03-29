@@ -1,27 +1,27 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "153a4d70f9a6ae578dfbd0e5cd5f77d3",
+    "revision": "b14555fa17d85691902490a8b7d05599",
     "url": "/index.html"
   },
   {
-    "revision": "1b2f8cb984ce6a72c4bf",
+    "revision": "9e68b5534fb79c431e3e",
     "url": "/static/css/2.62cbf31a.chunk.css"
   },
   {
-    "revision": "f134d9fdd01807b02269",
-    "url": "/static/css/main.a81ca517.chunk.css"
+    "revision": "fb110c8651973b67defd",
+    "url": "/static/css/main.a6e738aa.chunk.css"
   },
   {
-    "revision": "1b2f8cb984ce6a72c4bf",
-    "url": "/static/js/2.11bc8ccf.chunk.js"
+    "revision": "9e68b5534fb79c431e3e",
+    "url": "/static/js/2.e0e4c2da.chunk.js"
   },
   {
-    "revision": "37cbaa08294c09f5d3ae45d0bbbd2cb3",
-    "url": "/static/js/2.11bc8ccf.chunk.js.LICENSE"
+    "revision": "3029165832436f55e7d0c11ab2b4cf23",
+    "url": "/static/js/2.e0e4c2da.chunk.js.LICENSE"
   },
   {
-    "revision": "f134d9fdd01807b02269",
-    "url": "/static/js/main.baa89100.chunk.js"
+    "revision": "fb110c8651973b67defd",
+    "url": "/static/js/main.83264b07.chunk.js"
   },
   {
     "revision": "00d1f22d4b7f548a87c0",
@@ -42,6 +42,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "b11f804605caede4cbe082d8569ef1a9",
     "url": "/static/media/black_bag.b11f8046.svg"
+  },
+  {
+    "revision": "be6fb4d8a177add117c07056fe4935e4",
+    "url": "/static/media/retki_luonto_syksy_EevaHelle_DSCF0184.be6fb4d8.jpg"
   },
   {
     "revision": "fa50ce8bb4244173638ccf5ce898b201",
