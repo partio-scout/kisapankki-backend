@@ -334,7 +334,7 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
         ratedTask.markModified('ratings')
         const updTask = await ratedTask.save()
         res.json({ ratingsAVG: updTask.ratingsAVG, ratingsAmount: updTask.ratingsAmount })
-        
+
       }
     }
   } catch (exception) {
@@ -343,7 +343,7 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
 })
 
 if (config.NODE_ENV !== 'test') {
-  let job = new CronJob('00 00 23 * * *', async () => {
+  let job = new CronJob('00 35 00 * * *', async () => {
     console.log('Sending email to admins')
     try {
       const pendingTasks = await Task.find({ pending: true })
@@ -352,22 +352,43 @@ if (config.NODE_ENV !== 'test') {
       console.log('Pending tasks:', pendingTasks.length)
       if (pendingTasks.length > 0) {
         console.log('Sending notification to following addresses:', emailList)
-        let transporter = nodemailer.createTransport({
-          host: 'smtp.gmail.com',
-          port: 465,
-          secure: true,
-          auth: {
-            user: config.EMAIL_USER,
-            pass: config.EMAIL_PASSWORD
-          }
-        })
+        let transporter
+        let mailOptions
+        if (config.APPLICATION_STAGE === 'DEV') {
+          transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+              user: config.EMAIL_USER,
+              pass: config.EMAIL_PASSWORD
+            }
+          })
 
-        let mailOptions = {
-          from: `"Kisatehtäväpankki" <${config.EMAIl_USER}>`,
-          to: emailList,
-          subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
-          html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
-          text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`
+          mailOptions = {
+            from: `"Kisatehtäväpankki" <${config.EMAIl_USER}>`,
+            to: emailList,
+            subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
+            html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
+            text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`
+          }
+        }
+        if (config.APPLICATION_STAGE === 'PROD') {
+          const sgTransport = require('nodemailer-sendgrid-transport')
+          transporter = nodemailer.createTransport(sgTransport({
+            auth: {
+              api_key: config.SENDGRID_APIKEY
+            }
+          }))
+
+          mailOptions = {
+            from: `"Kisatehtäväpankki" <${config.EMAIl_USER}>`,
+            to: emailList,
+            replyTo: config.EMAIL_USER,
+            subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
+            html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
+            text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`
+          }
         }
 
         transporter.sendMail(mailOptions, (error, info) => {

@@ -8,6 +8,7 @@ const { EMAIL_PASSWORD } = process.env
 const { AZURE_STORAGE_ACCOUNT_NAME } = process.env
 const { AZURE_STORAGE_ACCOUNT_ACCESS_KEY } = process.env
 const { NODE_ENV } = process.env
+const { SENDGRID_APIKEY } = process.env
 
 let MONGODB_URI
 if (process.env.NODE_ENV === 'test') {
@@ -26,5 +27,6 @@ module.exports = {
   EMAIL_PASSWORD,
   AZURE_STORAGE_ACCOUNT_NAME,
   AZURE_STORAGE_ACCOUNT_ACCESS_KEY,
-  NODE_ENV
+  NODE_ENV,
+  SENDGRID_APIKEY
 }
