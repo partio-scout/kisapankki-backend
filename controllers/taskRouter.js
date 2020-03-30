@@ -343,7 +343,7 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
 })
 
 if (config.NODE_ENV !== 'test') {
-  let job = new CronJob('00 45 21 * * *', async () => {
+  let job = new CronJob('00 00 22 * * *', async () => {
     console.log('Sending email to admins')
     try {
       const pendingTasks = await Task.find({ pending: true })
