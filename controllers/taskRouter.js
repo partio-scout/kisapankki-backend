@@ -9,6 +9,8 @@ const Language = require('../models/language')
 const Series = require('../models/series')
 const Rule = require('../models/rule')
 const User = require('../models/user')
+const fs = require('fs');
+const { mdToPdf } = require('md-to-pdf')
 
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
@@ -337,6 +339,27 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
 
       }
     }
+  } catch (exception) {
+    next(exception)
+  }
+})
+
+// NOT WORKING
+taskRouter.post('/:id/pdf', async (req, res, next) => {
+  try {
+    const id = req.params.id
+    const printedTask = await Task.findById(id)
+    let joinedText = printedTask.assignmentTextMD + ' ' + printedTask.gradingScaleMD + ' ' + printedTask.supervisorInstructionsMD
+    const pdf = await mdToPdf({ content: joinedText })
+    fs.writeFileSync(`${printedTask.name}.pdf`, pdf.content)
+    let file = fs.createReadStream(`${printedTask.name}.pdf`)
+    file.on('end', () => {
+      fs.unlink(`${printedTask.name}.pdf`, (err) => {
+        if (err) throw err
+      })
+    })
+    file.pipe(res)
+    console.log(pdf)
   } catch (exception) {
     next(exception)
   }
