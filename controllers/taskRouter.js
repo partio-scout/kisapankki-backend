@@ -133,7 +133,8 @@ taskRouter.post('/', async (req, res, next) => {
       files: body.files,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
+      ratingsAmount: 0,
     })
 
     const savedTask = await task.save()
