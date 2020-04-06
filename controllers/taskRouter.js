@@ -38,6 +38,49 @@ const removeFromPointerList = async (taskId, target) => {
   }
 }
 
+const createContentForPDF = (printedTask) => {
+  let sarjat = ''
+  printedTask.series.map((s) => sarjat += s.name + ' ')
+  const competitionInfo =
+  `Kisan nimi<br/>
+   Pvm: 1.2.1234<br/>
+   Paikka: Helsinki<br/>`
+  const logo = 'Tähän Kuva !'
+  let joinedText =
+  `<style>
+    .col2 {
+      columns: 2 100px;
+      -webkit-columns: 2 100px;
+      -moz-columns: 2 100px;
+    }
+  </style> \n`
+  joinedText +=
+  `<style>
+    .col1 {
+      columns: 1 50px;
+      -webkit-columns: 1 50px;
+      -moz-columns: 1 50px;
+    }
+  </style> \n`
+  joinedText += `<div class="col2" markdown="1">
+  <div class="col1" style="text-align: left;" markdown="1">${competitionInfo}</div>
+  <div class="col1" style="text-align: right;">${logo}</div></div>`
+  joinedText += `\n`
+  joinedText += `\n`
+  joinedText += `# ${printedTask.name}\n`
+  joinedText += `**Sarjat:** ${sarjat}\n**Säännöt:** ${printedTask.rules.name} **Kategoria:** ${printedTask.category.name}\n`
+  joinedText += '# Tehtävänanto\n' + printedTask.assignmentTextMD
+  joinedText += '# Arvostelu\n' + printedTask.gradingScaleMD
+  joinedText += '<div class="page-break"></div>'
+  joinedText += `\n`
+  joinedText += `\n`
+  let supervText = '# Rastimiehen ohjeet\n' + printedTask.supervisorInstructionsMD
+  joinedText += supervText
+  console.log(joinedText)
+  
+  return joinedText
+}
+
 taskRouter.get('/', async (req, res, next) => {
   try {
     const tasks = await Task.find({ pending: false })
@@ -344,13 +387,17 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
   }
 })
 
-// NOT WORKING
+// WORKING ???
 taskRouter.post('/:id/pdf', async (req, res, next) => {
   try {
     const id = req.params.id
     const printedTask = await Task.findById(id)
-    let joinedText = printedTask.assignmentTextMD + ' ' + printedTask.gradingScaleMD + ' ' + printedTask.supervisorInstructionsMD
-    const pdf = await mdToPdf({ content: joinedText })
+      .populate('series', 'name')
+      .populate('category', 'name')
+      .populate('rules', 'name')
+      .exec()
+    const mdContent = createContentForPDF(printedTask)
+    const pdf = await mdToPdf({ content: mdContent })
     fs.writeFileSync(`${printedTask.name}.pdf`, pdf.content)
     let file = fs.createReadStream(`${printedTask.name}.pdf`)
     file.on('end', () => {
@@ -359,7 +406,6 @@ taskRouter.post('/:id/pdf', async (req, res, next) => {
       })
     })
     file.pipe(res)
-    console.log(pdf)
   } catch (exception) {
     next(exception)
   }
