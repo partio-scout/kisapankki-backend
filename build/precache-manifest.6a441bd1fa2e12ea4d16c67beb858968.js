@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "dcda10720bc3081d9036a297ee90b246",
+    "revision": "e03b2853ff30d8108fc3cfce890239ef",
     "url": "/index.html"
   },
   {
@@ -8,8 +8,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/static/css/2.62cbf31a.chunk.css"
   },
   {
-    "revision": "6bb7a19e9431d9e2bba4",
-    "url": "/static/css/main.dbc9e583.chunk.css"
+    "revision": "0b4d0ea93816d7de0b97",
+    "url": "/static/css/main.4ce4d13b.chunk.css"
   },
   {
     "revision": "e6b2289a28e505c93891",
@@ -20,8 +20,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/static/js/2.cbdda622.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "6bb7a19e9431d9e2bba4",
-    "url": "/static/js/main.40c062c3.chunk.js"
+    "revision": "0b4d0ea93816d7de0b97",
+    "url": "/static/js/main.4a3f8d86.chunk.js"
   },
   {
     "revision": "d6e0ff4b5a245cc6be2c",
@@ -50,6 +50,10 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
     "revision": "be6fb4d8a177add117c07056fe4935e4",
     "url": "/static/media/retki_luonto_syksy_EevaHelle_DSCF0184.be6fb4d8.jpg"
+  },
+  {
+    "revision": "be6fb4d8a177add117c07056fe4935e4",
+    "url": "/static/media/retki_luonto_syksy_EevaHelle_DSCF0184Smaller.be6fb4d8.jpg"
   },
   {
     "revision": "fa50ce8bb4244173638ccf5ce898b201",
