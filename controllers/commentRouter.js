@@ -2,7 +2,6 @@ const commentRouter = require('express').Router()
 const Comment = require('../models/comment')
 const jwt = require('jsonwebtoken')
 
-
 commentRouter.get('/', async (req, res, next) => {
   try {
     const comments = await Comment.find({})
@@ -27,7 +26,7 @@ commentRouter.post('/', async (req, res, next) => {
     content: body.content,
     nickName: body.nickName,
     created: body.created,
-    pending: false,
+    pending: true,
     task: [],
   })
   try {
