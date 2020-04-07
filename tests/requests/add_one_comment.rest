@@ -1,0 +1,7 @@
+POST http://localhost:3001/api/comment/
+Content-Type: application/json
+
+{
+    "content": "kolmas yritys",
+    "nickName": "laldj"
+}
