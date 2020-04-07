@@ -12,13 +12,22 @@ commentRouter.get('/', async (req, res, next) => {
   }
 })
 
+commentRouter.get('/pending', async (req, res, next) => {
+  try {
+    const comments = await Comment.find({ pending: true })
+    res.json(comments.map((comment) => comment.toJSON()))
+  } catch (exception) {
+    next(exception)
+  }
+})
+
 commentRouter.post('/', async (req, res, next) => {
   const { body } = req
   const comment = new Comment({
     content: body.content,
     nickName: body.nickName,
     created: body.created,
-    pending: true,
+    pending: false,
     task: [],
   })
   try {

@@ -15,7 +15,6 @@ const commentSchema = new mongoose.Schema({
   },
   pending: {
     type: Boolean,
-    required: true,
   },
   task: [{
     type: mongoose.Schema.Types.ObjectId,
