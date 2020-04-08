@@ -47,11 +47,11 @@ const createContentForPDF = (printedTask, logo, contestInfo) => {
   let sarjat = ''
   printedTask.series.map((s) => sarjat += s.name + ' ')
   const competitionInfo =
-  `${contestInfo.name}<br/>
+    `${contestInfo.name}<br/>
    ${contestInfo.date}<br/>
    ${contestInfo.place}<br/>`
   let joinedText =
-  `<style>
+    `<style>
     .col2 {
       columns: 2 100px;
       -webkit-columns: 2 100px;
@@ -59,7 +59,7 @@ const createContentForPDF = (printedTask, logo, contestInfo) => {
     }
   </style> \n`
   joinedText +=
-  `<style>
+    `<style>
     .col1 {
       columns: 1 50px;
       -webkit-columns: 1 50px;
@@ -81,7 +81,7 @@ const createContentForPDF = (printedTask, logo, contestInfo) => {
   let supervText = '# Rastimiehen ohjeet\n' + printedTask.supervisorInstructionsMD
   joinedText += supervText
   console.log(joinedText)
-  
+
   return joinedText
 }
 
@@ -421,9 +421,26 @@ taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
   }
 })
 
-taskRouter.post('/pdf', async (req, res, next) => {
+const getid = async (id) => {
+  const task = await Task.findById(id)
+  console.log(task)
+  return task
+}
+
+taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
   try {
-    
+    const idList = JSON.parse(req.body.competition).tasks
+    const printedTasks = idList.map(id => {
+      getid(id)
+    })
+    const contestInfo = JSON.parse(req.body.competition)
+    const logo = req.file
+    const archive = archiver("zip")
+    res.attachment(`Rastit.zip`)
+    archive.pipe(res)
+
+    console.log(idList)
+    console.log(printedTasks)
   } catch (exception) {
     next(exception)
   }
