@@ -27,7 +27,7 @@ commentRouter.post('/', async (req, res, next) => {
     nickName: body.nickName,
     created: body.created,
     pending: true,
-    task: [],
+    task: body.task,
   })
   try {
     const savedComment = await comment.save()

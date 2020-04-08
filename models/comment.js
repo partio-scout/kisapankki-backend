@@ -5,7 +5,7 @@ const commentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  nickName: {
+  nickname: {
     type: String,
     required: false,
   },
@@ -16,10 +16,10 @@ const commentSchema = new mongoose.Schema({
   pending: {
     type: Boolean,
   },
-  task: [{
+  task: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Task',
-  }],
+  },
 })
 
 commentSchema.set('toJSON', {
