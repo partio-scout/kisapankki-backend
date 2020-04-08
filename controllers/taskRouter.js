@@ -11,6 +11,9 @@ const Rule = require('../models/rule')
 const User = require('../models/user')
 const fs = require('fs');
 const { mdToPdf } = require('md-to-pdf')
+const multer = require('multer')
+const inMemoryStorage = multer.memoryStorage()
+const uploadStrategy = multer({ storage: inMemoryStorage }).single('logo')
 
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
@@ -38,14 +41,14 @@ const removeFromPointerList = async (taskId, target) => {
   }
 }
 
-const createContentForPDF = (printedTask) => {
+const createContentForPDF = (printedTask, logo, contestInfo) => {
+  console.log(logo)
   let sarjat = ''
   printedTask.series.map((s) => sarjat += s.name + ' ')
   const competitionInfo =
-  `Kisan nimi<br/>
-   Pvm: 1.2.1234<br/>
-   Paikka: Helsinki<br/>`
-  const logo = 'Tähän Kuva !'
+  `${contestInfo.name}<br/>
+   ${contestInfo.date}<br/>
+   ${contestInfo.place}<br/>`
   let joinedText =
   `<style>
     .col2 {
@@ -64,7 +67,7 @@ const createContentForPDF = (printedTask) => {
   </style> \n`
   joinedText += `<div class="col2" markdown="1">
   <div class="col1" style="text-align: left;" markdown="1">${competitionInfo}</div>
-  <div class="col1" style="text-align: right;">${logo}</div></div>`
+  <div class="col1" style="text-align: right;">Tähän kuva !</div></div>`
   joinedText += `\n`
   joinedText += `\n`
   joinedText += `# ${printedTask.name}\n`
@@ -388,7 +391,7 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
 })
 
 // WORKING ???
-taskRouter.post('/:id/pdf', async (req, res, next) => {
+taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
   try {
     const id = req.params.id
     const printedTask = await Task.findById(id)
@@ -396,7 +399,9 @@ taskRouter.post('/:id/pdf', async (req, res, next) => {
       .populate('category', 'name')
       .populate('rules', 'name')
       .exec()
-    const mdContent = createContentForPDF(printedTask)
+    const contestInfo = JSON.parse(req.body.competition)
+    const logo = req.file
+    const mdContent = createContentForPDF(printedTask, logo, contestInfo)
     const pdf = await mdToPdf({ content: mdContent })
     fs.writeFileSync(`${printedTask.name}.pdf`, pdf.content)
     let file = fs.createReadStream(`${printedTask.name}.pdf`)
@@ -406,6 +411,14 @@ taskRouter.post('/:id/pdf', async (req, res, next) => {
       })
     })
     file.pipe(res)
+  } catch (exception) {
+    next(exception)
+  }
+})
+
+taskRouter.post('/pdf', async (req, res, next) => {
+  try {
+    
   } catch (exception) {
     next(exception)
   }
