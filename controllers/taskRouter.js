@@ -14,6 +14,7 @@ const { mdToPdf } = require('md-to-pdf')
 const multer = require('multer')
 const inMemoryStorage = multer.memoryStorage()
 const uploadStrategy = multer({ storage: inMemoryStorage }).single('logo')
+var archiver = require('archiver')
 
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
@@ -401,16 +402,20 @@ taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
       .exec()
     const contestInfo = JSON.parse(req.body.competition)
     const logo = req.file
+    const archive = archiver("zip")
+    res.attachment(`Rastit.zip`)
+    archive.pipe(res)
     const mdContent = createContentForPDF(printedTask, logo, contestInfo)
     const pdf = await mdToPdf({ content: mdContent })
     fs.writeFileSync(`${printedTask.name}.pdf`, pdf.content)
-    let file = fs.createReadStream(`${printedTask.name}.pdf`)
+    const file = fs.createReadStream(`${printedTask.name}.pdf`)
+    archive.append(file, { name: `${printedTask.name}.pdf` })
     file.on('end', () => {
       fs.unlink(`${printedTask.name}.pdf`, (err) => {
         if (err) throw err
       })
     })
-    file.pipe(res)
+    archive.finalize()
   } catch (exception) {
     next(exception)
   }
