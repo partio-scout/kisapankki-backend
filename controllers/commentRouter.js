@@ -2,6 +2,14 @@ const commentRouter = require('express').Router()
 const Comment = require('../models/comment')
 const jwt = require('jsonwebtoken')
 
+const getTokenFrom = (req) => {
+  const auth = req.get('authorization')
+  if (auth && auth.toLowerCase().startsWith('bearer ')) {
+    return auth.substring(7)
+  }
+  return null
+}
+
 commentRouter.get('/', async (req, res, next) => {
   try {
     const comments = await Comment.find({})
@@ -22,11 +30,19 @@ commentRouter.get('/pending', async (req, res, next) => {
 
 commentRouter.post('/', async (req, res, next) => {
   const { body } = req
+  let pen = true
+  if (req.get('authorization')) {
+    const token = getTokenFrom(req)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    if (token && decodedToken.id) {
+      pen = false
+    }
+  }
   const comment = new Comment({
     content: body.content,
-    nickName: body.nickName,
+    nickname: body.nickname,
     created: body.created,
-    pending: true,
+    pending: pen,
     task: body.task,
   })
   try {
