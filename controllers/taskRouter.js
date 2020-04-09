@@ -421,26 +421,36 @@ taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
   }
 })
 
-const getid = async (id) => {
-  const task = await Task.findById(id)
-  console.log(task)
-  return task
-}
-
 taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
   try {
     const idList = JSON.parse(req.body.competition).tasks
-    const printedTasks = idList.map(id => {
-      getid(id)
-    })
     const contestInfo = JSON.parse(req.body.competition)
     const logo = req.file
     const archive = archiver("zip")
     res.attachment(`Rastit.zip`)
     archive.pipe(res)
+    idList.map(async id => {
+      try {
+        const task = await Task.findById(id)
+          .populate('series', 'name')
+          .populate('category', 'name')
+          .populate('rules', 'name')
+          .exec()
+        const mdContent = createContentForPDF(task, logo, contestInfo)
+        const pdf = await mdToPdf({ content: mdContent })
+        fs.writeFileSync(`${task.name}.pdf`, pdf.content)
+        const file = fs.createReadStream(`${task.name}.pdf`)
+        archive.append(file, { name: `${task.name}.pdf` })
+        file.on('end', () => {
+          fs.unlink(`${task.name}.pdf`, (err) => {
+            if (err) throw err
+          })
+        })
+      } catch (exception) {
 
-    console.log(idList)
-    console.log(printedTasks)
+      }
+    })
+    archive.finalize()
   } catch (exception) {
     next(exception)
   }
