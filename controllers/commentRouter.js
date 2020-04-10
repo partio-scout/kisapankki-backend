@@ -1,6 +1,6 @@
 const commentRouter = require('express').Router()
-const Comment = require('../models/comment')
 const jwt = require('jsonwebtoken')
+const Comment = require('../models/comment')
 
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
@@ -50,6 +50,24 @@ commentRouter.post('/', async (req, res, next) => {
     res.json(savedComment.toJSON())
   } catch (exception) {
     next(exception)
+  }
+})
+
+commentRouter.delete('/:id', async (req, res, next) => {
+  if (req.get('authorization')) {
+    const token = getTokenFrom(req)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    if (token && decodedToken.id) {
+      try {
+        const comment = await Comment.findByIdAndRemove(req.params.id)
+      } catch (exception) {
+        next(exception)
+      }
+    } else {
+      res.status(401).end()
+    }
+  } else {
+    res.status(401).end()
   }
 })
 
