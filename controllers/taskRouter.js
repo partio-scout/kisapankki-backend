@@ -43,7 +43,6 @@ const removeFromPointerList = async (taskId, target) => {
 }
 
 const createContentForPDF = (printedTask, logo, contestInfo) => {
-  console.log(logo)
   let sarjat = ''
   printedTask.series.map((s) => sarjat += s.name + ' ')
   const competitionInfo =
@@ -80,7 +79,6 @@ const createContentForPDF = (printedTask, logo, contestInfo) => {
   joinedText += `\n`
   let supervText = '# Rastimiehen ohjeet\n' + printedTask.supervisorInstructionsMD
   joinedText += supervText
-  console.log(joinedText)
 
   return joinedText
 }
@@ -426,31 +424,37 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
     const idList = JSON.parse(req.body.competition).tasks
     const contestInfo = JSON.parse(req.body.competition)
     const logo = req.file
+    const outputZip = fs.createWriteStream('Rastit.zip')
     const archive = archiver("zip")
     res.attachment(`Rastit.zip`)
-    archive.pipe(res)
-    idList.map(async id => {
+    archive.pipe(outputZip)
+    console.log('id list: ' + idList)
+    const taskList = await Task.find({ _id: { $in: idList } })
+      .populate('series', 'name')
+      .populate('category', 'name')
+      .populate('rules', 'name')
+      .exec()
+    console.log('task list: ' + taskList)
+    taskList.forEach(async task => {
       try {
-        const task = await Task.findById(id)
-          .populate('series', 'name')
-          .populate('category', 'name')
-          .populate('rules', 'name')
-          .exec()
         const mdContent = createContentForPDF(task, logo, contestInfo)
         const pdf = await mdToPdf({ content: mdContent })
         fs.writeFileSync(`${task.name}.pdf`, pdf.content)
-        const file = fs.createReadStream(`${task.name}.pdf`)
-        archive.append(file, { name: `${task.name}.pdf` })
-        file.on('end', () => {
-          fs.unlink(`${task.name}.pdf`, (err) => {
-            if (err) throw err
-          })
-        })
+        const pdfStream = fs.createReadStream(`${task.name}.pdf`)
+        archive.append(pdfStream, { name: `${task.name}.pdf` })
       } catch (exception) {
-
+        next(exception)
       }
     })
     archive.finalize()
+    outputZip.close()
+    const zipFile = fs.createReadStream('Rastit.zip')
+    zipFile.on('end', () => {
+      fs.unlink(`Rastit.zip`, (err) => {
+        if (err) throw err
+      })
+    })
+    zipFile.pipe(res)
   } catch (exception) {
     next(exception)
   }
