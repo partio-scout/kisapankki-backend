@@ -1,1 +1,0 @@
-DELETE http://localhost:3001/api/comment/"5e8efab84796584d6b93abe0"

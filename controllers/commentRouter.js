@@ -54,20 +54,11 @@ commentRouter.post('/', async (req, res, next) => {
 })
 
 commentRouter.delete('/:id', async (req, res, next) => {
-  if (req.get('authorization')) {
-    const token = getTokenFrom(req)
-    const decodedToken = jwt.verify(token, process.env.SECRET)
-    if (token && decodedToken.id) {
-      try {
-        const comment = await Comment.findByIdAndRemove(req.params.id)
-      } catch (exception) {
-        next(exception)
-      }
-    } else {
-      res.status(401).end()
-    }
-  } else {
-    res.status(401).end()
+  try {
+    const comment = await Comment.findByIdAndRemove(req.params.id)
+    res.status(204).end()
+  } catch (exception) {
+    next(exception)
   }
 })
 
