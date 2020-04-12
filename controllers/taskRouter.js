@@ -45,10 +45,13 @@ const removeFromPointerList = async (taskId, target) => {
 const createContentForPDF = (printedTask, logo, contestInfo) => {
   let sarjat = ''
   printedTask.series.map((s) => sarjat += s.name + ' ')
-  const competitionInfo =
-    `${contestInfo.name}<br/>
-   ${contestInfo.date}<br/>
-   ${contestInfo.place}<br/>`
+  let competitionInfo = 
+      `<br/>
+      <br/>
+      ${contestInfo.name}<br/>
+      ${contestInfo.date}<br/>
+      ${contestInfo.place}<br/>
+      ${contestInfo.type}<br/>`
   let joinedText =
     `<style>
     .col2 {
@@ -66,8 +69,12 @@ const createContentForPDF = (printedTask, logo, contestInfo) => {
     }
   </style> \n`
   joinedText += `<div class="col2" markdown="1">
-  <div class="col1" style="text-align: left;" markdown="1">${competitionInfo}</div>
-  <div class="col1" style="text-align: right;">Tähän kuva !</div></div>`
+  <div class="col1" style="text-align: left;" markdown="1">${competitionInfo}</div>`
+  if (logo) {
+    joinedText += `<div class="col1" style="text-align: right;"><img height="110" width="110" alt="logo" src="data:image/png;base64,${logo.buffer.toString('base64')}"></div></div>`
+  } else {
+    joinedText += `<div class="col1" style="text-align: right;"><img height="95" width="200" alt="logo" src="../images/partio_logo_rgb_musta.png"></div></div>`
+  }
   joinedText += `\n`
   joinedText += `\n`
   joinedText += `# ${printedTask.name}\n`
@@ -389,7 +396,6 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
   }
 })
 
-// WORKING ???
 taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
   try {
     const id = req.params.id
@@ -400,61 +406,68 @@ taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
       .exec()
     const contestInfo = JSON.parse(req.body.competition)
     const logo = req.file
-    const archive = archiver("zip")
-    res.attachment(`Rastit.zip`)
-    archive.pipe(res)
+    res.attachment(`${printedTask.name}.pdf`)
     const mdContent = createContentForPDF(printedTask, logo, contestInfo)
     const pdf = await mdToPdf({ content: mdContent })
     fs.writeFileSync(`${printedTask.name}.pdf`, pdf.content)
     const file = fs.createReadStream(`${printedTask.name}.pdf`)
-    archive.append(file, { name: `${printedTask.name}.pdf` })
     file.on('end', () => {
       fs.unlink(`${printedTask.name}.pdf`, (err) => {
         if (err) throw err
       })
     })
-    archive.finalize()
+    file.pipe(res)
   } catch (exception) {
     next(exception)
   }
 })
+
+const zipMaterials = async (archive, pdfNameList) => {
+  pdfNameList.forEach(pdfName => {
+    archive.file(pdfName, { name: pdfName })
+  })
+  return archive
+}
 
 taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
   try {
     const idList = JSON.parse(req.body.competition).tasks
     const contestInfo = JSON.parse(req.body.competition)
     const logo = req.file
-    const outputZip = fs.createWriteStream('Rastit.zip')
+    let filesReady = false
     const archive = archiver("zip")
     res.attachment(`Rastit.zip`)
-    archive.pipe(outputZip)
+    archive.pipe(res)
     console.log('id list: ' + idList)
     const taskList = await Task.find({ _id: { $in: idList } })
       .populate('series', 'name')
       .populate('category', 'name')
       .populate('rules', 'name')
       .exec()
-    console.log('task list: ' + taskList)
-    taskList.forEach(async task => {
-      try {
-        const mdContent = createContentForPDF(task, logo, contestInfo)
-        const pdf = await mdToPdf({ content: mdContent })
-        fs.writeFileSync(`${task.name}.pdf`, pdf.content)
-        const pdfStream = fs.createReadStream(`${task.name}.pdf`)
-        archive.append(pdfStream, { name: `${task.name}.pdf` })
-      } catch (exception) {
-        next(exception)
+    const pdfNameList = taskList.map(task => `${task.name}.pdf`)
+    for (let i = 0; i < taskList.length; i++) {
+      const mdContent = createContentForPDF(taskList[i], logo, contestInfo)
+      const pdf = await mdToPdf({ content: mdContent })
+      fs.writeFileSync(`${taskList[i].name}.pdf`, pdf.content)
+      if (i == taskList.length - 1) {
+        filesReady = true
       }
-    })
-    archive.finalize()
-    outputZip.close()
-    const zipFile = fs.createReadStream('Rastit.zip')
-    zipFile.on('end', () => {
-      fs.unlink(`Rastit.zip`, (err) => {
-        if (err) throw err
-      })
-    })
-    zipFile.pipe(res)
+    }
+    console.log('PDF name list: ' + pdfNameList)
+    const zippedPDFs = await zipMaterials(archive, pdfNameList)
+    while (true) {
+      if (filesReady) {
+        zippedPDFs.finalize()
+        setTimeout(() => { pdfNameList.map(pdf => {
+          fs.unlink(pdf, (err) => {
+            if (err) throw err
+          })
+        }) }, 2000)
+        break
+      } else {
+        setTimeout(() => { console.log('creating files...') }, 500)
+      }
+    }
   } catch (exception) {
     next(exception)
   }
