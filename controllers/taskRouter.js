@@ -187,6 +187,7 @@ taskRouter.post('/', async (req, res, next) => {
       views: 0,
       ratings: [0, 0, 0, 0, 0],
       ratingsAVG: 0,
+      ratingsAmount: 0,
     })
 
     const savedTask = await task.save()
@@ -273,7 +274,12 @@ taskRouter.put('/:id', async (req, res, next) => {
           task.language = body.language
         }
 
-        const updTask = await task.save()
+        const updTask = await task.save().then(t => 
+          t.populate('series', 'name color')
+          .populate('category', 'name')
+          .populate('language', 'name')
+          .populate('rules', 'name')
+          .execPopulate())
         res.json(updTask.toJSON())
       } catch (exception) {
         next(exception)
