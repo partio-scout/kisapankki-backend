@@ -481,13 +481,13 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
 
 if (config.NODE_ENV !== 'test') {
   const job = new CronJob('00 00 17 */2 * *', async () => {
-    console.log('Sending email to admins')
     try {
       const pendingTasks = await Task.find({ pending: true })
       const usersToNotify = await User.find({ allowNotifications: true })
       const emailList = usersToNotify.map((user) => user.email)
       console.log('Pending tasks:', pendingTasks.length)
       if (pendingTasks.length > 0) {
+        console.log('Sending email to admins')
         console.log('Sending notification to following addresses:', emailList)
         let transporter
         let mailOptions
