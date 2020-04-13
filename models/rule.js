@@ -11,8 +11,8 @@ const ruleSchema = new mongoose.Schema({
   }],
   acceptedCategories: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category'
-  }]
+    ref: 'Category',
+  }],
 })
 
 ruleSchema.set('toJSON', {

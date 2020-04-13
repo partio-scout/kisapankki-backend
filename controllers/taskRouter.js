@@ -1,14 +1,21 @@
 const taskRouter = require('express').Router()
 const nodemailer = require('nodemailer')
-const config = require('../utils/config')
 const jwt = require('jsonwebtoken')
-const CronJob = require('cron').CronJob
+const { CronJob } = require('cron')
+const fs = require('fs')
+const { mdToPdf } = require('md-to-pdf')
+const multer = require('multer')
+const archiver = require('archiver')
+const config = require('../utils/config')
 const Task = require('../models/task')
 const Category = require('../models/category')
 const Language = require('../models/language')
 const Series = require('../models/series')
 const Rule = require('../models/rule')
 const User = require('../models/user')
+
+const inMemoryStorage = multer.memoryStorage()
+const uploadStrategy = multer({ storage: inMemoryStorage }).single('logo')
 
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
@@ -34,6 +41,52 @@ const removeFromPointerList = async (taskId, target) => {
     target.task = target.task.filter((id) => id != taskId)
     await target.save()
   }
+}
+
+const createContentForPDF = (printedTask, logo, contestInfo) => {
+  let sarjat = ''
+  printedTask.series.map((s) => sarjat += `${s.name} `)
+  const competitionInfo = `<br/>
+      <br/>
+      ${contestInfo.name}<br/>
+      ${contestInfo.date}<br/>
+      ${contestInfo.place}<br/>
+      ${contestInfo.type}<br/>`
+  let joinedText = `<style>
+    .col2 {
+      columns: 2 100px;
+      -webkit-columns: 2 100px;
+      -moz-columns: 2 100px;
+    }
+  </style> \n`
+  joinedText
+    += `<style>
+    .col1 {
+      columns: 1 50px;
+      -webkit-columns: 1 50px;
+      -moz-columns: 1 50px;
+    }
+  </style> \n`
+  joinedText += `<div class="col2" markdown="1">
+  <div class="col1" style="text-align: left;" markdown="1">${competitionInfo}</div>`
+  if (logo) {
+    joinedText += `<div class="col1" style="text-align: right;"><img height="110" width="110" alt="logo" src="data:image/png;base64,${logo.buffer.toString('base64')}"></div></div>`
+  } else {
+    joinedText += '<div class="col1" style="text-align: right;"><img height="95" width="200" alt="logo" src="../images/partio_logo_rgb_musta.png"></div></div>'
+  }
+  joinedText += '\n'
+  joinedText += '\n'
+  joinedText += `# ${printedTask.name}\n`
+  joinedText += `**Sarjat:** ${sarjat}\n**Säännöt:** ${printedTask.rules.name} **Kategoria:** ${printedTask.category.name}\n`
+  joinedText += `# Tehtävänanto\n${printedTask.assignmentTextMD}`
+  joinedText += `# Arvostelu\n${printedTask.gradingScaleMD}`
+  joinedText += '<div class="page-break"></div>'
+  joinedText += '\n'
+  joinedText += '\n'
+  const supervText = `# Rastimiehen ohjeet\n${printedTask.supervisorInstructionsMD}`
+  joinedText += supervText
+
+  return joinedText
 }
 
 taskRouter.get('/', async (req, res, next) => {
@@ -314,7 +367,7 @@ taskRouter.post('/search', async (req, res, next) => {
 taskRouter.post('/:id/views', async (req, res, next) => {
   try {
     const task = await Task.findById(req.params.id)
-    task.views = task.views + 1
+    task.views += 1
     const updTask = await task.save()
     res.json(updTask.toJSON())
   } catch (exception) {
@@ -324,23 +377,101 @@ taskRouter.post('/:id/views', async (req, res, next) => {
 
 taskRouter.post('/:id/rate', async (req, res, next) => {
   try {
-    const rating = req.body.rating
-    const id = req.params.id
+    const { rating } = req.body
+    const { id } = req.params
     if (rating > 0 && rating < 6) {
       const ratedTask = await Task.findById(id)
       if (ratedTask) {
         ratedTask.ratings[rating - 1] = ratedTask.ratings[rating - 1] + 1
         let ratingsSUM = 0
-        let ratingAMOUNT = ratedTask.ratings.reduce((a, b) => a + b, 0)
+        const ratingAMOUNT = ratedTask.ratings.reduce((a, b) => a + b, 0)
         ratedTask.ratings.forEach((r, i) => {
-          ratingsSUM = ratingsSUM + (r * (i + 1))
+          ratingsSUM += (r * (i + 1))
         })
         ratedTask.ratingsAVG = ratingsSUM / ratingAMOUNT
         ratedTask.ratingsAmount = ratingAMOUNT
         ratedTask.markModified('ratings')
         const updTask = await ratedTask.save()
         res.json({ ratingsAVG: updTask.ratingsAVG, ratingsAmount: updTask.ratingsAmount })
+      }
+    }
+  } catch (exception) {
+    next(exception)
+  }
+})
 
+taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
+  try {
+    const { id } = req.params
+    const printedTask = await Task.findById(id)
+      .populate('series', 'name')
+      .populate('category', 'name')
+      .populate('rules', 'name')
+      .exec()
+    const contestInfo = JSON.parse(req.body.competition)
+    const logo = req.file
+    res.attachment(`${printedTask.name}.pdf`)
+    const mdContent = createContentForPDF(printedTask, logo, contestInfo)
+    const pdf = await mdToPdf({ content: mdContent })
+    fs.writeFileSync(`${printedTask.name}.pdf`, pdf.content)
+    const file = fs.createReadStream(`${printedTask.name}.pdf`)
+    file.on('end', () => {
+      fs.unlink(`${printedTask.name}.pdf`, (err) => {
+        if (err) throw err
+      })
+    })
+    file.pipe(res)
+  } catch (exception) {
+    next(exception)
+  }
+})
+
+const zipMaterials = async (archive, pdfNameList) => {
+  pdfNameList.forEach((pdfName) => {
+    archive.file(pdfName, { name: pdfName })
+  })
+  return archive
+}
+
+taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
+  try {
+    const idList = JSON.parse(req.body.competition).tasks
+    const contestInfo = JSON.parse(req.body.competition)
+    const logo = req.file
+    let filesReady = false
+    const archive = archiver('zip')
+    res.attachment('Rastit.zip')
+    archive.pipe(res)
+    console.log(`id list: ${idList}`)
+    const taskList = await Task.find({ _id: { $in: idList } })
+      .populate('series', 'name')
+      .populate('category', 'name')
+      .populate('rules', 'name')
+      .exec()
+    const pdfNameList = taskList.map((task) => `${task.name}.pdf`)
+    for (let i = 0; i < taskList.length; i++) {
+      const mdContent = createContentForPDF(taskList[i], logo, contestInfo)
+      const pdf = await mdToPdf({ content: mdContent })
+      fs.writeFileSync(`${taskList[i].name}.pdf`, pdf.content)
+      if (i == taskList.length - 1) {
+        filesReady = true
+      }
+    }
+    console.log(`PDF name list: ${pdfNameList}`)
+    const zippedPDFs = await zipMaterials(archive, pdfNameList)
+    while (true) {
+      if (filesReady) {
+        zippedPDFs.finalize()
+        setTimeout(() => {
+          pdfNameList.map((pdf) => {
+            fs.unlink(pdf, (err) => {
+              if (err) throw err
+            })
+          })
+        }, 2000)
+        break
+      } else {
+        setTimeout(() => { console.log('creating files...') }, 500)
       }
     }
   } catch (exception) {
@@ -349,12 +480,12 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
 })
 
 if (config.NODE_ENV !== 'test') {
-  let job = new CronJob('00 00 17 */2 * *', async () => {
+  const job = new CronJob('00 00 17 */2 * *', async () => {
     console.log('Sending email to admins')
     try {
       const pendingTasks = await Task.find({ pending: true })
       const usersToNotify = await User.find({ allowNotifications: true })
-      const emailList = usersToNotify.map(user => user.email)
+      const emailList = usersToNotify.map((user) => user.email)
       console.log('Pending tasks:', pendingTasks.length)
       if (pendingTasks.length > 0) {
         console.log('Sending notification to following addresses:', emailList)
@@ -367,8 +498,8 @@ if (config.NODE_ENV !== 'test') {
             secure: true,
             auth: {
               user: config.EMAIL_USER,
-              pass: config.EMAIL_PASSWORD
-            }
+              pass: config.EMAIL_PASSWORD,
+            },
           })
 
           mailOptions = {
@@ -376,15 +507,15 @@ if (config.NODE_ENV !== 'test') {
             to: emailList,
             subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
             html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
-            text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`
+            text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`,
           }
         }
         if (config.APPLICATION_STAGE === 'PROD') {
           const sgTransport = require('nodemailer-sendgrid-transport')
           transporter = nodemailer.createTransport(sgTransport({
             auth: {
-              api_key: config.SENDGRID_APIKEY
-            }
+              api_key: config.SENDGRID_APIKEY,
+            },
           }))
 
           mailOptions = {
@@ -393,7 +524,7 @@ if (config.NODE_ENV !== 'test') {
             replyTo: config.EMAIL_USER,
             subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
             html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
-            text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`
+            text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`,
           }
         }
 
@@ -408,8 +539,7 @@ if (config.NODE_ENV !== 'test') {
     } catch (exception) {
       console.log(exception)
     }
-
-  }, null, true, 'Europe/Helsinki');
+  }, null, true, 'Europe/Helsinki')
   job.start()
 }
 

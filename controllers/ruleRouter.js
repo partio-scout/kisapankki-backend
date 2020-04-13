@@ -1,6 +1,6 @@
 const ruleRouter = require('express').Router()
-const Rule = require('../models/rule')
 const jwt = require('jsonwebtoken')
+const Rule = require('../models/rule')
 const Task = require('../models/task')
 
 const getTokenFrom = (req) => {
@@ -33,7 +33,7 @@ ruleRouter.post('/', async (req, res, next) => {
       const rule = new Rule({
         name: body.rules,
         task: [],
-        acceptedCategories: body.acceptedCategories
+        acceptedCategories: body.acceptedCategories,
       })
 
       try {
@@ -56,7 +56,7 @@ ruleRouter.delete('/:id', async (req, res, next) => {
     const decodedToken = jwt.verify(token, process.env.SECRET)
     if (token && decodedToken.id) {
       try {
-        const id = req.params.id
+        const { id } = req.params
         const delRules = await Rule.findById(id)
         if (delRules) {
           const tasksWithPointer = await Task.find({ _id: { $in: delRules.task } })

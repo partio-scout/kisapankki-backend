@@ -24,8 +24,8 @@ const userSchema = new mongoose.Schema({
   },
   allowNotifications: {
     type: Boolean,
-    required: true
-  }
+    required: true,
+  },
 })
 
 userSchema.set('toJSON', {

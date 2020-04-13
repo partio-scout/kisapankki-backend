@@ -2,7 +2,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const CronJob = require('cron').CronJob
+const { CronJob } = require('cron')
 
 const seriesRouter = require('./controllers/seriesRouter')
 const userRouter = require('./controllers/userRouter')
@@ -21,7 +21,6 @@ const app = express()
 mongoose.set('useFindAndModify', false)
 
 if (config.APPLICATION_STAGE === 'DEV') {
-
   logger.info('Connecting to', config.MONGODB_URI)
 
   mongoose
@@ -46,9 +45,8 @@ if (config.APPLICATION_STAGE === 'PROD') {
       useCreateIndex: true,
     })
     .then(() => logger.info('Connection to CosmosDB successful'))
-    .catch((error) => logger.error('Error in connection to COSMOSDB: ', error.message));
+    .catch((error) => logger.error('Error in connection to COSMOSDB: ', error.message))
 }
-
 
 
 app.use(cors())
@@ -78,12 +76,12 @@ app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
 if (config.NODE_ENV !== 'test') {
-  let job = new CronJob('00 */5 * * * *', async (req, res, next) => {
+  const job = new CronJob('00 */5 * * * *', async (req, res, next) => {
     const time = new Date()
     console.log('Ping! It is', time.toUTCString())
-    let http = require('http')
+    const http = require('http')
     http.get('http://kisapankki-staging.herokuapp.com')
-  }, null, true, 'Europe/Helsinki');
+  }, null, true, 'Europe/Helsinki')
   job.start()
 }
 

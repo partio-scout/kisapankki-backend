@@ -5,21 +5,24 @@ const account = config.AZURE_STORAGE_ACCOUNT_NAME
 const accountKey = config.AZURE_STORAGE_ACCOUNT_ACCESS_KEY
 
 const multer = require('multer')
+
 const inMemoryStorage = multer.memoryStorage()
 const uploadStrategy = multer({ storage: inMemoryStorage }).array('filesToAdd')
 const getStream = require('into-stream')
+
 const containerName = 'files'
 
 const azureStorage = require('azure-storage')
+
 const blobService = azureStorage.createBlobService(account, accountKey)
-blobService.createContainerIfNotExists(containerName, { publicAccessLevel: 'blob' }, error => {
+blobService.createContainerIfNotExists(containerName, { publicAccessLevel: 'blob' }, (error) => {
   if (error) {
     console.log(error)
   }
 })
 
 
-const getBlobName = originalName => {
+const getBlobName = (originalName) => {
   const identifier = Math.random().toString().replace(/0\./, '')
   return `${identifier}-${originalName}`
 }
@@ -37,14 +40,14 @@ fileRouter.post('/', uploadStrategy, (req, res, next) => {
     }
   }
 
-  let blobNames = []
+  const blobNames = []
   for (let i = 0; i < req.files.length; i++) {
     const blobName = getBlobName(req.files[i].originalname)
     blobNames.push(blobName)
     const stream = getStream(req.files[i].buffer)
     const streamLength = req.files[i].buffer.length
 
-    blobService.createBlockBlobFromStream(containerName, blobName, stream, streamLength, error => {
+    blobService.createBlockBlobFromStream(containerName, blobName, stream, streamLength, (error) => {
       if (error) {
         console.log(error)
         res.status(500).end()
