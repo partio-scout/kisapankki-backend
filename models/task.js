@@ -67,21 +67,21 @@ const taskSchema = new mongoose.Schema({
   }],
   views: {
     type: Number,
-    required: true
+    required: true,
   },
   ratings: [{
-    type: Number
+    type: Number,
   }],
   ratingsAVG: {
-    type: Number
+    type: Number,
   },
   ratingsAmount: {
-    type: Number
+    type: Number,
   },
   created: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 })
 
 taskSchema.set('toJSON', {

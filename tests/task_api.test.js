@@ -58,7 +58,7 @@ describe('Tasks', () => {
       files: ['file1', 'file2'],
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     await newTask.save()
     const result = await api
@@ -107,7 +107,7 @@ describe('Tasks', () => {
       files: ['file1', 'file2'],
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
 
     await newTask.save()
@@ -154,7 +154,7 @@ describe('Tasks', () => {
       language: savedL.id,
       rule: savedR.id,
       files: ['file1', 'file2'],
-      views: 0
+      views: 0,
     }
 
     await api
@@ -195,7 +195,7 @@ describe('Tasks', () => {
       files: ['file1', 'file2'],
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     const savedTask = await newTask.save()
 
@@ -239,7 +239,7 @@ describe('Tasks', () => {
       files: ['file1', 'file2'],
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     const secondTask = new Task({
       name: 'second task',
@@ -259,7 +259,7 @@ describe('Tasks', () => {
       files: ['file1', 'file2'],
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     const first = await firstTask.save()
     const second = await secondTask.save()
@@ -290,7 +290,7 @@ describe('Tasks', () => {
       pending: false,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     const secondTask = new Task({
       name: 'second task',
@@ -305,7 +305,7 @@ describe('Tasks', () => {
       pending: true,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     const thirdTask = new Task({
       name: 'third task',
@@ -320,7 +320,7 @@ describe('Tasks', () => {
       pending: false,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     await firstTask.save()
     await secondTask.save()
@@ -380,7 +380,7 @@ describe('Tasks', () => {
       files: ['file1', 'file2'],
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
 
     const modiTask = await newTask.save()
@@ -416,7 +416,7 @@ describe('Tasks', () => {
       pending: true,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     const pendingTask = await task.save()
     const emptyAcceptedList = await api
@@ -452,7 +452,7 @@ describe('Tasks', () => {
       pending: false,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     await task.save()
 
@@ -482,7 +482,7 @@ describe('Tasks', () => {
       pending: false,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     await task.save()
 
@@ -512,7 +512,7 @@ describe('Tasks', () => {
       pending: false,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     const viewTask = await task.save()
 
@@ -545,7 +545,7 @@ describe('Tasks', () => {
       pending: true,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     const viewTask = await task.save()
 
@@ -585,7 +585,7 @@ describe('Tasks', () => {
       pending: true,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     const rateTask = await task.save()
 
@@ -615,7 +615,7 @@ describe('Tasks', () => {
       pending: true,
       views: 0,
       ratings: [0, 0, 0, 0, 0],
-      ratingsAVG: 0
+      ratingsAVG: 0,
     })
     const rateTask = await task.save()
 
@@ -658,7 +658,7 @@ describe('Tasks', () => {
       views: 0,
       ratings: [0, 0, 0, 0, 0],
       ratingsAVG: 0,
-      ratingsAmount: 0
+      ratingsAmount: 0,
     })
     const rateTask = await task.save()
 
@@ -687,7 +687,6 @@ describe('Tasks', () => {
   })
 
   test('pdf is returned when id is sent', async () => {
-
     const cat = new Category({
       name: 'cat1',
     })
@@ -724,7 +723,7 @@ describe('Tasks', () => {
       category: savedC.id,
       series: [savedS.id],
       rules: savedR.id,
-      lang: savedL.id
+      lang: savedL.id,
 
     })
 
@@ -734,11 +733,11 @@ describe('Tasks', () => {
       name: 'test',
       date: '12.12.2020',
       place: 'helsinki',
-      type: 'test competition'
+      type: 'test competition',
     })
 
     const body = {
-      competition
+      competition,
     }
 
     await api
@@ -749,7 +748,6 @@ describe('Tasks', () => {
   })
 
   test('zip is returned when id is sent', async () => {
-
     const cat = new Category({
       name: 'cat1',
     })
@@ -786,7 +784,7 @@ describe('Tasks', () => {
       category: savedC.id,
       series: [savedS.id],
       rules: savedR.id,
-      lang: savedL.id
+      lang: savedL.id,
 
     })
 
@@ -808,7 +806,7 @@ describe('Tasks', () => {
       category: savedC.id,
       series: [savedS.id],
       rules: savedR.id,
-      lang: savedL.id
+      lang: savedL.id,
 
     })
 
@@ -820,15 +818,15 @@ describe('Tasks', () => {
       date: '12.12.2020',
       place: 'helsinki',
       type: 'test competition',
-      tasks: [pdfTask.id, pdfTask2.id]
+      tasks: [pdfTask.id, pdfTask2.id],
     })
 
     const body = {
-      competition
+      competition,
     }
 
     await api
-      .post(`/api/task/pdf`)
+      .post('/api/task/pdf')
       .send(body)
       .expect(200)
       .expect('Content-Type', /application\/zip/)

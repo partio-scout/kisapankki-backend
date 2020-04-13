@@ -85,7 +85,7 @@ describe('Categories', () => {
     const newRule = new Rule({
       name: 'new rules',
       task: [],
-      acceptedCategories: [ categories[0].id ]
+      acceptedCategories: [categories[0].id],
     })
     const savedRule = await newRule.save()
     expect(savedRule.acceptedCategories.length).toBe(1)

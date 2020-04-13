@@ -8,7 +8,6 @@ const Category = require('../models/category')
 const api = supertest(app)
 
 describe('Rules', () => {
-
   let token = null
 
   beforeAll(async () => {
@@ -42,13 +41,13 @@ describe('Rules', () => {
     const ruleOne = new Rule({
       name: 'jokamies',
       task: [],
-      acceptedCategories: []
+      acceptedCategories: [],
     })
 
     const ruleTwo = new Rule({
       name: 'SM-kisat',
       task: [],
-      acceptedCategories: []
+      acceptedCategories: [],
     })
 
     await ruleOne.save()
@@ -66,7 +65,7 @@ describe('Rules', () => {
   test('can be added', async () => {
     const newCat = new Category({
       name: 'initial category',
-      task: []
+      task: [],
     })
 
     const savedCat = await newCat.save()
@@ -108,7 +107,7 @@ describe('Rules', () => {
   test('can be modified', async () => {
     const newCat1 = new Category({
       name: 'first new category',
-      task: []
+      task: [],
     })
 
     const savedCat1 = await newCat1.save()

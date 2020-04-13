@@ -57,7 +57,9 @@ describe('User', () => {
   test('is added', async () => {
     const result = await api
       .post('/api/user')
-      .send({ name: 'test3', username: 'userThree', email: 'test@email3.com', password: 'testWord', allowNotifications: true, })
+      .send({
+        name: 'test3', username: 'userThree', email: 'test@email3.com', password: 'testWord', allowNotifications: true,
+      })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -69,7 +71,9 @@ describe('User', () => {
   test('email is added', async () => {
     const result = await api
       .post('/api/user')
-      .send({ name: 'test4', username: 'userFour', email: 'email@email4.com', password: 'testWord', allowNotifications: true, })
+      .send({
+        name: 'test4', username: 'userFour', email: 'email@email4.com', password: 'testWord', allowNotifications: true,
+      })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -88,7 +92,9 @@ describe('User', () => {
   test('is edited', async () => {
     const result = await api
       .put('/api/user')
-      .send({ name: 'editedName', username: 'editedUsername', email: 'editedEmail', password: 'newPassword', allowNotifications: false, })
+      .send({
+        name: 'editedName', username: 'editedUsername', email: 'editedEmail', password: 'newPassword', allowNotifications: false,
+      })
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
