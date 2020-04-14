@@ -412,7 +412,11 @@ taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
     const logo = req.file
     res.attachment(`${printedTask.name}.pdf`)
     const mdContent = createContentForPDF(printedTask, logo, contestInfo)
-    const pdf = await mdToPdf({ content: mdContent })
+    const pdf = await mdToPdf({ content: mdContent },
+      { 'args': [
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ] })
     fs.writeFileSync(`${printedTask.name}.pdf`, pdf.content)
     const file = fs.createReadStream(`${printedTask.name}.pdf`)
     file.on('end', () => {
