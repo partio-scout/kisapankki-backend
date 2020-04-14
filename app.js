@@ -23,7 +23,7 @@ mongoose.set('useFindAndModify', false)
 
 replace({
   regex: "launch_options: {},",
-  replacement: "launch_options: {'--no-sandbox'},",
+  replacement: "launch_options: {'args': ['--no-sandbox']},",
   paths: ['node_modules/md-to-pdf/src/lib/config.ts'],
   recursive: true,
   silent: true,
