@@ -19,7 +19,7 @@ export const defaultConfig: Config = {
 			left: '20mm',
 		},
 	},
-	launch_options: {},
+	launch_options: { "args': ['--no-sandbox', '--disable-setuid-sandbox']"},
 	md_file_encoding: 'utf-8',
 	stylesheet_encoding: 'utf-8',
 	as_html: false,
