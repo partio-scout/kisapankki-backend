@@ -4,7 +4,7 @@
   "description": "Repository for scout competition task application's backend",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js && md-to-pdf --launch-options '{ \"args\": [\"--no-sandbox\"]}' ",
+    "start": "node index.js",
     "test": "NODE_ENV=test jest ---verbose --runInBand",
     "test-win": "cross-env NODE_ENV=test jest ---verbose --runInBand",
     "lint": "eslint .",
@@ -37,6 +37,7 @@
     "multer": "^1.4.2",
     "nodemailer": "^6.4.5",
     "nodemailer-sendgrid-transport": "^0.2.0",
+    "replace": "^1.1.5",
     "supertest": "^4.0.2"
   },
   "devDependencies": {
