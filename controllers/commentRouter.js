@@ -10,9 +10,9 @@ const getTokenFrom = (req) => {
   return null
 }
 
-commentRouter.get('/', async (req, res, next) => {
+commentRouter.get('/:id', async (req, res, next) => {
   try {
-    const comments = await Comment.find({})
+    const comments = await Comment.find({ task: req.params.id })
     res.json(comments.map((comment) => comment.toJSON()))
   } catch (exception) {
     next(exception)
@@ -59,13 +59,13 @@ commentRouter.delete('/:id', async (req, res, next) => {
     const decodedToken = jwt.verify(token, process.env.SECRET)
     if (token && decodedToken.id) {
       try {
-        const comment = await Comment.findByIdAndRemove(req.params.id)
+        await Comment.findByIdAndRemove(req.params.id)
         res.status(204).end()
       } catch (exception) {
         next(exception)
       }
     } else {
-     res.status(404).end()
+      res.status(404).end()
     }
   } else {
     res.status(401).end()
