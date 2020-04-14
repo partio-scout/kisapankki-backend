@@ -442,7 +442,6 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
     const archive = archiver('zip')
     res.attachment('Rastit.zip')
     archive.pipe(res)
-    console.log(`id list: ${idList}`)
     const taskList = await Task.find({ _id: { $in: idList } })
       .populate('series', 'name')
       .populate('category', 'name')
@@ -457,7 +456,6 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
         filesReady = true
       }
     }
-    console.log(`PDF name list: ${pdfNameList}`)
     const zippedPDFs = await zipMaterials(archive, pdfNameList)
     while (true) {
       if (filesReady) {
