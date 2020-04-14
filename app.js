@@ -78,7 +78,7 @@ app.use(middleware.errorHandler)
 if (config.NODE_ENV !== 'test') {
   const job = new CronJob('00 */5 * * * *', async (req, res, next) => {
     const time = new Date()
-    console.log('Ping! It is', time.toUTCString())
+    console.log('Ping pong! It is', time.toUTCString())
     const http = require('http')
     http.get('http://kisapankki-staging.herokuapp.com')
   }, null, true, 'Europe/Helsinki')
