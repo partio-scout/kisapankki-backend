@@ -16,18 +16,9 @@ const fileRouter = require('./controllers/fileRouter')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
-const replace = require('replace')
 
 const app = express()
 mongoose.set('useFindAndModify', false)
-
-replace({
-  regex: "launch_options: {},",
-  replacement: "launch_options: {'args': ['--no-sandbox', '--disable-setuid-sandbox']}",
-  paths: ['node_modules/md-to-pdf/src/lib/config.ts'],
-  recursive: true,
-  silent: true,
-})
 
 if (config.APPLICATION_STAGE === 'DEV') {
   logger.info('Connecting to', config.MONGODB_URI)
