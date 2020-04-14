@@ -274,12 +274,12 @@ taskRouter.put('/:id', async (req, res, next) => {
           task.language = body.language
         }
 
-        const updTask = await task.save().then(t => 
+        const updTask = await task.save().then(t =>
           t.populate('series', 'name color')
-          .populate('category', 'name')
-          .populate('language', 'name')
-          .populate('rules', 'name')
-          .execPopulate())
+            .populate('category', 'name')
+            .populate('language', 'name')
+            .populate('rules', 'name')
+            .execPopulate())
         res.json(updTask.toJSON())
       } catch (exception) {
         next(exception)
@@ -412,11 +412,7 @@ taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
     const logo = req.file
     res.attachment(`${printedTask.name}.pdf`)
     const mdContent = createContentForPDF(printedTask, logo, contestInfo)
-    const pdf = await mdToPdf({ content: mdContent },
-      { 'args': [
-        '--no-sandbox',
-        '--disable-setuid-sandbox'
-      ] })
+    const pdf = await mdToPdf({ content: mdContent })
     fs.writeFileSync(`${printedTask.name}.pdf`, pdf.content)
     const file = fs.createReadStream(`${printedTask.name}.pdf`)
     file.on('end', () => {
