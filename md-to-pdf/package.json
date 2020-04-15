@@ -1,11 +1,5 @@
 {
-  "_args": [
-    [
-      "md-to-pdf@3.0.1",
-      "/home/ajanhune/ohtuprojekti/kisapankki-backend"
-    ]
-  ],
-  "_from": "md-to-pdf@3.0.1",
+  "_from": "md-to-pdf",
   "_id": "md-to-pdf@3.0.1",
   "_inBundle": false,
   "_integrity": "sha512-MRwJH+lyRodgimlLBF0iJ4cErjKI+mvwN8iXoFRKANGvoFLhCTxbW4kcJpSXUlF89Apv5X5aYoKrDYbJE+QPnQ==",
@@ -15,20 +9,22 @@
     "safer-buffer": "2.1.2"
   },
   "_requested": {
-    "type": "version",
+    "type": "tag",
     "registry": true,
-    "raw": "md-to-pdf@3.0.1",
+    "raw": "md-to-pdf",
     "name": "md-to-pdf",
     "escapedName": "md-to-pdf",
-    "rawSpec": "3.0.1",
+    "rawSpec": "",
     "saveSpec": null,
-    "fetchSpec": "3.0.1"
+    "fetchSpec": "latest"
   },
   "_requiredBy": [
+    "#USER",
     "/"
   ],
   "_resolved": "https://registry.npmjs.org/md-to-pdf/-/md-to-pdf-3.0.1.tgz",
-  "_spec": "3.0.1",
+  "_shasum": "a7cd206de805757c621c7b7f1c1d93a3bf742545",
+  "_spec": "md-to-pdf",
   "_where": "/home/ajanhune/ohtuprojekti/kisapankki-backend",
   "author": {
     "name": "Simon Haenisch",
@@ -49,6 +45,7 @@
   "bugs": {
     "url": "https://github.com/simonhaenisch/md-to-pdf/issues"
   },
+  "bundleDependencies": false,
   "dependencies": {
     "arg": "4.1.3",
     "chalk": "3.0.0",
@@ -63,6 +60,7 @@
     "puppeteer": "^2.0.0",
     "serve-handler": "6.1.2"
   },
+  "deprecated": false,
   "description": "CLI tool for converting Markdown files to PDF.",
   "devDependencies": {
     "@types/highlight.js": "9.12.3",
