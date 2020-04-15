@@ -10,6 +10,15 @@ const getTokenFrom = (req) => {
   return null
 }
 
+commentRouter.get('/', async (req, res, next) => {
+  try {
+    const comments = await Comment.find({})
+    res.json(comments.map((comment) => comment.toJSON()))
+  } catch (exception) {
+    next(exception)
+  }
+})
+
 commentRouter.get('/:id', async (req, res, next) => {
   try {
     const comments = await Comment.find({ task: req.params.id })
@@ -66,6 +75,27 @@ commentRouter.delete('/:id', async (req, res, next) => {
       }
     } else {
       res.status(404).end()
+    }
+  } else {
+    res.status(401).end()
+  }
+})
+
+commentRouter.put('/:id/accept', async (req, res, next) => {
+  if (req.get('authorization')) {
+    const token = getTokenFrom(req)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    if (token && decodedToken.id) {
+      try {
+        const comment = await Comment.findById(req.params.id)
+        comment.pending = false
+        const updComment = await comment.save()
+        res.json(updComment.toJSON())
+      } catch (exception) {
+        next(exception)
+      }
+    } else {
+      res.status(401).end()
     }
   } else {
     res.status(401).end()

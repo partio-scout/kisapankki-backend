@@ -32,7 +32,7 @@ describe('Comment', () => {
       .expect(200)
     token = loggedInAdmin.body.token
 
-    const task = new Task({
+    const taskOne = new Task({
       name: 'comment test',
       assignmentText: 'testTask for comment',
       assignmentTextMD: 'test',
@@ -50,20 +50,75 @@ describe('Comment', () => {
       views: 4,
       pending: false,
     })
-    await task.save()
+    const taskTwo = new Task({
+      name: 'second test',
+      assignmentText: 'testTask for comment',
+      assignmentTextMD: 'test',
+      supervisorInstructions: 'testInstructions',
+      supervisorInstructionsMD: 'check',
+      gradingScale: '5 or 0',
+      gradingScaleMD: '5 or 0',
+      creatorName: 'Test Co',
+      creatorEmail: 'Test.comment@comment',
+      series: null,
+      category: null,
+      language: null,
+      rule: null,
+      files: [],
+      views: 4,
+      pending: false,
+    })
+    await taskOne.save()
+    await taskTwo.save()
   })
+
 
   beforeEach(async () => {
     await Comment.deleteMany({})
   })
 
+  test('returns only taskrelated comments', async () => {
+    const savedTasks = await Task.find({})
 
-  test('new comment can be added', async () => {
+    firstComment = new Comment({
+      content: 'sisältö',
+      nickname: 'testinimi',
+      pending: true,
+      task: savedTasks[0].id,
+    })
+    secondComment = new Comment({
+      content: 'toinen sisältö',
+      nickname: 'testinimi',
+      pending: false,
+      task: savedTasks[1].id,
+    })
+
+    await firstComment.save()
+    await secondComment.save()
+
+    const result = await api
+      .get(`/api/comment/${savedTasks[0].id}`)
+      .set('authorization', `bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(result.body[0].content).toBe('sisältö')
+    expect(result.body[0].pending).toBe(true)
+
+    const result2 = await api
+      .get(`/api/comment/${savedTasks[1].id}`)
+      .set('authorization', `bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(result2.body[0].content).toBe('toinen sisältö')
+    expect(result2.body[0].pending).toBe(false)
+  })
+
+  test('new comment can be added by admin', async () => {
     const savedTasks = await Task.find({})
 
     newComment = {
-      content: 'miks aina on pahaa ruokaa',
-      nickname: 'testiname',
+      content: 'kommentin sisältö',
+      nickname: 'testinimi',
       task: savedTasks[0].id,
     }
     await api
@@ -78,11 +133,124 @@ describe('Comment', () => {
       .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
-    expect(result.body[0].nickname).toBe('testiname')
-    expect(result.body[0].content).toBe('miks aina on pahaa ruokaa')
+    expect(result.body[0].nickname).toBe('testinimi')
+    expect(result.body[0].content).toBe('kommentin sisältö')
     expect(result.body[0].pending).toBe(false)
   })
 
+  // test('new comment can be added without signing in', async () => {
+  //   const savedTasks = await Task.find({})
+  //   // token = null??
+
+  //   newComment = {
+  //     content: 'kommentin sisältö',
+  //     nickname: 'testinimi',
+  //     task: savedTasks[0].id,
+  //   }
+  //   await api
+  //     .post('/api/comment')
+  //     .send(newComment)
+  //     .set('authorization', `bearer ${token}`)
+  //     .expect(200)
+  //     .expect('Content-Type', /application\/json/)
+
+  //   const result = await api
+  //     .get(`/api/comment/${savedTasks[0].id}`)
+  //     .set('authorization', `bearer ${token}`)
+  //     .expect(200)
+  //     .expect('Content-Type', /application\/json/)
+  //   // expect(result.body[0].pending).toBe(true)
+  // })
+
+  test('can be deleted', async () => {
+    const savedTasks = await Task.find({})
+
+    newComment = new Comment({
+      content: 'sisältö',
+      nickname: 'testinimi',
+      pending: true,
+      task: savedTasks[0].id,
+    })
+
+    const savedComment = await newComment.save()
+
+    const res1 = await api
+      .get('/api/comment')
+      .set('authorization', `bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(res1.body[0].content).toBe('sisältö')
+    expect(res1.body.length).toBe(1)
+
+    await api
+      .delete(`/api/comment/${savedComment.id}`)
+      .set('authorization', `bearer ${token}`)
+      .expect(204)
+
+    const res2 = await api
+      .get('/api/comment')
+      .set('authorization', `bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(res2.body.length).toBe(0)
+  })
+
+  test('pending status can be changed from pending to accepted', async () => {
+    const savedTasks = await Task.find({})
+
+    pendingComment = new Comment({
+      content: 'pending',
+      nickname: 'testinimi',
+      pending: true,
+      task: savedTasks[0].id,
+    })
+
+    const savedComment = await pendingComment.save()
+
+    const pendComment = await api
+      .get(`/api/comment/${savedTasks[0].id}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(pendComment.body[0].pending).toBe(true)
+
+    await api
+      .put(`/api/comment/${savedComment.id}/accept`)
+      .set('authorization', `bearer ${token}`)
+      .expect(200)
+
+    const acceptedList = await api
+      .get(`/api/comment/${savedTasks[0].id}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(acceptedList.body[0].pending).toBe(false)
+  })
+
+  // test('can be searched by pending status', async () => {
+  //   const savedTasks = await Task.find({})
+
+  //   firstComment = new Comment({
+  //     content: 'miks aina on pahaa ruokaa',
+  //     nickname: 'testiname',
+  //     pending: true,
+  //     task: savedTasks[0].id,
+  //   })
+
+  //   secondComment = new Comment({
+  //     content: 'toinen kommentti',
+  //     nickname: 'testinimi',
+  //     pending: false,
+  //     task: savedTasks[0].id,
+  //   })
+  //   await firstComment.save()
+  //   await secondComment.save()
+
+  //   const pendingComments = await api
+  //     .get('/api/comment/pending')
+  //     .expect(200)
+  //     .expect('Content-Type', /application\/json/)
+  //   expect(pendingComments.body.length).toBe(1)
+  //   expect(pendingComments.body[1].name).toBe('toinen kommentti')
+  // })
 })
 
 afterAll(async () => {
