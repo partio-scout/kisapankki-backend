@@ -3,7 +3,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-Object.defineProperty(exports, "__esModule", { value: true });
+/*Object.defineProperty(exports, "__esModule", { value: true });*/
 const get_port_1 = __importDefault(require("get-port"));
 const config_1 = require("./lib/config");
 const helpers_1 = require("./lib/helpers");
