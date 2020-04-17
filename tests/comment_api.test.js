@@ -222,32 +222,32 @@ describe('Comment', () => {
     expect(acceptedList.body[0].pending).toBe(false)
   })
 
-  // test('can be searched by pending status', async () => {
-  //   const savedTasks = await Task.find({})
+  test('can be searched by pending status', async () => {
+    const savedTasks = await Task.find({})
 
-  //   firstComment = new Comment({
-  //     content: 'miks aina on pahaa ruokaa',
-  //     nickname: 'testiname',
-  //     pending: true,
-  //     task: savedTasks[0].id,
-  //   })
+    firstComment = new Comment({
+      content: 'miks aina on pahaa ruokaa',
+      nickname: 'testiname',
+      pending: false,
+      task: savedTasks[0].id,
+    })
 
-  //   secondComment = new Comment({
-  //     content: 'toinen kommentti',
-  //     nickname: 'testinimi',
-  //     pending: false,
-  //     task: savedTasks[0].id,
-  //   })
-  //   await firstComment.save()
-  //   await secondComment.save()
+    secondComment = new Comment({
+      content: 'toinen kommentti',
+      nickname: 'testinimi',
+      pending: true,
+      task: savedTasks[0].id,
+    })
+    await firstComment.save()
+    await secondComment.save()
 
-  //   const pendingComments = await api
-  //     .get('/api/comment/pending')
-  //     .expect(200)
-  //     .expect('Content-Type', /application\/json/)
-  //   expect(pendingComments.body.length).toBe(1)
-  //   expect(pendingComments.body[1].name).toBe('toinen kommentti')
-  // })
+    const pendingComments = await api
+      .get('/api/comment/pending')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(pendingComments.body.length).toBe(1)
+    expect(pendingComments.body[0].content).toBe('toinen kommentti')
+  })
 })
 
 afterAll(async () => {

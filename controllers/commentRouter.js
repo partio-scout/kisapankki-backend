@@ -20,17 +20,27 @@ commentRouter.get('/', async (req, res, next) => {
 })
 
 commentRouter.get('/pending', async (req, res, next) => {
-  try {
-    const comments = await Comment.find({ pending: true })
-    res.json(comments.map((comment) => comment.toJSON()))
-  } catch (exception) {
-    next(exception)
+  if (req.get('authorization')) {
+    const token = getTokenFrom(req)
+    const decodedToken = jwt.verify(token, process.env.SECRET)
+    if (token && decodedToken.id) {
+      try {
+        const comments = await Comment.find({ pending: true })
+        res.json(comments.map((comment) => comment.toJSON()))
+      } catch (exception) {
+        next(exception)
+      }
+    } else {
+      res.status(401).end()
+    }
+  } else {
+    res.status(401).end()
   }
 })
 
 commentRouter.get('/:id', async (req, res, next) => {
   try {
-    const comments = await Comment.find({ task: req.params.id })
+    const comments = await Comment.find({ task: req.params.id, pending: false })
     res.json(comments.map((comment) => comment.toJSON()))
   } catch (exception) {
     next(exception)
