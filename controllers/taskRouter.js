@@ -501,7 +501,7 @@ if (config.NODE_ENV !== 'test') {
           })
 
           mailOptions = {
-            from: `"Kisatehtäväpankki" <${config.EMAIl_USER}>`,
+            from: 'Kisatehtäväpankki <partioprojekti@gmail.com>',
             to: emailList,
             subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
             html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
@@ -517,7 +517,7 @@ if (config.NODE_ENV !== 'test') {
           }))
 
           mailOptions = {
-            from: `"Kisatehtäväpankki" <${config.EMAIl_USER}>`,
+            from: 'Kisatehtäväpankki <partioprojekti@gmail.com>',
             to: emailList,
             replyTo: config.EMAIL_USER,
             subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
