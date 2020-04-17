@@ -12,6 +12,7 @@ const loginRouter = require('./controllers/loginRouter')
 const categoryRouter = require('./controllers/categoryRouter')
 const taskRouter = require('./controllers/taskRouter')
 const fileRouter = require('./controllers/fileRouter')
+const commentRouter = require('./controllers/commentRouter')
 
 const config = require('./utils/config')
 const logger = require('./utils/logger')
@@ -61,6 +62,7 @@ app.use('/api/series', seriesRouter)
 app.use('/api/category', categoryRouter)
 app.use('/api/task', taskRouter)
 app.use('/api/file', fileRouter)
+app.use('/api/comment', commentRouter)
 
 app.use(express.static('build'))
 
