@@ -19,18 +19,18 @@ commentRouter.get('/', async (req, res, next) => {
   }
 })
 
-commentRouter.get('/:id', async (req, res, next) => {
+commentRouter.get('/pending', async (req, res, next) => {
   try {
-    const comments = await Comment.find({ task: req.params.id })
+    const comments = await Comment.find({ pending: true })
     res.json(comments.map((comment) => comment.toJSON()))
   } catch (exception) {
     next(exception)
   }
 })
 
-commentRouter.get('/pending', async (req, res, next) => {
+commentRouter.get('/:id', async (req, res, next) => {
   try {
-    const comments = await Comment.find({ pending: true })
+    const comments = await Comment.find({ task: req.params.id })
     res.json(comments.map((comment) => comment.toJSON()))
   } catch (exception) {
     next(exception)
