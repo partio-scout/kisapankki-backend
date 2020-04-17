@@ -83,7 +83,7 @@ describe('Comment', () => {
     firstComment = new Comment({
       content: 'sisältö',
       nickname: 'testinimi',
-      pending: true,
+      pending: false,
       task: savedTasks[0].id,
     })
     secondComment = new Comment({
@@ -102,7 +102,7 @@ describe('Comment', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(result.body[0].content).toBe('sisältö')
-    expect(result.body[0].pending).toBe(true)
+    expect(result.body[0].pending).toBe(false)
 
     const result2 = await api
       .get(`/api/comment/${savedTasks[1].id}`)
@@ -153,10 +153,12 @@ describe('Comment', () => {
       .expect('Content-Type', /application\/json/)
 
     const result = await api
-      .get(`/api/comment/${savedTasks[0].id}`)
+      .get('/api/comment/pending')
+      .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(result.body[0].pending).toBe(true)
+    expect(result.body[0].content).toBe('kommentin sisältö')
   })
 
   test('can be deleted', async () => {
@@ -205,21 +207,23 @@ describe('Comment', () => {
     const savedComment = await pendingComment.save()
 
     const pendComment = await api
-      .get(`/api/comment/${savedTasks[0].id}`)
+      .get('/api/comment/pending')
+      .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(pendComment.body[0].pending).toBe(true)
+    expect(pendComment.body[0].content).toBe('pending')
 
     await api
       .put(`/api/comment/${savedComment.id}/accept`)
       .set('authorization', `bearer ${token}`)
       .expect(200)
 
-    const acceptedList = await api
+    const acceptedComment = await api
       .get(`/api/comment/${savedTasks[0].id}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
-    expect(acceptedList.body[0].pending).toBe(false)
+    expect(acceptedComment.body[0].pending).toBe(false)
   })
 
   test('can be searched by pending status', async () => {
@@ -243,6 +247,7 @@ describe('Comment', () => {
 
     const pendingComments = await api
       .get('/api/comment/pending')
+      .set('authorization', `bearer ${token}`)
       .expect(200)
       .expect('Content-Type', /application\/json/)
     expect(pendingComments.body.length).toBe(1)
