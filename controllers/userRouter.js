@@ -148,7 +148,7 @@ userRouter.put('/', async (req, res, next) => {
     username,
     email,
     password,
-    allowNotifications
+    allowNotifications,
   }
 
   User.findByIdAndUpdate(user.id, updatedUser, { new: true })
@@ -158,7 +158,7 @@ userRouter.put('/', async (req, res, next) => {
         name: updatedUser.name,
         username: updatedUser.username,
         email: updatedUser.email,
-        allowNotifications: updatedUser.allowNotifications
+        allowNotifications: updatedUser.allowNotifications,
       })
     })
     .catch((error) => next(error))

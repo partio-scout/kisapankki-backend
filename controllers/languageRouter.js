@@ -1,7 +1,7 @@
 const languageRouter = require('express').Router()
+const jwt = require('jsonwebtoken')
 const Language = require('../models/language')
 const Task = require('../models/task')
-const jwt = require('jsonwebtoken')
 
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
@@ -56,7 +56,7 @@ languageRouter.delete('/:id', async (req, res, next) => {
       try {
         const delLang = await Language.findById(req.params.id)
         if (delLang) {
-          const tasksWithPointers = await Task.find({ _id: { $in: delLang.task }})
+          const tasksWithPointers = await Task.find({ _id: { $in: delLang.task } })
           tasksWithPointers.forEach(async (task) => {
             task.language = null
             await task.save()

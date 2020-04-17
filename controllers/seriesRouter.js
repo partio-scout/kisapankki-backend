@@ -1,7 +1,7 @@
 const seriesRouter = require('express').Router()
+const jwt = require('jsonwebtoken')
 const Series = require('../models/series')
 const Task = require('../models/task')
-const jwt = require('jsonwebtoken')
 
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
@@ -53,12 +53,12 @@ seriesRouter.delete('/:id', async (req, res, next) => {
     const decodedToken = jwt.verify(token, process.env.SECRET)
     if (token && decodedToken.id) {
       try {
-        const id = req.params.id
+        const { id } = req.params
         const delSer = await Series.findById(id)
         if (delSer) {
           const tasksWithPointer = await Task.find({ _id: { $in: delSer.task } })
           tasksWithPointer.forEach(async (task) => {
-            task.series = task.series.filter(s => s != id)
+            task.series = task.series.filter((s) => s != id)
             await task.save()
           })
           await delSer.remove()
