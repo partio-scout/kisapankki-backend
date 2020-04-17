@@ -138,29 +138,26 @@ describe('Comment', () => {
     expect(result.body[0].pending).toBe(false)
   })
 
-  // test('new comment can be added without signing in', async () => {
-  //   const savedTasks = await Task.find({})
-  //   // token = null??
+  test('new comment can be added without signing in', async () => {
+    const savedTasks = await Task.find({})
 
-  //   newComment = {
-  //     content: 'kommentin sisältö',
-  //     nickname: 'testinimi',
-  //     task: savedTasks[0].id,
-  //   }
-  //   await api
-  //     .post('/api/comment')
-  //     .send(newComment)
-  //     .set('authorization', `bearer ${token}`)
-  //     .expect(200)
-  //     .expect('Content-Type', /application\/json/)
+    newComment = {
+      content: 'kommentin sisältö',
+      nickname: 'testinimi',
+      task: savedTasks[0].id,
+    }
+    await api
+      .post('/api/comment')
+      .send(newComment)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
 
-  //   const result = await api
-  //     .get(`/api/comment/${savedTasks[0].id}`)
-  //     .set('authorization', `bearer ${token}`)
-  //     .expect(200)
-  //     .expect('Content-Type', /application\/json/)
-  //   // expect(result.body[0].pending).toBe(true)
-  // })
+    const result = await api
+      .get(`/api/comment/${savedTasks[0].id}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(result.body[0].pending).toBe(true)
+  })
 
   test('can be deleted', async () => {
     const savedTasks = await Task.find({})
