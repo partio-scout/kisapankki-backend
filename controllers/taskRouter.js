@@ -78,7 +78,7 @@ const createContentForPDF = (printedTask, logo, contestInfo) => {
   joinedText += '\n'
   joinedText += `# ${printedTask.name}\n`
   joinedText += `**Sarjat:** ${sarjat}\n**Säännöt:** ${printedTask.rules.name} **Kategoria:** ${printedTask.category.name}\n`
-  joinedText += `# Tehtävänanto\n${printedTask.assignmentTextMD}`
+  joinedText += `# Tehtävänanto\n${printedTask.assignmentTextMD}\n`
   joinedText += `# Arvostelu\n${printedTask.gradingScaleMD}`
   joinedText += '<div class="page-break"></div>'
   joinedText += '\n'
