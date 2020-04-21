@@ -44,8 +44,6 @@ const removeFromPointerList = async (taskId, target) => {
 }
 
 const createContentForPDF = (printedTask, logo, contestInfo) => {
-  let sarjat = ''
-  printedTask.series.map((s) => sarjat += `${s.name} `)
   const competitionInfo = `<br/>
       <br/>
       ${contestInfo.name}<br/>
@@ -77,14 +75,14 @@ const createContentForPDF = (printedTask, logo, contestInfo) => {
   joinedText += '\n'
   joinedText += '\n'
   joinedText += `# ${printedTask.name}\n`
-  joinedText += `**Sarjat:** ${sarjat}\n**Säännöt:** ${printedTask.rules.name} **Kategoria:** ${printedTask.category.name}\n`
   joinedText += `# Tehtävänanto\n${printedTask.assignmentTextMD}\n`
   joinedText += `# Arvostelu\n${printedTask.gradingScaleMD}`
   joinedText += '<div class="page-break"></div>'
   joinedText += '\n'
   joinedText += '\n'
-  const supervText = `# Rastimiehen ohjeet\n${printedTask.supervisorInstructionsMD}`
+  const supervText = `# Rastimiehen ohjeet\n${printedTask.supervisorInstructionsMD}\n`
   joinedText += supervText
+  joinedText += `# Arvostelu\n${printedTask.gradingScaleMD}`
 
   return joinedText
 }
