@@ -688,87 +688,87 @@ describe('Tasks', () => {
     expect(tasks[0].ratingsAmount).toBe(4)
   })
 
-  // test('when task is deleted all the taskrelated comments are deleted too', async () => {
-  //   const task = new Task({
-  //     name: 'task for comment',
-  //     assignmentText: 'comments will be deleted',
-  //     supervisorInstructions: 'delete all comments',
-  //     gradingScale: '5 or 0',
-  //     assignmentTextMD: 'check that all comments will be deleted',
-  //     supervisorInstructionsMD: 'check that the tests pass',
-  //     gradingScaleMD: '5 or 0',
-  //     creatorName: 'Test Steve',
-  //     creatorEmail: 'Test.Steve@testing.test',
-  //     pending: true,
-  //     views: 0,
-  //     ratings: [0, 0, 0, 0, 0],
-  //     ratingsAVG: 0,
-  //   })
-  //   await task.save()
+  test('when task is deleted all the taskrelated comments are deleted too', async () => {
+    const task = new Task({
+      name: 'task for comment',
+      assignmentText: 'comments will be deleted',
+      supervisorInstructions: 'delete all comments',
+      gradingScale: '5 or 0',
+      assignmentTextMD: 'check that all comments will be deleted',
+      supervisorInstructionsMD: 'check that the tests pass',
+      gradingScaleMD: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0,
+    })
+    await task.save()
 
-  //   const secondTask = new Task({
-  //     name: 'other task for comment',
-  //     assignmentText: 'comments',
-  //     supervisorInstructions: 'delete all comments',
-  //     gradingScale: '5 or 0',
-  //     assignmentTextMD: 'check that all comments will be deleted',
-  //     supervisorInstructionsMD: 'check that the tests pass',
-  //     gradingScaleMD: '5 or 0',
-  //     creatorName: 'Test Steve',
-  //     creatorEmail: 'Test.Steve@testing.test',
-  //     pending: true,
-  //     views: 0,
-  //     ratings: [0, 0, 0, 0, 0],
-  //     ratingsAVG: 0,
-  //   })
-  //   await secondTask.save()
+    const secondTask = new Task({
+      name: 'other task for comment',
+      assignmentText: 'comments',
+      supervisorInstructions: 'delete all comments',
+      gradingScale: '5 or 0',
+      assignmentTextMD: 'check that all comments will be deleted',
+      supervisorInstructionsMD: 'check that the tests pass',
+      gradingScaleMD: '5 or 0',
+      creatorName: 'Test Steve',
+      creatorEmail: 'Test.Steve@testing.test',
+      pending: true,
+      views: 0,
+      ratings: [0, 0, 0, 0, 0],
+      ratingsAVG: 0,
+    })
+    await secondTask.save()
 
-  //   firstComment = new Comment({
-  //     content: 'comment content',
-  //     nickname: 'test name',
-  //     pending: true,
-  //     task: task.id,
-  //   })
-  //   secondComment = new Comment({
-  //     content: 'second comment content',
-  //     nickname: 'second name',
-  //     pending: false,
-  //     task: task.id,
-  //   })
-  //   thirdComment = new Comment({
-  //     content: 'third content',
-  //     nickname: 'third name',
-  //     pending: false,
-  //     task: secondTask.id,
-  //   })
+    firstComment = new Comment({
+      content: 'comment content',
+      nickname: 'test name',
+      pending: true,
+      task: task.id,
+    })
+    secondComment = new Comment({
+      content: 'second comment content',
+      nickname: 'second name',
+      pending: false,
+      task: task.id,
+    })
+    thirdComment = new Comment({
+      content: 'third content',
+      nickname: 'third name',
+      pending: false,
+      task: secondTask.id,
+    })
 
-  //   await firstComment.save()
-  //   await secondComment.save()
-  //   await thirdComment.save()
+    await firstComment.save()
+    await secondComment.save()
+    await thirdComment.save()
 
-  //   const res1 = await api
-  //     .get('/api/comment/')
-  //     .set('authorization', `bearer ${token}`)
-  //     .expect(200)
-  //     .expect('Content-Type', /application\/json/)
-  //   expect(res1.body.length).toBe(3)
-  //   expect(res1.body[0].task).toBe(task.id)
-  //   expect(res1.body[2].task).toBe(secondTask.id)
+    const res1 = await api
+      .get('/api/comment/')
+      .set('authorization', `bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(res1.body.length).toBe(3)
+    expect(res1.body[0].task).toBe(task.id)
+    expect(res1.body[2].task).toBe(secondTask.id)
 
-  //   await api
-  //     .delete(`/api/task/${task.id}`)
-  //     .set('authorization', `bearer ${token}`)
-  //     .expect(204)
+    await api
+      .delete(`/api/task/${task.id}`)
+      .set('authorization', `bearer ${token}`)
+      .expect(204)
 
-  //   const res2 = await api
-  //     .get('/api/comment')
-  //     .set('authorization', `bearer ${token}`)
-  //     .expect(200)
-  //     .expect('Content-Type', /application\/json/)
-  //   expect(res2.body.length).toBe(1)
-  //   expect(res2.body[0].content).toBe('third content')
-  //   expect(res2.body[0].task).toBe(secondTask.id)
-  // })
+    const res2 = await api
+      .get('/api/comment')
+      .set('authorization', `bearer ${token}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+    expect(res2.body.length).toBe(1)
+    expect(res2.body[0].content).toBe('third content')
+    expect(res2.body[0].task).toBe(secondTask.id)
+  })
 
 
   /*
