@@ -3,9 +3,9 @@ const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken')
 const { CronJob } = require('cron')
 const fs = require('fs')
-const { mdToPdf } = require('../md-to-pdf')
 const multer = require('multer')
 const archiver = require('archiver')
+const { mdToPdf } = require('../md-to-pdf')
 const config = require('../utils/config')
 const Task = require('../models/task')
 const Category = require('../models/category')
@@ -13,6 +13,7 @@ const Language = require('../models/language')
 const Series = require('../models/series')
 const Rule = require('../models/rule')
 const User = require('../models/user')
+const Comment = require('../models/comment')
 
 const inMemoryStorage = multer.memoryStorage()
 const uploadStrategy = multer({ storage: inMemoryStorage }).single('logo')
@@ -272,12 +273,11 @@ taskRouter.put('/:id', async (req, res, next) => {
           task.language = body.language
         }
 
-        const updTask = await task.save().then(t =>
-          t.populate('series', 'name color')
-            .populate('category', 'name')
-            .populate('language', 'name')
-            .populate('rules', 'name')
-            .execPopulate())
+        const updTask = await task.save().then((t) => t.populate('series', 'name color')
+          .populate('category', 'name')
+          .populate('language', 'name')
+          .populate('rules', 'name')
+          .execPopulate())
         res.json(updTask.toJSON())
       } catch (exception) {
         next(exception)
@@ -308,6 +308,12 @@ taskRouter.delete('/:id', async (req, res, next) => {
           removeFromPointerList(task.id, cat)
           removeFromPointerList(task.id, rules)
           removeFromPointerList(task.id, lang)
+          const comments = await Comment.find({ task: task.id })
+          comments.forEach((comment) => {
+            comment.delete(comment.id)
+          })
+
+
           await Task.findByIdAndRemove(req.params.id)
           res.status(204).end()
         } else {
