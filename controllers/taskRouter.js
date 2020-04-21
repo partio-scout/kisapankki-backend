@@ -7,6 +7,7 @@ const { mdToPdf } = require('../md-to-pdf')
 const multer = require('multer')
 const archiver = require('archiver')
 const config = require('../utils/config')
+const { BlobServiceClient, StorageSharedKeyCredential, BlockBlobClient } = require('@azure/storage-blob')
 const Task = require('../models/task')
 const Category = require('../models/category')
 const Language = require('../models/language')
@@ -16,6 +17,7 @@ const User = require('../models/user')
 
 const inMemoryStorage = multer.memoryStorage()
 const uploadStrategy = multer({ storage: inMemoryStorage }).single('logo')
+const credentials = new StorageSharedKeyCredential(`${config.AZURE_STORAGE_ACCOUNT_NAME}`, `${config.AZURE_STORAGE_ACCOUNT_ACCESS_KEY}`)
 
 const getTokenFrom = (req) => {
   const auth = req.get('authorization')
@@ -424,11 +426,28 @@ taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
   }
 })
 
-const zipMaterials = async (archive, pdfNameList) => {
+const zipMaterials = async (archive, pdfNameList, fileNameList) => {
   pdfNameList.forEach((pdfName) => {
     archive.file(pdfName, { name: pdfName })
+
   })
+
+  fileNameList.forEach((fileName) => {
+    const splits = fileName.split('-', 2)
+    archive.file(fileName, { name: splits[1] })
+  })
+
   return archive
+}
+
+const downloadBlobs = async (fileNameList) => {
+  fileNameList.forEach(async (fileName) => {
+    const downloader = new BlockBlobClient(
+      `https://${config.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/files/${fileName}`,
+      credentials
+    )
+    await downloader.downloadToFile(`${fileName}`, 0, undefined)
+  })
 }
 
 taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
@@ -446,6 +465,10 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
       .populate('rules', 'name')
       .exec()
     const pdfNameList = taskList.map((task) => `${task.name}.pdf`)
+    let fileNameList = []
+    taskList.map((task) => fileNameList = fileNameList.concat(task.files))
+    console.log(fileNameList)
+    await downloadBlobs(fileNameList)
     for (let i = 0; i < taskList.length; i++) {
       const mdContent = createContentForPDF(taskList[i], logo, contestInfo)
       const pdf = await mdToPdf({ content: mdContent })
@@ -454,13 +477,19 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
         filesReady = true
       }
     }
-    const zippedPDFs = await zipMaterials(archive, pdfNameList)
+
+    const zippedPDFs = await zipMaterials(archive, pdfNameList, fileNameList)
     while (true) {
       if (filesReady) {
         zippedPDFs.finalize()
         setTimeout(() => {
           pdfNameList.map((pdf) => {
             fs.unlink(pdf, (err) => {
+              if (err) throw err
+            })
+          })
+          fileNameList.map((file) => {
+            fs.unlink(file, (err) => {
               if (err) throw err
             })
           })
