@@ -7,7 +7,7 @@ const { mdToPdf } = require('../md-to-pdf')
 const multer = require('multer')
 const archiver = require('archiver')
 const config = require('../utils/config')
-const { BlobServiceClient, StorageSharedKeyCredential, BlockBlobClient } = require('@azure/storage-blob')
+const { StorageSharedKeyCredential, BlockBlobClient } = require('@azure/storage-blob')
 const Task = require('../models/task')
 const Category = require('../models/category')
 const Language = require('../models/language')
@@ -426,15 +426,17 @@ taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
   }
 })
 
-const zipMaterials = async (archive, pdfNameList, fileNameList) => {
-  pdfNameList.forEach((pdfName) => {
-    archive.file(pdfName, { name: pdfName })
-
-  })
-
-  fileNameList.forEach((fileName) => {
-    const splits = fileName.split('-', 2)
-    archive.file(fileName, { name: splits[1] })
+const zipMaterials = async (archive, taskJSON) => {
+  taskJSON.forEach((task) => {
+    archive.file(task.pdfName, { name: `${task.folderName}/${task.pdfName}` })
+    task.files.forEach((file) => {
+      const splits = file.split('-')
+      let fileName = ''
+      for (let i = 1; i < splits.length; i++) {
+        fileName += splits[i]
+      }
+      archive.file(file, { name: `${task.folderName}/${fileName}` })
+    })
   })
 
   return archive
@@ -467,7 +469,15 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
     const pdfNameList = taskList.map((task) => `${task.name}.pdf`)
     let fileNameList = []
     taskList.map((task) => fileNameList = fileNameList.concat(task.files))
-    console.log(fileNameList)
+    let taskJSON = []
+    taskList.map((task) => {
+      let newTaskJSON = {
+        folderName: task.name,
+        pdfName: `${task.name}.pdf`,
+        files: task.files
+      }
+      taskJSON = taskJSON.concat(newTaskJSON)
+    })
     await downloadBlobs(fileNameList)
     for (let i = 0; i < taskList.length; i++) {
       const mdContent = createContentForPDF(taskList[i], logo, contestInfo)
@@ -478,7 +488,7 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
       }
     }
 
-    const zippedPDFs = await zipMaterials(archive, pdfNameList, fileNameList)
+    const zippedPDFs = await zipMaterials(archive, taskJSON)
     while (true) {
       if (filesReady) {
         zippedPDFs.finalize()
