@@ -688,7 +688,7 @@ describe('Tasks', () => {
     expect(tasks[0].ratingsAmount).toBe(4)
   })
 
-  test('when task is deleted all the taskrelated comments are deleted too', async () => {
+  test('when task is deleted all the task related comments are deleted too', async () => {
     const task = new Task({
       name: 'task for comment',
       assignmentText: 'comments will be deleted',

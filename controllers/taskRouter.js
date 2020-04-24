@@ -309,8 +309,8 @@ taskRouter.delete('/:id', async (req, res, next) => {
           removeFromPointerList(task.id, rules)
           removeFromPointerList(task.id, lang)
           const comments = await Comment.find({ task: task.id })
-          comments.forEach((comment) => {
-            comment.delete(comment.id)
+          comments.forEach( async (comment) => {
+            await Comment.findByIdAndRemove(comment.id)
           })
 
 
