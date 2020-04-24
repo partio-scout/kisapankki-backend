@@ -188,7 +188,12 @@ taskRouter.post('/', async (req, res, next) => {
       ratingsAmount: 0,
     })
 
-    const savedTask = await task.save()
+    const savedTask = await task.save().then(t =>
+      t.populate('series', 'name color')
+      .populate('category', 'name')
+      .populate('language', 'name')
+      .populate('rules', 'name')
+      .execPopulate())
     updatePointerList(savedTask.id, cat)
     updatePointerList(savedTask.id, lang)
     updatePointerList(savedTask.id, rule)
