@@ -16,7 +16,6 @@ const commentRouter = require('./controllers/commentRouter')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
-const { mailJob, pingJob } = require('./utils/cronJobs')
 
 const app = express()
 mongoose.set('useFindAndModify', false)
@@ -78,9 +77,9 @@ app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
 if (config.NODE_ENV !== 'test') {
-  mailJob.start()
-  pingJob.start()
+  const cron = require('./utils/cronJobs')
+  cron.pingJob.start()
+  cron.mailJob.start()
 }
-
 
 module.exports = app

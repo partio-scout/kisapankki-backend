@@ -1,6 +1,6 @@
 const categoryRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
-const { getTokenFrom} = require('../utils/routerHelp')
+const { getTokenFrom } = require('../utils/routerHelp')
 const Category = require('../models/category')
 const Task = require('../models/task')
 const Rule = require('../models/rule')
