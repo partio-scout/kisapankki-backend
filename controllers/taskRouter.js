@@ -14,6 +14,7 @@ const Category = require('../models/category')
 const Language = require('../models/language')
 const Series = require('../models/series')
 const Rule = require('../models/rule')
+const Comment = require('../models/comment')
 
 const inMemoryStorage = multer.memoryStorage()
 const uploadStrategy = multer({ storage: inMemoryStorage }).single('logo')
@@ -137,7 +138,12 @@ taskRouter.post('/', async (req, res, next) => {
       ratingsAmount: 0,
     })
 
-    const savedTask = await task.save()
+    const savedTask = await task.save().then(t =>
+      t.populate('series', 'name color')
+      .populate('category', 'name')
+      .populate('language', 'name')
+      .populate('rules', 'name')
+      .execPopulate())
     updatePointerList(savedTask.id, cat)
     updatePointerList(savedTask.id, lang)
     updatePointerList(savedTask.id, rule)
@@ -256,6 +262,12 @@ taskRouter.delete('/:id', async (req, res, next) => {
           removeFromPointerList(task.id, cat)
           removeFromPointerList(task.id, rules)
           removeFromPointerList(task.id, lang)
+          const comments = await Comment.find({ task: task.id })
+          comments.forEach( async (comment) => {
+            await Comment.findByIdAndRemove(comment.id)
+          })
+
+
           await Task.findByIdAndRemove(req.params.id)
           res.status(204).end()
         } else {
