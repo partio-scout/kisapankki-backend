@@ -1,16 +1,9 @@
 const categoryRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
+const { getTokenFrom} = require('../utils/routerHelp')
 const Category = require('../models/category')
 const Task = require('../models/task')
 const Rule = require('../models/rule')
-
-const getTokenFrom = (req) => {
-  const auth = req.get('authorization')
-  if (auth && auth.toLowerCase().startsWith('bearer ')) {
-    return auth.substring(7)
-  }
-  return null
-}
 
 categoryRouter.get('/', async (req, res, next) => {
   try {

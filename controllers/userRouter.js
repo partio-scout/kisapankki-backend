@@ -1,15 +1,8 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const userRouter = require('express').Router()
+const { getTokenFrom } = require('../utils/routerHelp')
 const User = require('../models/user')
-
-const getTokenFrom = (req) => {
-  const auth = req.get('authorization')
-  if (auth && auth.toLowerCase().startsWith('bearer ')) {
-    return auth.substring(7)
-  }
-  return null
-}
 
 userRouter.get('/', async (req, res, next) => {
   try {

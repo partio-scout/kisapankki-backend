@@ -2,7 +2,6 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 const cors = require('cors')
-const { CronJob } = require('cron')
 
 const seriesRouter = require('./controllers/seriesRouter')
 const userRouter = require('./controllers/userRouter')
@@ -17,6 +16,7 @@ const commentRouter = require('./controllers/commentRouter')
 const config = require('./utils/config')
 const logger = require('./utils/logger')
 const middleware = require('./utils/middleware')
+const { mailJob, pingJob } = require('./utils/cronJobs')
 
 const app = express()
 mongoose.set('useFindAndModify', false)
@@ -78,13 +78,8 @@ app.use(middleware.unknownEndpoint)
 app.use(middleware.errorHandler)
 
 if (config.NODE_ENV !== 'test') {
-  const job = new CronJob('00 */5 * * * *', async (req, res, next) => {
-    const time = new Date()
-    console.log('Ping pong! It is', time.toUTCString())
-    const http = require('http')
-    http.get('http://kisapankki-staging.herokuapp.com')
-  }, null, true, 'Europe/Helsinki')
-  job.start()
+  mailJob.start()
+  pingJob.start()
 }
 
 

@@ -1,31 +1,22 @@
 const taskRouter = require('express').Router()
-const nodemailer = require('nodemailer')
 const jwt = require('jsonwebtoken')
-const { CronJob } = require('cron')
 const fs = require('fs')
 const { mdToPdf } = require('../md-to-pdf')
 const multer = require('multer')
 const archiver = require('archiver')
-const config = require('../utils/config')
-const { StorageSharedKeyCredential, BlockBlobClient } = require('@azure/storage-blob')
+const { downloadBlobs } = require('../utils/blob')
+const { zipMaterials } = require('../utils/zip')
+const { createContentForPDF } = require('../utils/pdf')
+const { getTokenFrom} = require('../utils/routerHelp')
+const logger = require('../utils/logger')
 const Task = require('../models/task')
 const Category = require('../models/category')
 const Language = require('../models/language')
 const Series = require('../models/series')
 const Rule = require('../models/rule')
-const User = require('../models/user')
 
 const inMemoryStorage = multer.memoryStorage()
 const uploadStrategy = multer({ storage: inMemoryStorage }).single('logo')
-const credentials = new StorageSharedKeyCredential(`${config.AZURE_STORAGE_ACCOUNT_NAME}`, `${config.AZURE_STORAGE_ACCOUNT_ACCESS_KEY}`)
-
-const getTokenFrom = (req) => {
-  const auth = req.get('authorization')
-  if (auth && auth.toLowerCase().startsWith('bearer ')) {
-    return auth.substring(7)
-  }
-  return null
-}
 
 const updatePointerList = async (taskId, target) => {
   if (target) {
@@ -43,50 +34,6 @@ const removeFromPointerList = async (taskId, target) => {
     target.task = target.task.filter((id) => id != taskId)
     await target.save()
   }
-}
-
-const createContentForPDF = (printedTask, logo, contestInfo) => {
-  const competitionInfo = `<br/>
-      <br/>
-      ${contestInfo.name}<br/>
-      ${contestInfo.date}<br/>
-      ${contestInfo.place}<br/>
-      ${contestInfo.type}<br/>`
-  let joinedText = `<style>
-    .col2 {
-      columns: 2 100px;
-      -webkit-columns: 2 100px;
-      -moz-columns: 2 100px;
-    }
-  </style> \n`
-  joinedText
-    += `<style>
-    .col1 {
-      columns: 1 50px;
-      -webkit-columns: 1 50px;
-      -moz-columns: 1 50px;
-    }
-  </style> \n`
-  joinedText += `<div class="col2" markdown="1">
-  <div class="col1" style="text-align: left;" markdown="1">${competitionInfo}</div>`
-  if (logo) {
-    joinedText += `<div class="col1" style="text-align: right;"><img height="110" width="110" alt="logo" src="data:image/png;base64,${logo.buffer.toString('base64')}"></div></div>`
-  } else {
-    joinedText += '<div class="col1" style="text-align: right;"><img height="95" width="200" alt="logo" src="../images/partio_logo_rgb_musta.png"></div></div>'
-  }
-  joinedText += '\n'
-  joinedText += '\n'
-  joinedText += `# ${printedTask.name}\n`
-  joinedText += `# Tehtävänanto\n${printedTask.assignmentTextMD}\n`
-  joinedText += `# Arvostelu\n${printedTask.gradingScaleMD}`
-  joinedText += '<div class="page-break"></div>'
-  joinedText += '\n'
-  joinedText += '\n'
-  const supervText = `# Rastimiehen ohjeet\n${printedTask.supervisorInstructionsMD}\n`
-  joinedText += supervText
-  joinedText += `# Arvostelu\n${printedTask.gradingScaleMD}`
-
-  return joinedText
 }
 
 taskRouter.get('/', async (req, res, next) => {
@@ -426,32 +373,6 @@ taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
   }
 })
 
-const zipMaterials = async (archive, taskJSON) => {
-  taskJSON.forEach((task) => {
-    archive.file(task.pdfName, { name: `${task.folderName}/${task.pdfName}` })
-    task.files.forEach((file) => {
-      const splits = file.split('-')
-      let fileName = ''
-      for (let i = 1; i < splits.length; i++) {
-        fileName += splits[i]
-      }
-      archive.file(file, { name: `${task.folderName}/${fileName}` })
-    })
-  })
-
-  return archive
-}
-
-const downloadBlobs = async (fileNameList) => {
-  fileNameList.forEach(async (fileName) => {
-    const downloader = new BlockBlobClient(
-      `https://${config.AZURE_STORAGE_ACCOUNT_NAME}.blob.core.windows.net/files/${fileName}`,
-      credentials
-    )
-    await downloader.downloadToFile(`${fileName}`, 0, undefined)
-  })
-}
-
 taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
   try {
     const idList = JSON.parse(req.body.competition).tasks
@@ -506,77 +427,12 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
         }, 2000)
         break
       } else {
-        setTimeout(() => { console.log('creating files...') }, 500)
+        setTimeout(() => { logger.info('creating files...') }, 500)
       }
     }
   } catch (exception) {
     next(exception)
   }
 })
-
-if (config.NODE_ENV !== 'test') {
-  const job = new CronJob('00 00 17 */2 * *', async () => {
-    try {
-      const pendingTasks = await Task.find({ pending: true })
-      const usersToNotify = await User.find({ allowNotifications: true })
-      const emailList = usersToNotify.map((user) => user.email)
-      console.log('Pending tasks:', pendingTasks.length)
-      if (pendingTasks.length > 0) {
-        console.log('Sending email to admins')
-        console.log('Sending notification to following addresses:', emailList)
-        let transporter
-        let mailOptions
-        if (config.APPLICATION_STAGE === 'DEV') {
-          transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-              user: config.EMAIL_USER,
-              pass: config.EMAIL_PASSWORD,
-            },
-          })
-
-          mailOptions = {
-            from: 'Kisatehtäväpankki <partioprojekti@gmail.com>',
-            to: emailList,
-            subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
-            html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
-            text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`,
-          }
-        }
-        if (config.APPLICATION_STAGE === 'PROD') {
-          const sgTransport = require('nodemailer-sendgrid-transport')
-          transporter = nodemailer.createTransport(sgTransport({
-            auth: {
-              api_key: config.SENDGRID_APIKEY,
-            },
-          }))
-
-          mailOptions = {
-            from: 'Kisatehtäväpankki <partioprojekti@gmail.com>',
-            to: emailList,
-            replyTo: config.EMAIL_USER,
-            subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
-            html: `<p>Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa</p>`,
-            text: `Hei, ${pendingTasks.length} tehtävää odottaa hyväksyntää kisatehtäväpankissa`,
-          }
-        }
-
-        transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-            console.log(error)
-          } else {
-            console.log(info)
-          }
-        })
-      }
-    } catch (exception) {
-      console.log(exception)
-    }
-  }, null, true, 'Europe/Helsinki')
-  job.start()
-}
-
 
 module.exports = taskRouter
