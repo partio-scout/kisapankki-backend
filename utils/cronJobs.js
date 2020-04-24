@@ -1,5 +1,7 @@
 const { CronJob } = require('cron')
 const nodemailer = require('nodemailer')
+const http = require('http')
+const { sgTransport } = require('nodemailer-sendgrid-transport')
 const config = require('../utils/config')
 const logger = require('./logger')
 const Task = require('../models/task')
@@ -36,7 +38,6 @@ const mailJob = new CronJob('00 00 17 */2 * *', async () => {
         }
       }
       if (config.APPLICATION_STAGE === 'PROD') {
-        const sgTransport = require('nodemailer-sendgrid-transport')
         transporter = nodemailer.createTransport(sgTransport({
           auth: {
             api_key: config.SENDGRID_APIKEY,
@@ -62,14 +63,13 @@ const mailJob = new CronJob('00 00 17 */2 * *', async () => {
       })
     }
   } catch (exception) {
-    console.log(exception)
+    logger.error('Error:', exception)
   }
 }, null, true, 'Europe/Helsinki')
 
 const pingJob = new CronJob('* */5 * * * *', async () => {
   const time = new Date()
   logger.info('Ping pong! It is', time.toUTCString())
-  const http = require('http')
   http.get('http://kisapankki-staging.herokuapp.com')
 }, null, true, 'Europe/Helsinki')
 

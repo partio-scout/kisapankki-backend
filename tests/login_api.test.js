@@ -10,10 +10,10 @@ beforeEach(async () => {
   await User.deleteMany({})
 
   let password = 'password'
-  saltRounds = 10
+  const saltRounds = 10
 
   password = await bcrypt.hash(password, saltRounds)
-  user = new User({
+  const user = new User({
     name: 'name',
     username: 'username',
     email: 'email@email.com',

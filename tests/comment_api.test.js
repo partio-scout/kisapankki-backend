@@ -80,13 +80,13 @@ describe('Comment', () => {
   test('returns only taskrelated comments', async () => {
     const savedTasks = await Task.find({})
 
-    firstComment = new Comment({
+    const firstComment = new Comment({
       content: 'sisältö',
       nickname: 'testinimi',
       pending: false,
       task: savedTasks[0].id,
     })
-    secondComment = new Comment({
+    const secondComment = new Comment({
       content: 'toinen sisältö',
       nickname: 'testinimi',
       pending: false,
@@ -116,7 +116,7 @@ describe('Comment', () => {
   test('new comment can be added by admin', async () => {
     const savedTasks = await Task.find({})
 
-    newComment = {
+    const newComment = {
       content: 'kommentin sisältö',
       nickname: 'testinimi',
       task: savedTasks[0].id,
@@ -141,7 +141,7 @@ describe('Comment', () => {
   test('new comment can be added without signing in', async () => {
     const savedTasks = await Task.find({})
 
-    newComment = {
+    const newComment = {
       content: 'kommentin sisältö',
       nickname: 'testinimi',
       task: savedTasks[0].id,
@@ -164,7 +164,7 @@ describe('Comment', () => {
   test('can be deleted', async () => {
     const savedTasks = await Task.find({})
 
-    newComment = new Comment({
+    const newComment = new Comment({
       content: 'sisältö',
       nickname: 'testinimi',
       pending: true,
@@ -197,7 +197,7 @@ describe('Comment', () => {
   test('pending status can be changed from pending to accepted', async () => {
     const savedTasks = await Task.find({})
 
-    pendingComment = new Comment({
+    const pendingComment = new Comment({
       content: 'pending',
       nickname: 'testinimi',
       pending: true,
@@ -229,14 +229,14 @@ describe('Comment', () => {
   test('can be searched by pending status', async () => {
     const savedTasks = await Task.find({})
 
-    firstComment = new Comment({
+    const firstComment = new Comment({
       content: 'miks aina on pahaa ruokaa',
       nickname: 'testiname',
       pending: false,
       task: savedTasks[0].id,
     })
 
-    secondComment = new Comment({
+    const secondComment = new Comment({
       content: 'toinen kommentti',
       nickname: 'testinimi',
       pending: true,

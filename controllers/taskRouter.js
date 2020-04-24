@@ -1,13 +1,13 @@
 const taskRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
 const fs = require('fs')
-const { mdToPdf } = require('../md-to-pdf')
 const multer = require('multer')
 const archiver = require('archiver')
+const { mdToPdf } = require('../md-to-pdf')
 const { downloadBlobs } = require('../utils/blob')
 const { zipMaterials } = require('../utils/zip')
 const { createContentForPDF } = require('../utils/pdf')
-const { getTokenFrom} = require('../utils/routerHelp')
+const { getTokenFrom } = require('../utils/routerHelp')
 const logger = require('../utils/logger')
 const Task = require('../models/task')
 const Category = require('../models/category')
@@ -20,7 +20,7 @@ const uploadStrategy = multer({ storage: inMemoryStorage }).single('logo')
 
 const updatePointerList = async (taskId, target) => {
   if (target) {
-    if (target.task == null || target.task.length == 0) {
+    if (target.task == null || target.task.length === 0) {
       target.task = [taskId]
     } else {
       target.task = target.task.concat(taskId)
@@ -31,7 +31,7 @@ const updatePointerList = async (taskId, target) => {
 
 const removeFromPointerList = async (taskId, target) => {
   if (target) {
-    target.task = target.task.filter((id) => id != taskId)
+    target.task = target.task.filter((id) => String(id) !== String(taskId))
     await target.save()
   }
 }
@@ -189,8 +189,8 @@ taskRouter.put('/:id', async (req, res, next) => {
         task.creatorEmail = body.creatorEmail
         task.files = body.files
         if (task.series.toString() !== body.series.toString()) {
-          currentSer = await Series.find({ _id: { $in: task.series } })
-          newSer = await Series.find({ _id: { $in: task.series } })
+          const currentSer = await Series.find({ _id: { $in: task.series } })
+          const newSer = await Series.find({ _id: { $in: task.series } })
           newSer.forEach((s) => {
             updatePointerList(task.id, s)
           })
@@ -199,34 +199,33 @@ taskRouter.put('/:id', async (req, res, next) => {
           })
           task.series = body.series
         }
-        if (task.category != body.category) {
-          currentCat = await Category.findById(task.category)
-          newCat = await Category.findById(body.category)
+        if (String(task.category) !== String(body.category)) {
+          const currentCat = await Category.findById(task.category)
+          const newCat = await Category.findById(body.category)
           updatePointerList(task.id, newCat)
           removeFromPointerList(task.id, currentCat)
           task.category = body.category
         }
-        if (task.rules != body.rule) {
-          currentRule = await Rule.findById(task.rules)
-          newRule = await Rule.findById(body.rule)
+        if (String(task.rules) !== String(body.rule)) {
+          const currentRule = await Rule.findById(task.rules)
+          const newRule = await Rule.findById(body.rule)
           updatePointerList(task.id, newRule)
           removeFromPointerList(task.id, currentRule)
           task.rules = body.rule
         }
-        if (task.language != body.language) {
-          currentLang = await Language.findById(task.language)
-          newLang = await Language.findById(body.language)
+        if (String(task.language) !== String(body.language)) {
+          const currentLang = await Language.findById(task.language)
+          const newLang = await Language.findById(body.language)
           updatePointerList(task.id, newLang)
           removeFromPointerList(task.id, currentLang)
           task.language = body.language
         }
 
-        const updTask = await task.save().then(t =>
-          t.populate('series', 'name color')
-            .populate('category', 'name')
-            .populate('language', 'name')
-            .populate('rules', 'name')
-            .execPopulate())
+        const updTask = await task.save().then((t) => t.populate('series', 'name color')
+          .populate('category', 'name')
+          .populate('language', 'name')
+          .populate('rules', 'name')
+          .execPopulate())
         res.json(updTask.toJSON())
       } catch (exception) {
         next(exception)
@@ -305,7 +304,7 @@ taskRouter.post('/search', async (req, res, next) => {
       .populate('rules', 'name')
       .exec()
     const matching = searchResult.map((result) => result.toJSON())
-    res.json(matching.filter((task) => task.pending == false))
+    res.json(matching.filter((task) => task.pending === false))
   } catch (exception) {
     next(exception)
   }
@@ -389,13 +388,13 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
       .exec()
     const pdfNameList = taskList.map((task) => `${task.name}.pdf`)
     let fileNameList = []
-    taskList.map((task) => fileNameList = fileNameList.concat(task.files))
+    taskList.map((task) => { fileNameList = fileNameList.concat(task.files) })
     let taskJSON = []
     taskList.map((task) => {
-      let newTaskJSON = {
+      const newTaskJSON = {
         folderName: task.name,
         pdfName: `${task.name}.pdf`,
-        files: task.files
+        files: task.files,
       }
       taskJSON = taskJSON.concat(newTaskJSON)
     })
@@ -404,7 +403,7 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
       const mdContent = createContentForPDF(taskList[i], logo, contestInfo)
       const pdf = await mdToPdf({ content: mdContent })
       fs.writeFileSync(`${taskList[i].name}.pdf`, pdf.content)
-      if (i == taskList.length - 1) {
+      if (i === taskList.length - 1) {
         filesReady = true
       }
     }

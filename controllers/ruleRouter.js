@@ -1,6 +1,6 @@
 const ruleRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
-const { getTokenFrom} = require('../utils/routerHelp')
+const { getTokenFrom } = require('../utils/routerHelp')
 const Rule = require('../models/rule')
 const Task = require('../models/task')
 

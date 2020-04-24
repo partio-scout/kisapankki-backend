@@ -1,6 +1,6 @@
 const languageRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
-const { getTokenFrom} = require('../utils/routerHelp')
+const { getTokenFrom } = require('../utils/routerHelp')
 const Language = require('../models/language')
 const Task = require('../models/task')
 

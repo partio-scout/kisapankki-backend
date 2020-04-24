@@ -55,7 +55,7 @@ categoryRouter.delete('/:id', async (req, res, next) => {
           })
           const rules = await Rule.find({})
           rules.forEach(async (rule) => {
-            rule.acceptedCategories = rule.acceptedCategories.filter((cat) => cat != req.params.id)
+            rule.acceptedCategories = rule.acceptedCategories.filter((cat) => String(cat) !== String(req.params.id))
             await rule.save()
           })
           await delCat.remove()

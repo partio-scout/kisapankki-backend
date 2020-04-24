@@ -80,7 +80,7 @@ userRouter.put('/', async (req, res, next) => {
   const user = await User.findById(decodedToken.id)
 
   if (!user) {
-    return response.status(401).json({ error: 'user not found' })
+    return res.status(401).json({ error: 'user not found' })
   }
 
   let { name } = user
@@ -145,7 +145,7 @@ userRouter.put('/', async (req, res, next) => {
   }
 
   User.findByIdAndUpdate(user.id, updatedUser, { new: true })
-    .then((updatedUser) => {
+    .then(() => {
       res.json({
         token,
         name: updatedUser.name,
