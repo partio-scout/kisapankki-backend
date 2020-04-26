@@ -1,39 +1,37 @@
 const fileRouter = require('express').Router()
+const azureStorage = require('azure-storage')
+const multer = require('multer')
+const getStream = require('into-stream')
 const config = require('../utils/config')
+const logger = require('../utils/logger')
 
 const account = config.AZURE_STORAGE_ACCOUNT_NAME
 const accountKey = config.AZURE_STORAGE_ACCOUNT_ACCESS_KEY
 
-const multer = require('multer')
-
 const inMemoryStorage = multer.memoryStorage()
 const uploadStrategy = multer({ storage: inMemoryStorage }).array('filesToAdd')
-const getStream = require('into-stream')
 
 const containerName = 'files'
-
-const azureStorage = require('azure-storage')
 
 const blobService = azureStorage.createBlobService(account, accountKey)
 blobService.createContainerIfNotExists(containerName, { publicAccessLevel: 'blob' }, (error) => {
   if (error) {
-    console.log(error)
+    logger.error('Error:', error)
   }
 })
-
 
 const getBlobName = (originalName) => {
   const identifier = Math.random().toString().replace(/0\./, '')
   return `${identifier}-${originalName}`
 }
 
-fileRouter.post('/', uploadStrategy, (req, res, next) => {
+fileRouter.post('/', uploadStrategy, (req, res) => {
   if (req.body.filesToDelete && req.body.filesToDelete.length > 0) {
     const filesToDelete = req.body.filesToDelete.split(',')
     for (let i = 0; i < filesToDelete.length; i++) {
       blobService.deleteBlob(containerName, filesToDelete[i], (error) => {
         if (error) {
-          console.log(error)
+          logger.error('Error:', error)
           res.status(500).end()
         }
       })
@@ -49,7 +47,7 @@ fileRouter.post('/', uploadStrategy, (req, res, next) => {
 
     blobService.createBlockBlobFromStream(containerName, blobName, stream, streamLength, (error) => {
       if (error) {
-        console.log(error)
+        logger.error('Error:', error)
         res.status(500).end()
       }
     })

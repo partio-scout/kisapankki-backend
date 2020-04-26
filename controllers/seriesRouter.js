@@ -1,15 +1,8 @@
 const seriesRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
+const { getTokenFrom } = require('../utils/routerHelp')
 const Series = require('../models/series')
 const Task = require('../models/task')
-
-const getTokenFrom = (req) => {
-  const auth = req.get('authorization')
-  if (auth && auth.toLowerCase().startsWith('bearer ')) {
-    return auth.substring(7)
-  }
-  return null
-}
 
 seriesRouter.get('/', async (req, res, next) => {
   try {
@@ -58,7 +51,7 @@ seriesRouter.delete('/:id', async (req, res, next) => {
         if (delSer) {
           const tasksWithPointer = await Task.find({ _id: { $in: delSer.task } })
           tasksWithPointer.forEach(async (task) => {
-            task.series = task.series.filter((s) => s != id)
+            task.series = task.series.filter((s) => String(s) !== String(id))
             await task.save()
           })
           await delSer.remove()

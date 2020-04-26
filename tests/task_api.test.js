@@ -141,7 +141,7 @@ describe('Tasks', () => {
     const savedL = await lang.save()
     const savedS = await series.save()
 
-    newTask = {
+    const newTask = {
       name: 'router test',
       assignmentText: 'test the adding through posting',
       assignmentTextMD: 'test the adding through posting in Markdown',
@@ -263,7 +263,7 @@ describe('Tasks', () => {
       ratings: [0, 0, 0, 0, 0],
       ratingsAVG: 0,
     })
-    const first = await firstTask.save()
+    await firstTask.save()
     const second = await secondTask.save()
 
     const allTasks = await api
@@ -565,7 +565,7 @@ describe('Tasks', () => {
 
     expect(inMiddleViewsTask.body.views).toBe(3)
 
-    finalViewsTask = await api
+    const finalViewsTask = await api
       .put(`/api/task/${viewTask.id}/accept`)
       .set('authorization', `bearer ${token}`)
       .expect(200)
@@ -917,7 +917,7 @@ describe('Tasks', () => {
       .send(body)
       .expect(200)
       .expect('Content-Type', /application\/zip/)
-  })*/
+  }) */
 })
 
 afterAll(async () => {

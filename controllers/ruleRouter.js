@@ -1,15 +1,8 @@
 const ruleRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
+const { getTokenFrom } = require('../utils/routerHelp')
 const Rule = require('../models/rule')
 const Task = require('../models/task')
-
-const getTokenFrom = (req) => {
-  const auth = req.get('authorization')
-  if (auth && auth.toLowerCase().startsWith('bearer ')) {
-    return auth.substring(7)
-  }
-  return null
-}
 
 ruleRouter.get('/', async (req, res, next) => {
   try {

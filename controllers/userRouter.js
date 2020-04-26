@@ -1,15 +1,8 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const userRouter = require('express').Router()
+const { getTokenFrom } = require('../utils/routerHelp')
 const User = require('../models/user')
-
-const getTokenFrom = (req) => {
-  const auth = req.get('authorization')
-  if (auth && auth.toLowerCase().startsWith('bearer ')) {
-    return auth.substring(7)
-  }
-  return null
-}
 
 userRouter.get('/', async (req, res, next) => {
   try {
@@ -87,7 +80,7 @@ userRouter.put('/', async (req, res, next) => {
   const user = await User.findById(decodedToken.id)
 
   if (!user) {
-    return response.status(401).json({ error: 'user not found' })
+    return res.status(401).json({ error: 'user not found' })
   }
 
   let { name } = user
@@ -152,7 +145,7 @@ userRouter.put('/', async (req, res, next) => {
   }
 
   User.findByIdAndUpdate(user.id, updatedUser, { new: true })
-    .then((updatedUser) => {
+    .then(() => {
       res.json({
         token,
         name: updatedUser.name,

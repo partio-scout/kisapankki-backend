@@ -1,14 +1,7 @@
 const commentRouter = require('express').Router()
 const jwt = require('jsonwebtoken')
+const { getTokenFrom } = require('../utils/routerHelp')
 const Comment = require('../models/comment')
-
-const getTokenFrom = (req) => {
-  const auth = req.get('authorization')
-  if (auth && auth.toLowerCase().startsWith('bearer ')) {
-    return auth.substring(7)
-  }
-  return null
-}
 
 commentRouter.get('/', async (req, res, next) => {
   try {

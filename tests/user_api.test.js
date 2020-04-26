@@ -12,7 +12,7 @@ beforeAll(async () => {
   await User.deleteMany({})
 
   const saltRounds = 10
-  password = await bcrypt.hash('testWord', saltRounds)
+  const password = await bcrypt.hash('testWord', saltRounds)
 
   const userOne = new User({
     name: 'test1',
