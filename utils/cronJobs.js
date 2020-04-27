@@ -67,7 +67,7 @@ const mailJob = new CronJob('00 00 17 */2 * *', async () => {
   }
 }, null, true, 'Europe/Helsinki')
 
-const pingJob = new CronJob('* */5 * * * *', async () => {
+const pingJob = new CronJob('00 */5 * * * *', async () => {
   const time = new Date()
   logger.info('Ping pong! It is', time.toUTCString())
   http.get('http://kisapankki-staging.herokuapp.com')
