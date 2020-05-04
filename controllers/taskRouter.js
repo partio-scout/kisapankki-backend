@@ -16,9 +16,12 @@ const Series = require('../models/series')
 const Rule = require('../models/rule')
 const Comment = require('../models/comment')
 
+// Used to temporarily store picture data sent from frontend
 const inMemoryStorage = multer.memoryStorage()
 const uploadStrategy = multer({ storage: inMemoryStorage }).single('logo')
 
+// Initializes or adds to list of tasks in language, series, rules and categories
+// param target is instance of language, rules, series or category
 const updatePointerList = async (taskId, target) => {
   if (target) {
     if (target.task == null || target.task.length === 0) {
@@ -30,6 +33,8 @@ const updatePointerList = async (taskId, target) => {
   }
 }
 
+// Remove pointer to task from task list of language, rules, series or category
+// param target is instance of language, rules, series or category
 const removeFromPointerList = async (taskId, target) => {
   if (target) {
     target.task = target.task.filter((id) => String(id) !== String(taskId))
@@ -37,6 +42,7 @@ const removeFromPointerList = async (taskId, target) => {
   }
 }
 
+// Fetch and return all tasks, populate pointers
 taskRouter.get('/', async (req, res, next) => {
   try {
     const tasks = await Task.find({ pending: false })
@@ -51,6 +57,8 @@ taskRouter.get('/', async (req, res, next) => {
   }
 })
 
+// Fetch and return task that are waiting for admin acceptance, populate pointers
+// Requires valid login token
 taskRouter.get('/pending', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -75,6 +83,9 @@ taskRouter.get('/pending', async (req, res, next) => {
   }
 })
 
+// Create and save new task
+// Created tasks with valid token in request are auto accepted
+// Return saved task with populated pointers
 taskRouter.post('/', async (req, res, next) => {
   const { body } = req
   let pen = true
@@ -157,6 +168,8 @@ taskRouter.post('/', async (req, res, next) => {
   }
 })
 
+// Fetch and return task with specified id
+// Pointers populated
 taskRouter.get('/:id', async (req, res, next) => {
   try {
     const task = await Task.findById(req.params.id)
@@ -175,6 +188,8 @@ taskRouter.get('/:id', async (req, res, next) => {
   }
 })
 
+// Update specified tasks information, requires valid token
+// Return updated task
 taskRouter.put('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -194,6 +209,7 @@ taskRouter.put('/:id', async (req, res, next) => {
         task.creatorName = body.creatorName
         task.creatorEmail = body.creatorEmail
         task.files = body.files
+        // Update series pointers if list has been changed
         if (task.series.toString() !== body.series.toString()) {
           const currentSer = await Series.find({ _id: { $in: task.series } })
           const newSer = await Series.find({ _id: { $in: task.series } })
@@ -205,6 +221,7 @@ taskRouter.put('/:id', async (req, res, next) => {
           })
           task.series = body.series
         }
+        // Update category pointer if changed
         if (String(task.category) !== String(body.category)) {
           const currentCat = await Category.findById(task.category)
           const newCat = await Category.findById(body.category)
@@ -212,6 +229,7 @@ taskRouter.put('/:id', async (req, res, next) => {
           removeFromPointerList(task.id, currentCat)
           task.category = body.category
         }
+        // Update rules pointer if changed
         if (String(task.rules) !== String(body.rule)) {
           const currentRule = await Rule.findById(task.rules)
           const newRule = await Rule.findById(body.rule)
@@ -219,6 +237,7 @@ taskRouter.put('/:id', async (req, res, next) => {
           removeFromPointerList(task.id, currentRule)
           task.rules = body.rule
         }
+        // Update language pointer if changed
         if (String(task.language) !== String(body.language)) {
           const currentLang = await Language.findById(task.language)
           const newLang = await Language.findById(body.language)
@@ -244,6 +263,8 @@ taskRouter.put('/:id', async (req, res, next) => {
   }
 })
 
+// Delete specified task and all pointers to it
+// Requires valid token
 taskRouter.delete('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -263,6 +284,7 @@ taskRouter.delete('/:id', async (req, res, next) => {
           removeFromPointerList(task.id, rules)
           removeFromPointerList(task.id, lang)
           const comments = await Comment.find({ task: task.id })
+          // Remove all task related comments
           comments.forEach( async (comment) => {
             await Comment.findByIdAndRemove(comment.id)
           })
@@ -284,6 +306,7 @@ taskRouter.delete('/:id', async (req, res, next) => {
   }
 })
 
+// Change tasks pending state, return views count to 0
 taskRouter.put('/:id/accept', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -306,6 +329,7 @@ taskRouter.put('/:id/accept', async (req, res, next) => {
   }
 })
 
+// Search and return non pending tasks with specified search term in name or assignment
 taskRouter.post('/search', async (req, res, next) => {
   const { search } = req.body
   try {
@@ -322,6 +346,7 @@ taskRouter.post('/search', async (req, res, next) => {
   }
 })
 
+// Increments specified tasks view count
 taskRouter.post('/:id/views', async (req, res, next) => {
   try {
     const task = await Task.findById(req.params.id)
@@ -333,6 +358,8 @@ taskRouter.post('/:id/views', async (req, res, next) => {
   }
 })
 
+// Add rating to specified task, Update tasks rating list, amount and average
+// Return updated rating data
 taskRouter.post('/:id/rate', async (req, res, next) => {
   try {
     const { rating } = req.body
@@ -358,6 +385,7 @@ taskRouter.post('/:id/rate', async (req, res, next) => {
   }
 })
 
+// Create and send PDF made from single task
 taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
   try {
     const { id } = req.params
@@ -366,14 +394,22 @@ taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
       .populate('category', 'name')
       .populate('rules', 'name')
       .exec()
+    // Get competition name, time, place and type
     const contestInfo = JSON.parse(req.body.competition)
+    // Competition logo, attached to right upper corner of pdf
     const logo = req.file
+    // Specify pdf files name in response
     res.attachment(`${printedTask.name}.pdf`)
+    // Create md text object for mdToPdf
     const mdContent = createContentForPDF(printedTask, logo, contestInfo)
+    // Creates object with fields filename and content, content is in <Buffer> form
     const pdf = await mdToPdf({ content: mdContent })
+    // Write pdf file with specified name
     fs.writeFileSync(`${printedTask.name}.pdf`, pdf.content)
+    // Create readstream from created file and pipe it to frontend
     const file = fs.createReadStream(`${printedTask.name}.pdf`)
     file.on('end', () => {
+      // Delete file after it is read and sent
       fs.unlink(`${printedTask.name}.pdf`, (err) => {
         if (err) throw err
       })
@@ -384,23 +420,31 @@ taskRouter.post('/:id/pdf', uploadStrategy, async (req, res, next) => {
   }
 })
 
+// Create multiple PDFs and return them as zip file
+// Task PDFs and their attachment files organized in directories
 taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
   try {
     const idList = JSON.parse(req.body.competition).tasks
     const contestInfo = JSON.parse(req.body.competition)
     const logo = req.file
+    // "switch" for preventing file deletion and zip finalization before all files are appended
     let filesReady = false
     const archive = archiver('zip')
+    // Specify zip file name 
     res.attachment('Rastit.zip')
+    // pipe the zip as response
     archive.pipe(res)
     const taskList = await Task.find({ _id: { $in: idList } })
       .populate('series', 'name')
       .populate('category', 'name')
       .populate('rules', 'name')
       .exec()
+    // List used to delete created PDFs after zipping and shipping
     const pdfNameList = taskList.map((task) => `${task.name}.pdf`)
+    // List used to fetch file data from azure blob storage
     let fileNameList = []
     taskList.map((task) => { fileNameList = fileNameList.concat(task.files) })
+    // List used to organize the PDFs and their files into correct directories
     let taskJSON = []
     taskList.map((task) => {
       const newTaskJSON = {
@@ -410,20 +454,28 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
       }
       taskJSON = taskJSON.concat(newTaskJSON)
     })
+    // Fetch files from Blob storage
     await downloadBlobs(fileNameList)
     for (let i = 0; i < taskList.length; i++) {
+      // Create MD text object for mdToPdf
       const mdContent = createContentForPDF(taskList[i], logo, contestInfo)
+      // Creates object with fields filename and content, content is in <Buffer> form
       const pdf = await mdToPdf({ content: mdContent })
+      // Write files and toggle filesready "switch" when everything is written
       fs.writeFileSync(`${taskList[i].name}.pdf`, pdf.content)
       if (i === taskList.length - 1) {
         filesReady = true
       }
     }
 
+    // Create directories to the zip file and push PDFs and other files to them
     const zippedPDFs = await zipMaterials(archive, taskJSON)
     while (true) {
+      // If all files are written
       if (filesReady) {
+        // finalize zip -> It is piped to frontend
         zippedPDFs.finalize()
+        // Wait 2000 ms and delete all PDFs and other files
         setTimeout(() => {
           pdfNameList.map((pdf) => {
             fs.unlink(pdf, (err) => {
@@ -438,6 +490,7 @@ taskRouter.post('/pdf', uploadStrategy, async (req, res, next) => {
         }, 2000)
         break
       } else {
+        // If all files are not written, wait 500 ms
         setTimeout(() => { logger.info('creating files...') }, 500)
       }
     }

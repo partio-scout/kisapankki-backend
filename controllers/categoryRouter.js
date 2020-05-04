@@ -5,6 +5,7 @@ const Category = require('../models/category')
 const Task = require('../models/task')
 const Rule = require('../models/rule')
 
+// Fetch all categories, populate pointers
 categoryRouter.get('/', async (req, res, next) => {
   try {
     const categories = await Category.find({})
@@ -16,6 +17,7 @@ categoryRouter.get('/', async (req, res, next) => {
   }
 })
 
+// Add new category, requires valid token
 categoryRouter.post('/', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -40,6 +42,7 @@ categoryRouter.post('/', async (req, res, next) => {
   }
 })
 
+// Delete category and all pointer to it, requires valid token
 categoryRouter.delete('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -72,6 +75,7 @@ categoryRouter.delete('/:id', async (req, res, next) => {
   }
 })
 
+// Update category name, requires valid token
 categoryRouter.put('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)

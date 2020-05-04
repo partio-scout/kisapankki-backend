@@ -4,6 +4,7 @@ const userRouter = require('express').Router()
 const { getTokenFrom } = require('../utils/routerHelp')
 const User = require('../models/user')
 
+// Return all saved users
 userRouter.get('/', async (req, res, next) => {
   try {
     const users = await User.find({})
@@ -13,6 +14,7 @@ userRouter.get('/', async (req, res, next) => {
   }
 })
 
+// create new user, return saved object
 userRouter.post('/', async (req, res, next) => {
   const { body } = req
 
@@ -45,6 +47,7 @@ userRouter.post('/', async (req, res, next) => {
   }
 })
 
+// Path used to create the first admin user, return saved object
 userRouter.post('/adminkey', async (req, res, next) => {
   const { body } = req
   if (body.adminKey === process.env.ADMIN_KEY) {
@@ -68,6 +71,7 @@ userRouter.post('/adminkey', async (req, res, next) => {
   }
 })
 
+// Update user information, return updated information
 userRouter.put('/', async (req, res, next) => {
   const { body } = req
 

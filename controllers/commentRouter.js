@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken')
 const { getTokenFrom } = require('../utils/routerHelp')
 const Comment = require('../models/comment')
 
+// Fetch all comments
 commentRouter.get('/', async (req, res, next) => {
   try {
     const comments = await Comment.find({})
@@ -12,6 +13,7 @@ commentRouter.get('/', async (req, res, next) => {
   }
 })
 
+// Fetch all comments waiting for acceptance, requires valid token
 commentRouter.get('/pending', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -31,6 +33,7 @@ commentRouter.get('/pending', async (req, res, next) => {
   }
 })
 
+// Fetch single non pending comment
 commentRouter.get('/:id', async (req, res, next) => {
   try {
     const comments = await Comment.find({ task: req.params.id, pending: false })
@@ -40,6 +43,7 @@ commentRouter.get('/:id', async (req, res, next) => {
   }
 })
 
+// Add comment, additions with valid token in request are auto accepted
 commentRouter.post('/', async (req, res, next) => {
   const { body } = req
   let pen = true
@@ -65,6 +69,7 @@ commentRouter.post('/', async (req, res, next) => {
   }
 })
 
+// Delete comment, requires valid token
 commentRouter.delete('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -84,6 +89,7 @@ commentRouter.delete('/:id', async (req, res, next) => {
   }
 })
 
+// Accept comment, requires valid token
 commentRouter.put('/:id/accept', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)

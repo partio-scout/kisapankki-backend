@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const loginRouter = require('express').Router()
 const User = require('../models/user')
 
+// Check validity of credentials, if correct -> assign token 
 loginRouter.post('/', async (req, res) => {
   const { body } = req
 

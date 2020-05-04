@@ -4,6 +4,7 @@ const { getTokenFrom } = require('../utils/routerHelp')
 const Rule = require('../models/rule')
 const Task = require('../models/task')
 
+// Fetch all rules, populate pointers
 ruleRouter.get('/', async (req, res, next) => {
   try {
     const rules = await Rule.find({})
@@ -16,6 +17,7 @@ ruleRouter.get('/', async (req, res, next) => {
   }
 })
 
+// Add new rules, requires valid token
 ruleRouter.post('/', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -43,6 +45,7 @@ ruleRouter.post('/', async (req, res, next) => {
   }
 })
 
+// Delete specified rules and all pointers to them, requires valid token
 ruleRouter.delete('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -71,6 +74,7 @@ ruleRouter.delete('/:id', async (req, res, next) => {
   }
 })
 
+// Update rules name or list of accepted categories
 ruleRouter.put('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)

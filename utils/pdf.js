@@ -1,3 +1,4 @@
+// This text object determines how the content is displayed in PDFs, modifications here modify the PDFs layout
 const createContentForPDF = (printedTask, logo, contestInfo) => {
   const competitionInfo = `<br/>
       <br/>
@@ -5,6 +6,7 @@ const createContentForPDF = (printedTask, logo, contestInfo) => {
       ${contestInfo.date}<br/>
       ${contestInfo.place}<br/>
       ${contestInfo.type}<br/>`
+  // Styles for layout
   let joinedText = `<style>
     .col2 {
       columns: 2 100px;
@@ -22,6 +24,7 @@ const createContentForPDF = (printedTask, logo, contestInfo) => {
   </style> \n`
   joinedText += `<div class="col2" markdown="1">
   <div class="col1" style="text-align: left;" markdown="1">${competitionInfo}</div>`
+  // If logo is not given, default black scouts of finland logo is used 
   if (logo) {
     joinedText += `<div class="col1" style="text-align: right;"><img height="110" width="110" alt="logo" src="data:image/png;base64,${logo.buffer.toString('base64')}"></div></div>`
   } else {
