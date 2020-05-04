@@ -4,6 +4,7 @@ const { getTokenFrom } = require('../utils/routerHelp')
 const Series = require('../models/series')
 const Task = require('../models/task')
 
+// Fetch all series, populate pointers
 seriesRouter.get('/', async (req, res, next) => {
   try {
     const series = await Series.find({})
@@ -15,6 +16,7 @@ seriesRouter.get('/', async (req, res, next) => {
   }
 })
 
+// Add new series, requires valid token
 seriesRouter.post('/', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -40,6 +42,7 @@ seriesRouter.post('/', async (req, res, next) => {
   }
 })
 
+// Delete series and remove all pointers to it, requires valid token
 seriesRouter.delete('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -68,6 +71,7 @@ seriesRouter.delete('/:id', async (req, res, next) => {
   }
 })
 
+// Update name and color of series 
 seriesRouter.put('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)

@@ -13,6 +13,7 @@ const uploadStrategy = multer({ storage: inMemoryStorage }).array('filesToAdd')
 
 const containerName = 'files'
 
+// Init blob service 
 const blobService = azureStorage.createBlobService(account, accountKey)
 blobService.createContainerIfNotExists(containerName, { publicAccessLevel: 'blob' }, (error) => {
   if (error) {
@@ -20,11 +21,13 @@ blobService.createContainerIfNotExists(containerName, { publicAccessLevel: 'blob
   }
 })
 
+// create unique blob name for storing
 const getBlobName = (originalName) => {
   const identifier = Math.random().toString().replace(/0\./, '')
   return `${identifier}-${originalName}`
 }
 
+// Delete blobs if list is given, Add files to blob storage
 fileRouter.post('/', uploadStrategy, (req, res) => {
   if (req.body.filesToDelete && req.body.filesToDelete.length > 0) {
     const filesToDelete = req.body.filesToDelete.split(',')

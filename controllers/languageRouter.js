@@ -4,6 +4,7 @@ const { getTokenFrom } = require('../utils/routerHelp')
 const Language = require('../models/language')
 const Task = require('../models/task')
 
+// Fetch all languages, populate pointers
 languageRouter.get('/', async (req, res, next) => {
   try {
     const languages = await Language.find({})
@@ -15,6 +16,7 @@ languageRouter.get('/', async (req, res, next) => {
   }
 })
 
+// Add new language, requires valid token
 languageRouter.post('/', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -41,6 +43,7 @@ languageRouter.post('/', async (req, res, next) => {
   }
 })
 
+// Delete language and all pointers to it, requires valid token
 languageRouter.delete('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)
@@ -68,6 +71,7 @@ languageRouter.delete('/:id', async (req, res, next) => {
   }
 })
 
+// Update languages name
 languageRouter.put('/:id', async (req, res, next) => {
   if (req.get('authorization')) {
     const token = getTokenFrom(req)

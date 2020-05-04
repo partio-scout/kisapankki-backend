@@ -7,6 +7,7 @@ const logger = require('./logger')
 const Task = require('../models/task')
 const User = require('../models/user')
 
+// Cron job used to send notification emails from pending tasks
 const mailJob = new CronJob('00 00 17 */2 * *', async () => {
   try {
     const pendingTasks = await Task.find({ pending: true })
@@ -30,6 +31,7 @@ const mailJob = new CronJob('00 00 17 */2 * *', async () => {
         })
 
         mailOptions = {
+          // Change this sender to match the one in use
           from: 'Kisatehtäväpankki <partioprojekti@gmail.com>',
           to: emailList,
           subject: 'Hyväksymättömiä tehtäviä kisatehtäväpankissa',
@@ -45,6 +47,7 @@ const mailJob = new CronJob('00 00 17 */2 * *', async () => {
         }))
 
         mailOptions = {
+          // Change this sender to match the one in use
           from: 'Kisatehtäväpankki <partioprojekti@gmail.com>',
           to: emailList,
           replyTo: config.EMAIL_USER,
@@ -67,9 +70,11 @@ const mailJob = new CronJob('00 00 17 */2 * *', async () => {
   }
 }, null, true, 'Europe/Helsinki')
 
+// Cron job used to keep the App awake
 const pingJob = new CronJob('00 */5 * * * *', async () => {
   const time = new Date()
   logger.info('Ping pong! It is', time.toUTCString())
+  // Address to be pinged
   http.get('http://kisapankki-staging.herokuapp.com')
 }, null, true, 'Europe/Helsinki')
 
