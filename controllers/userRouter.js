@@ -25,7 +25,17 @@ userRouter.post('/', async (req, res, next) => {
   }
 
   if (!body.name || !body.username || !body.password || !body.email) {
-    return res.status(400).json({ error: 'name, username, email, password missing' })
+    return res.status(400).json({ error: 'name, username, email or password missing' })
+  }
+
+  if (body.username) {
+    if (body.username.length < 3) {
+      return res.status(400).json({ error: 'too short username' })
+    }
+    const foundUser = await User.findOne({ username: body.username })
+    if (foundUser) {
+      return res.status(400).json({ error: 'username already exists' })
+    }
   }
 
   const saltRounds = 10
@@ -112,12 +122,8 @@ userRouter.put('/', async (req, res, next) => {
   }
 
   if (body.email) {
-    if (body.email.length < 3) {
+    if (body.email.length < 5) {
       return res.status(400).json({ error: 'too short email' })
-    }
-    const foundUser = await User.findOne({ email: body.email })
-    if (foundUser && foundUser.email !== user.email) {
-      return res.status(400).json({ error: 'email already been in use' })
     }
     email = body.email
   }
