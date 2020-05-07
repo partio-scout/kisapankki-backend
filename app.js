@@ -20,6 +20,7 @@ const middleware = require('./utils/middleware')
 const app = express()
 mongoose.set('useFindAndModify', false)
 
+// Development stage (local) database connector
 if (config.APPLICATION_STAGE === 'DEV') {
   logger.info('Connecting to', config.MONGODB_URI)
 
@@ -36,6 +37,7 @@ if (config.APPLICATION_STAGE === 'DEV') {
     })
 }
 
+// Production stage (heroku e.g.) database connector
 if (config.APPLICATION_STAGE === 'PROD') {
   logger.info('Connecting to', config.COSMOS_DB_URI)
 
