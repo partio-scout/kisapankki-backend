@@ -35,7 +35,7 @@
     "get-port": "^5.1.1",
     "get-stdin": "^7.0.0",
     "gray-matter": "^4.0.2",
-    "highlight.js": "^9.18.1",
+    "highlight.js": "^10.4.1",
     "iconv-lite": "^0.5.1",
     "into-stream": "^5.1.1",
     "jest": "^25.1.0",
