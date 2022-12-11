@@ -31,7 +31,7 @@
     "cors": "^2.8.5",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "get-port": "^5.1.1",
     "get-stdin": "^7.0.0",
     "gray-matter": "^4.0.2",
